@@ -12,5 +12,7 @@ dependencyResolutionManagement {
     }
 }
 
+include(":aspectk-annotations")
+
 rootProject.name = "AspectK"
 
