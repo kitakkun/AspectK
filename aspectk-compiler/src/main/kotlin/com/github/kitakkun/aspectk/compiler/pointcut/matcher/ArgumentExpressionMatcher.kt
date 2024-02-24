@@ -26,13 +26,17 @@ class ArgumentExpressionMatcher(private val argumentExpression: ArgumentExpressi
                 }
 
                 is ArgumentMatchingExpression.Vararg -> {
-                    return classId == argMatchingExpression.classId && index == valueParameterClassIds.size - 1 && lastIsVarArg
+                    // FIXME: generate matcher instance here may cause performance issue
+                    val typeMatcher = TypeMatchingExpressionMatcher(argMatchingExpression.expression)
+                    return (typeMatcher.matches(classId.packageFqName.asString(), classId.relativeClassName.asString()))
+                        && (index == valueParameterClassIds.size - 1)
+                        && lastIsVarArg
                 }
 
                 is ArgumentMatchingExpression.Type -> {
                     // FIXME: generate matcher instance here may cause performance issue
                     val typeMatcher = TypeMatchingExpressionMatcher(argMatchingExpression.expression)
-                    if (typeMatcher.matches(classId.packageFqName.asString(), classId.shortClassName.asString())) {
+                    if (typeMatcher.matches(classId.packageFqName.asString(), classId.relativeClassName.asString())) {
                         argMatchingExpressionCursor++
                     } else {
                         return false

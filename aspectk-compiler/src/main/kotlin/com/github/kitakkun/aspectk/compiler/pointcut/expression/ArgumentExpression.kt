@@ -1,7 +1,5 @@
 package com.github.kitakkun.aspectk.compiler.pointcut.expression
 
-import org.jetbrains.kotlin.name.ClassId
-
 data class ArgumentExpression(val args: List<ArgumentMatchingExpression>)
 
 sealed interface ArgumentMatchingExpression {
@@ -25,7 +23,7 @@ sealed interface ArgumentMatchingExpression {
      * "..." expression
      * matches vararg argument
      */
-    data class Vararg(val classId: ClassId) : ArgumentMatchingExpression
+    data class Vararg(val expression: TypeMatchingExpression) : ArgumentMatchingExpression
 
     /**
      * type expression

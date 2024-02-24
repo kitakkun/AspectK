@@ -68,7 +68,7 @@ class ArgumentExpressionMatcherTest {
         val expression = ArgumentExpression(
             listOf(
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "String")),
-                ArgumentMatchingExpression.Vararg(classId("kotlin", "Int")),
+                ArgumentMatchingExpression.Vararg(TypeMatchingExpression.Class("kotlin", "Int")),
             )
         )
         val argsMatcher = ArgumentExpressionMatcher(expression)
