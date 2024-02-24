@@ -9,18 +9,20 @@ import kotlin.test.assertEquals
 class PointcutExpressionLexerTest {
     @Test
     fun testExecution() {
-        val scanner = AspectKPointcutExpressionLexer("execution(public * *(..))")
+        val scanner = AspectKPointcutExpressionLexer("execution(public *  *(..))")
         val tokens = scanner.analyze()
-        assertEquals(9, tokens.size)
+        assertEquals(11, tokens.size)
         assertEquals(AspectKToken(AspectKTokenType.EXECUTION, "execution"), tokens[0])
         assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[1])
         assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "public"), tokens[2])
-        assertEquals(AspectKToken(AspectKTokenType.STAR, "*"), tokens[3])
+        assertEquals(AspectKToken(AspectKTokenType.WHITESPACES, " "), tokens[3])
         assertEquals(AspectKToken(AspectKTokenType.STAR, "*"), tokens[4])
-        assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[5])
-        assertEquals(AspectKToken(AspectKTokenType.DOUBLE_DOT, ".."), tokens[6])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[7])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[8])
+        assertEquals(AspectKToken(AspectKTokenType.WHITESPACES, "  "), tokens[5])
+        assertEquals(AspectKToken(AspectKTokenType.STAR, "*"), tokens[6])
+        assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[7])
+        assertEquals(AspectKToken(AspectKTokenType.DOUBLE_DOT, ".."), tokens[8])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[9])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[10])
     }
 
     @Test

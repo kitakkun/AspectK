@@ -53,7 +53,14 @@ class AspectKPointcutExpressionLexer(private val expression: String) {
             '.' -> if (match('.')) addToken(AspectKTokenType.DOUBLE_DOT) else addToken(AspectKTokenType.DOT)
             ',' -> addToken(AspectKTokenType.COMMA)
             '?' -> addToken(AspectKTokenType.QUESTION)
-            ' ' -> {} /* Ignore whitespace */
+            ' ' -> {
+                while(peek() == ' ') {
+                    advance()
+                }
+                // whitespace is required to recognize arguments boundary
+                // for execution expression
+                addToken(AspectKTokenType.WHITESPACES)
+            }
             '@' -> annotation()
             else -> identifier()
         }
