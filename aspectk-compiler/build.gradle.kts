@@ -9,4 +9,6 @@ dependencies {
     implementation(libs.kotlin.compiler.embeddable)
     compileOnly(libs.auto.service)
     ksp(libs.auto.service.ksp)
+
+    testImplementation(kotlin("test"))
 }
