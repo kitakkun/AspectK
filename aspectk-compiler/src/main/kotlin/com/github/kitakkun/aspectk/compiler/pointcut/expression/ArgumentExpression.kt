@@ -30,8 +30,8 @@ sealed interface ArgumentMatchingExpression {
     /**
      * type expression
      * matches specific type of argument
-     * ex) kotlin/String
+     * see [TypeMatchingExpression]
      */
-    data class Type(val classId: ClassId) : ArgumentMatchingExpression
+    data class Type(val expression: TypeMatchingExpression) : ArgumentMatchingExpression
 }
 

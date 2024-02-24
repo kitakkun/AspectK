@@ -30,7 +30,9 @@ class ArgumentExpressionMatcher(private val argumentExpression: ArgumentExpressi
                 }
 
                 is ArgumentMatchingExpression.Type -> {
-                    if (classId == argMatchingExpression.classId) {
+                    // FIXME: generate matcher instance here may cause performance issue
+                    val typeMatcher = TypeMatchingExpressionMatcher(argMatchingExpression.expression)
+                    if (typeMatcher.matches(classId.packageFqName.asString(), classId.shortClassName.asString())) {
                         argMatchingExpressionCursor++
                     } else {
                         return false
