@@ -1,8 +1,5 @@
-package com.github.kitakkun.aspectk.compiler.lexer
+package com.github.kitakkun.aspectk.expression.lexer
 
-import com.github.kitakkun.aspectk.expression.lexer.AspectKPointcutExpressionLexer
-import com.github.kitakkun.aspectk.expression.lexer.AspectKToken
-import com.github.kitakkun.aspectk.expression.lexer.AspectKTokenType
 import org.junit.Test
 import kotlin.test.assertEquals
 
