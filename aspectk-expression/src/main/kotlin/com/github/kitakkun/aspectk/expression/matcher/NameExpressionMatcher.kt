@@ -1,6 +1,6 @@
-package com.github.kitakkun.aspectk.compiler.pointcut.matcher
+package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.compiler.pointcut.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameExpression
 
 class NameExpressionMatcher(val expression: NameExpression) {
     fun matches(name: String): Boolean {

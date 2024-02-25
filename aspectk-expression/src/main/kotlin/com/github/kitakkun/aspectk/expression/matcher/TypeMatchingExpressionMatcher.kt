@@ -1,6 +1,6 @@
-package com.github.kitakkun.aspectk.compiler.pointcut.matcher
+package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.compiler.pointcut.expression.TypeMatchingExpression
+import com.github.kitakkun.aspectk.expression.TypeMatchingExpression
 
 class TypeMatchingExpressionMatcher(private val expression: TypeMatchingExpression) {
     fun matches(packageName: String, className: String): Boolean {

@@ -1,4 +1,4 @@
-package com.github.kitakkun.aspectk.compiler.pointcut.lexer
+package com.github.kitakkun.aspectk.expression.lexer
 
 class AspectKPointcutExpressionLexer(private val expression: String) {
     private val tokens = mutableListOf<AspectKToken>()

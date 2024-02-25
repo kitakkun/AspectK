@@ -1,4 +1,4 @@
-package com.github.kitakkun.aspectk.compiler.pointcut.expression
+package com.github.kitakkun.aspectk.expression
 
 data class ArgumentExpression(val args: List<ArgumentMatchingExpression>) : AspectKExpression
 
