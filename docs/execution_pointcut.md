@@ -6,15 +6,21 @@ If you learn `execution` pointcut, it means that you can do most of the things w
 `execution` pointcut follows the following pattern:
 
 ```
-execution(modifiers? scopeMatcher?::functionMatcher(argMatcher) : returnTypeMatcher?)
+execution(modifiers? (extension|companion)? package?::class?.function(args?) : returnType? (in extension-package)?)
 ```
 
 `?` means that its part can be omitted in a specific case.
 
+Also, you can use `*` for wildcard matching. It's available for `package`, `class`, `function`, `args`, `returnType`, and `extension-package` parts respectively.
+
+It looks like a bit complex, but it's not so difficult and flexible enough!
+
 ## Basics
 
 ### Basic top-level function example
-`execution(public com/example::foo() : Unit)`
+
+`execution(com.example::foo())`
+
 ```kotlin
 package com.example
 
@@ -22,7 +28,9 @@ fun foo() {}
 ```
 
 ### Basic class method example
-`execution(public com/example/A::foo() : Unit)`
+
+`execution(com.example::A.foo())`
+
 ```kotlin
 package com.example
 
@@ -32,7 +40,9 @@ class A {
 ```
 
 ### Nested class example
-`execution(public com/example/A/B::foo() : Unit)`
+
+`execution(com.example::A.B.foo())`
+
 ```kotlin
 package com.example
 
@@ -45,7 +55,8 @@ class A {
 
 ### Nested top-level function example
 
-`execution(public com/example::parent.foo() : Unit)`
+`execution(com.example::parent().foo())`
+
 ```kotlin
 package com.example
 
@@ -54,9 +65,10 @@ fun parent() {
 }
 ```
 
-
 ### Extension function example
-`execution(public com/example/extension::com/example/A#foo() : Unit)`
+
+`execution(extension com.example::A.foo() : Unit in com.example.extension)`
+
 ```kotlin
 package com.example
 
@@ -72,18 +84,34 @@ fun A.foo() {}
 ## Wildcard examples
 
 You can use '`*`' to match any pattern (0 or more characters).
+It's available in `package`, `class`, `function`, `args`, `returnType`, and `extension-package` parts.
 
-- partial matching of function. (e.g. `foo*()` matches all functions whose name starts with `foo`)
-- matching any class in package. (e.g. `com/example/*` matches all classes in `com.example` package)
-- matching any class under package. (e.g. `com/example/**` matches all classes in `com.example` package and its subpackages)
-- matching any class under package with specific name. (e.g. `com/example/**/A` matches all classes in `com.example` package and its subpackages that its name is `A`)
-- matching any class that its name starts with `A`. (e.g. `com/example/A*` matches all classes in `com.example` package that its name starts with `A`) 
-- matching any class that its name ends with `A`. (e.g. `com/example/*A` matches all classes in `com.example` package that its name ends with `A`)
+### Package
+
+- `com.example` matches all declarations in `com.example` package
+- `com.example*` matches all declarations in package whose name starts with `com.example` (ex: `com.example1`)
+- `com.example.*` matches all declarations in direct subpackages of `com.example` package (ex: `com.example.a`)
+- `com.example.**` matches all declarations in `com.example` package and its subpackages
+
+### Class
+
+- `Hoge` matches all classes named `Hoge
+- `Hoge*` matches all classes whose name starts with `Hoge`
+- `*Hoge` matches all classes whose name ends with `Hoge`
+
+### Function
+
+- `foo()` matches all functions named `foo`
+- `foo*()` matches all functions whose name starts with `foo`
+- `*foo()` matches all functions whose name ends with `foo`
 
 ## Abbreviation
 
-### Visibility modifier and Return type
-Let's think about the following function.
+Abbreviation rule is based on Kotlin's default visibility modifier and return type.
+
+### Modifiers
+
+If modifiers are omitted, AspectK assumes that it is `public` by default.
 
 ```kotlin
 package com.example
@@ -91,31 +119,31 @@ package com.example
 fun foo() {}
 ```
 
-We introduced the following matching expression previously.
-However, its somewhat verbose.
-
+So, two expressions below are equivalent.
 ```
-execution(public com/example::foo() : Unit)
+execution(public com/example::foo())
+execution(com.example::foo())
 ```
 
-The default visibility modifier is `public`, so you can omit `public` part.
+### Return type
+
+If return type is omitted, AspectK assumes that it is `Unit` by default.
+
+```kotlin
+package com.example
+
+fun foo() {}
+```
+
+So, two expressions below are equivalent.
 ```
 execution(com/example::foo() : Unit)
-```
-
-The default return type is `Unit`, so you can omit `: Unit` part as well.
-
-```
 execution(com/example::foo())
 ```
 
-Now it's much simpler, isn't it?
+### Package
 
-### Scope
-
-Though this is a not common case, you can also omit scope part in a specific case.
-See the following example.
-
+If declaration is top-level, and does not have package, you can omit package part.
 ```kotlin
 fun foo() {}
 
@@ -124,45 +152,37 @@ class A {
 }
 ```
 
-These are defined directly under kotlin directory, and have no package.
-
-In this case, you can omit package part (you can omit `::` part as well).
-
+So, two expressions below are equivalent.
 ```
+execution(::foo())
 execution(foo())
 ```
 
-However, if parent class is exist, you cannot omit `::` part.
-
+For `foo()` method inside `A` class, it will be like this.
 ```
-execution(A::foo())
+execution(::A.foo())
+execution(A.foo())
 ```
 
 ## Modifiers
 
-You can specify the modifier for the function. Multiple modifiers is allowed.
+You can specify the modifier for the function.
 
 - visibility: `public`, `protected`, `private`, `internal`
 - other: `final`, `open`, `abstract`, `override`, `inline`, `infix`, `operator`, `suspend`, `actual`, `expect`, `tailrec` ...
 
-example:
+Applying Multiple modifiers is allowed. example:
+
 ```
-execution(public override com/example/A::foo() : Unit)
+execution(public override com.example::A.foo() : Unit)
 ```
 
-## Scope
+## Package
 
-Scope part is used to determine the scope of the function.
-A function may be defined as a class method, a top-level function, or an extension function.
-
+`package` part is responsible for specifying the package of the function or its parent class, or its receiver class for extension function.
 > [!NOTE]
-> Scope part is responsible for understanding if it is a class method or a top-level function.
-> Recognizing extension function is a job for function matcher.
-
-basic-examples:
-- top-level function: `com/example`
-- method of a class: `com/example/A`
-- method of a nested class: `com/example/A.B`
+> For extension function, first `package` is the package of the receiver class, and the last `package` which is followed by `in` is the package of the extension function.
+> It's a bit tricky, but you can get used to it soon.
 
 ## Argument Matcher
 
@@ -176,12 +196,13 @@ basic-examples:
 
 advanced-examples:
 - `(..)` function has any number of parameters
-- `(String...)` function has single vararg parameter of type `String` 
+- `(String...)` function has single vararg parameter of type `String`
 - `(.., String...)` function has any number of parameters and vararg parameter of type `String` as the last parameter
 
 ## Return type
 
 basic-example:
+
 - `: Int` function returns `Int`
 - `: Unit` function returns `Unit`
 - `: *` function returns any type
