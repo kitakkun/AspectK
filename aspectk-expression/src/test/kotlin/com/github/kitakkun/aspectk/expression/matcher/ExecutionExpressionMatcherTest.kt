@@ -2,7 +2,7 @@ package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.*
 import org.jetbrains.kotlin.javac.resolve.classId
-import org.junit.Test
+import kotlin.test.Test
 
 class ExecutionExpressionMatcherTest {
     @Test

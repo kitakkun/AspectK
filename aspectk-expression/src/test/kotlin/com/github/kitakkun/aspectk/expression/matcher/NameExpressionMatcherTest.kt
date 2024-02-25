@@ -1,7 +1,7 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.NameExpression
-import org.junit.Test
+import kotlin.test.Test
 
 class NameExpressionMatcherTest {
     @Test

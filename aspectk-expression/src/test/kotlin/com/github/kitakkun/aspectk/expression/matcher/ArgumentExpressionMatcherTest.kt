@@ -4,7 +4,7 @@ import com.github.kitakkun.aspectk.expression.ArgumentMatchingExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.TypeMatchingExpression
 import org.jetbrains.kotlin.javac.resolve.classId
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class ArgumentExpressionMatcherTest {
