@@ -44,26 +44,49 @@ class AspectKPointcutExpressionLexer(private val expression: String) {
 
     private fun scanToken() {
         when (advance()) {
-            '(' -> addToken(AspectKTokenType.LEFT_PAREN)
-            ')' -> addToken(AspectKTokenType.RIGHT_PAREN)
+            '(' -> pointcutLiteral()
+
+            ')' -> {
+                // Right parenthesis is handled when matching left parenthesis
+                // FIXME: should throw an error if right parenthesis is found
+            }
+
             '&' -> if (match('&')) addToken(AspectKTokenType.AND)
             '|' -> if (match('|')) addToken(AspectKTokenType.OR)
             '!' -> addToken(AspectKTokenType.NOT)
-            '*' -> addToken(AspectKTokenType.STAR)
-            '.' -> if (match('.')) addToken(AspectKTokenType.DOUBLE_DOT) else addToken(AspectKTokenType.DOT)
-            ',' -> addToken(AspectKTokenType.COMMA)
-            '?' -> addToken(AspectKTokenType.QUESTION)
-            ' ' -> {
-                while(peek() == ' ') {
-                    advance()
-                }
-                // whitespace is required to recognize arguments boundary
-                // for execution expression
-                addToken(AspectKTokenType.WHITESPACES)
+            ' ' -> while (peek() == ' ') {
+                advance()
             }
+
             '@' -> annotation()
             else -> identifier()
         }
+    }
+
+    private fun pointcutLiteral() {
+        addToken(AspectKTokenType.LEFT_PAREN)
+        var parenthesisCount = 1
+
+        while (!isAtEnd && parenthesisCount > 0) {
+            val c = advance()
+            if (c == '(') {
+                parenthesisCount++
+            } else if (c == ')') {
+                parenthesisCount--
+            }
+        }
+
+        if (parenthesisCount > 0) {
+            error("Unmatched left parenthesis exists")
+        }
+
+        start += 1
+        current -= 1
+        addToken(AspectKTokenType.POINTCUT_STRING_LITERAL)
+
+        start = current
+        current += 1
+        addToken(AspectKTokenType.RIGHT_PAREN)
     }
 
     private fun annotation() {
@@ -84,6 +107,7 @@ class AspectKPointcutExpressionLexer(private val expression: String) {
             advance()
         }
         when (expression.substring(start, current)) {
+            // pointcut keywords
             "execution" -> addToken(AspectKTokenType.EXECUTION)
             "within" -> addToken(AspectKTokenType.WITHIN)
             "args" -> addToken(AspectKTokenType.ARGS)

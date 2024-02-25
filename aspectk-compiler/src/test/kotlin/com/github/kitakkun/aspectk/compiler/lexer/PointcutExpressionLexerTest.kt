@@ -11,62 +11,54 @@ class PointcutExpressionLexerTest {
     fun testExecution() {
         val scanner = AspectKPointcutExpressionLexer("execution(public *  *(..))")
         val tokens = scanner.analyze()
-        assertEquals(11, tokens.size)
+        assertEquals(4, tokens.size)
         assertEquals(AspectKToken(AspectKTokenType.EXECUTION, "execution"), tokens[0])
         assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[1])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "public"), tokens[2])
-        assertEquals(AspectKToken(AspectKTokenType.WHITESPACES, " "), tokens[3])
-        assertEquals(AspectKToken(AspectKTokenType.STAR, "*"), tokens[4])
-        assertEquals(AspectKToken(AspectKTokenType.WHITESPACES, "  "), tokens[5])
-        assertEquals(AspectKToken(AspectKTokenType.STAR, "*"), tokens[6])
-        assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[7])
-        assertEquals(AspectKToken(AspectKTokenType.DOUBLE_DOT, ".."), tokens[8])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[9])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[10])
+        assertEquals(AspectKToken(AspectKTokenType.POINTCUT_STRING_LITERAL, "public *  *(..)"), tokens[2])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[3])
+    }
+
+    @Test
+    fun emptyExecution() {
+        val scanner = AspectKPointcutExpressionLexer("execution()")
+        val tokens = scanner.analyze()
+        assertEquals(4, tokens.size)
+        assertEquals(AspectKToken(AspectKTokenType.EXECUTION, "execution"), tokens[0])
+        assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[1])
+        assertEquals(AspectKToken(AspectKTokenType.POINTCUT_STRING_LITERAL, ""), tokens[2])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[3])
     }
 
     @Test
     fun testAnnotatedArgs() {
-        val scanner = AspectKPointcutExpressionLexer("@args(com.example.TestAnnotation)")
+        val scanner = AspectKPointcutExpressionLexer("@args(com/example/TestAnnotation)")
         val tokens = scanner.analyze()
-        assertEquals(8, tokens.size)
+        assertEquals(4, tokens.size)
         assertEquals(AspectKToken(AspectKTokenType.ANNOTATED_ARGS, "@args"), tokens[0])
         assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[1])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "com"), tokens[2])
-        assertEquals(AspectKToken(AspectKTokenType.DOT, "."), tokens[3])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "example"), tokens[4])
-        assertEquals(AspectKToken(AspectKTokenType.DOT, "."), tokens[5])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "TestAnnotation"), tokens[6])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[7])
+        assertEquals(AspectKToken(AspectKTokenType.POINTCUT_STRING_LITERAL, "com/example/TestAnnotation"), tokens[2])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[3])
     }
 
     @Test
     fun testThis() {
-        val scanner = AspectKPointcutExpressionLexer("this(com.example.TestClass)")
+        val scanner = AspectKPointcutExpressionLexer("this(com/example/TestClass)")
         val tokens = scanner.analyze()
-        assertEquals(8, tokens.size)
+        assertEquals(4, tokens.size)
         assertEquals(AspectKToken(AspectKTokenType.THIS, "this"), tokens[0])
         assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[1])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "com"), tokens[2])
-        assertEquals(AspectKToken(AspectKTokenType.DOT, "."), tokens[3])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "example"), tokens[4])
-        assertEquals(AspectKToken(AspectKTokenType.DOT, "."), tokens[5])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "TestClass"), tokens[6])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[7])
+        assertEquals(AspectKToken(AspectKTokenType.POINTCUT_STRING_LITERAL, "com/example/TestClass"), tokens[2])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[3])
     }
 
     @Test
     fun testTarget() {
-        val scanner = AspectKPointcutExpressionLexer("target(com.example.TestClass)")
+        val scanner = AspectKPointcutExpressionLexer("target(com/example/TestClass)")
         val tokens = scanner.analyze()
-        assertEquals(8, tokens.size)
+        assertEquals(4, tokens.size)
         assertEquals(AspectKToken(AspectKTokenType.TARGET, "target"), tokens[0])
         assertEquals(AspectKToken(AspectKTokenType.LEFT_PAREN, "("), tokens[1])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "com"), tokens[2])
-        assertEquals(AspectKToken(AspectKTokenType.DOT, "."), tokens[3])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "example"), tokens[4])
-        assertEquals(AspectKToken(AspectKTokenType.DOT, "."), tokens[5])
-        assertEquals(AspectKToken(AspectKTokenType.IDENTIFIER, "TestClass"), tokens[6])
-        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[7])
+        assertEquals(AspectKToken(AspectKTokenType.POINTCUT_STRING_LITERAL, "com/example/TestClass"), tokens[2])
+        assertEquals(AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"), tokens[3])
     }
 }
