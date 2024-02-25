@@ -7,11 +7,11 @@ import org.junit.Test
 class ExecutionExpressionMatcherTest {
     @Test
     fun testTopLevel() {
-        val expression = ExecutionExpression(
+        val expression = PointcutExpression.Execution(
             FunctionMatchingExpression.TopLevelFunction(
                 modifiers = setOf(FunctionModifier.PUBLIC),
                 name = NameExpression.Normal("test"),
-                argumentExpression = ArgumentExpression(emptyList()),
+                argumentExpression = PointcutExpression.Args(emptyList()),
                 returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
             )
         )
@@ -30,11 +30,11 @@ class ExecutionExpressionMatcherTest {
 
     @Test
     fun testTopLevelNoMatch() {
-        val expression = ExecutionExpression(
+        val expression = PointcutExpression.Execution(
             FunctionMatchingExpression.TopLevelFunction(
                 modifiers = setOf(FunctionModifier.PUBLIC),
                 name = NameExpression.Normal("test"),
-                argumentExpression = ArgumentExpression(emptyList()),
+                argumentExpression = PointcutExpression.Args(emptyList()),
                 returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
             )
         )
@@ -53,11 +53,11 @@ class ExecutionExpressionMatcherTest {
 
     @Test
     fun testClassMethod() {
-        val expression = ExecutionExpression(
+        val expression = PointcutExpression.Execution(
             FunctionMatchingExpression.ClassMethod(
                 modifiers = emptySet(),
                 name = NameExpression.Normal("test"),
-                argumentExpression = ArgumentExpression(emptyList()),
+                argumentExpression = PointcutExpression.Args(emptyList()),
                 returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
                 classMatchingExpression = TypeMatchingExpression.Class("com.example", "TestClass"),
             )
@@ -77,11 +77,11 @@ class ExecutionExpressionMatcherTest {
 
     @Test
     fun testClassMethodNoMatch() {
-        val expression = ExecutionExpression(
+        val expression = PointcutExpression.Execution(
             FunctionMatchingExpression.ClassMethod(
                 modifiers = emptySet(),
                 name = NameExpression.Normal("test"),
-                argumentExpression = ArgumentExpression(emptyList()),
+                argumentExpression = PointcutExpression.Args(emptyList()),
                 returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
                 classMatchingExpression = TypeMatchingExpression.Class("com.example", "TestClass"),
             )
@@ -101,11 +101,11 @@ class ExecutionExpressionMatcherTest {
 
     @Test
     fun testExtensionFunction() {
-        val expression = ExecutionExpression(
+        val expression = PointcutExpression.Execution(
             FunctionMatchingExpression.ExtensionFunction(
                 modifiers = emptySet(),
                 name = NameExpression.Normal("test"),
-                argumentExpression = ArgumentExpression(emptyList()),
+                argumentExpression = PointcutExpression.Args(emptyList()),
                 returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
                 receiverType = TypeMatchingExpression.Class("com.example", "TestClass"),
             )
@@ -125,11 +125,11 @@ class ExecutionExpressionMatcherTest {
 
     @Test
     fun testExtensionFunctionNoMatch() {
-        val expression = ExecutionExpression(
+        val expression = PointcutExpression.Execution(
             FunctionMatchingExpression.ExtensionFunction(
                 modifiers = emptySet(),
                 name = NameExpression.Normal("test"),
-                argumentExpression = ArgumentExpression(emptyList()),
+                argumentExpression = PointcutExpression.Args(emptyList()),
                 returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
                 receiverType = TypeMatchingExpression.Class("com.example", "TestClass"),
             )

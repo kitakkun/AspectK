@@ -1,10 +1,10 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.ArgumentExpression
 import com.github.kitakkun.aspectk.expression.ArgumentMatchingExpression
+import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.name.ClassId
 
-class ArgumentExpressionMatcher(private val argumentExpression: ArgumentExpression) {
+class ArgumentExpressionMatcher(private val argumentExpression: PointcutExpression.Args) {
     fun matches(valueParameterClassIds: List<ClassId>, lastIsVarArg: Boolean): Boolean {
         if (valueParameterClassIds.isEmpty()) {
             return argumentExpression.args.isEmpty() || argumentExpression.args.all { it is ArgumentMatchingExpression.AnyZeroOrMore }

@@ -1,7 +1,5 @@
 package com.github.kitakkun.aspectk.expression
 
-data class ArgumentExpression(val args: List<ArgumentMatchingExpression>) : AspectKExpression
-
 sealed interface ArgumentMatchingExpression : AspectKExpression {
     /**
      * single "*" expression

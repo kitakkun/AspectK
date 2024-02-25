@@ -1,11 +1,11 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.ExecutionExpression
 import com.github.kitakkun.aspectk.expression.FunctionMatchingExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
+import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.name.ClassId
 
-class ExecutionExpressionMatcher(private val expression: ExecutionExpression) {
+class ExecutionExpressionMatcher(private val expression: PointcutExpression.Execution) {
     fun matches(
         packageName: String,
         className: String,

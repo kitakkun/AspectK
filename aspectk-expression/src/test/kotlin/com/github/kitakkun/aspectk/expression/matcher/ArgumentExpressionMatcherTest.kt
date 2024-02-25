@@ -1,7 +1,7 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.ArgumentExpression
 import com.github.kitakkun.aspectk.expression.ArgumentMatchingExpression
+import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.TypeMatchingExpression
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.junit.Test
@@ -14,7 +14,7 @@ class ArgumentExpressionMatcherTest {
             classId("kotlin", "String"),
             classId("kotlin", "Int"),
         )
-        val expression = ArgumentExpression(
+        val expression = PointcutExpression.Args(
             listOf(
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "String")),
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "Int")),
@@ -31,7 +31,7 @@ class ArgumentExpressionMatcherTest {
             classId("kotlin", "String"),
             classId("kotlin", "Int"),
         )
-        val expression = ArgumentExpression(
+        val expression = PointcutExpression.Args(
             listOf(
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "String")),
                 ArgumentMatchingExpression.AnySingle,
@@ -48,7 +48,7 @@ class ArgumentExpressionMatcherTest {
             classId("kotlin", "String"),
             classId("kotlin", "Int"),
         )
-        val expression = ArgumentExpression(
+        val expression = PointcutExpression.Args(
             listOf(
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "String")),
                 ArgumentMatchingExpression.AnyZeroOrMore,
@@ -65,7 +65,7 @@ class ArgumentExpressionMatcherTest {
             classId("kotlin", "String"),
             classId("kotlin", "Int"),
         )
-        val expression = ArgumentExpression(
+        val expression = PointcutExpression.Args(
             listOf(
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "String")),
                 ArgumentMatchingExpression.Vararg(TypeMatchingExpression.Class("kotlin", "Int")),
@@ -82,7 +82,7 @@ class ArgumentExpressionMatcherTest {
             classId("kotlin", "String"),
             classId("kotlin", "Int"),
         )
-        val expression = ArgumentExpression(
+        val expression = PointcutExpression.Args(
             listOf(
                 ArgumentMatchingExpression.AnyZeroOrMore,
                 ArgumentMatchingExpression.Type(TypeMatchingExpression.Class("kotlin", "Int")),
