@@ -95,7 +95,7 @@ It's available in `package`, `class`, `function`, `args`, `returnType`, and `ext
 
 ### Class
 
-- `Hoge` matches all classes named `Hoge
+- `Hoge` matches all classes named `Hoge`
 - `Hoge*` matches all classes whose name starts with `Hoge`
 - `*Hoge` matches all classes whose name ends with `Hoge`
 
