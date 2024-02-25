@@ -6,8 +6,10 @@ If you learn `execution` pointcut, it means that you can do most of the things w
 `execution` pointcut follows the following pattern:
 
 ```
-execution(modifiers? scopeMatcher::functionMatcher(argMatcher) : returnTypeMatcher)
+execution(modifiers? scopeMatcher?::functionMatcher(argMatcher) : returnTypeMatcher?)
 ```
+
+`?` means that its part can be omitted in a specific case.
 
 ## Basics
 
