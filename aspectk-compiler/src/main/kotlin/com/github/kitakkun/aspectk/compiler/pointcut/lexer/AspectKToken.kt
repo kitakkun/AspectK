@@ -14,7 +14,7 @@ enum class AspectKTokenType {
     ANNOTATED_ARGS, ANNOTATED_METHOD, ANNOTATED_TARGET, ANNOTATED_WITHIN,
 
     // user-defined pointcut keywords
-    IDENTIFIER,
+    UNKNOWN_POINTCUT,
 
     // pointcut string literal
     POINTCUT_STRING_LITERAL,

@@ -113,7 +113,7 @@ class AspectKPointcutExpressionLexer(private val expression: String) {
             "args" -> addToken(AspectKTokenType.ARGS)
             "target" -> addToken(AspectKTokenType.TARGET)
             "this" -> addToken(AspectKTokenType.THIS)
-            else -> addToken(AspectKTokenType.IDENTIFIER)
+            else -> addToken(AspectKTokenType.UNKNOWN_POINTCUT)
         }
     }
 
