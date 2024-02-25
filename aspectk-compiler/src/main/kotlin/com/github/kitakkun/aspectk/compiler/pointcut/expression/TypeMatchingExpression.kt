@@ -1,6 +1,6 @@
 package com.github.kitakkun.aspectk.compiler.pointcut.expression
 
-sealed class TypeMatchingExpression {
+sealed class TypeMatchingExpression : AspectKExpression {
     /**
      * single "*" expression
      */

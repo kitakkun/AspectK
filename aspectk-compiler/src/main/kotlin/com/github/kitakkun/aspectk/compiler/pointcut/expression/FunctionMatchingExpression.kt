@@ -1,17 +1,18 @@
 package com.github.kitakkun.aspectk.compiler.pointcut.expression
 
-sealed class FunctionMatchingExpression {
+sealed class FunctionMatchingExpression : AspectKExpression {
     abstract val modifiers: Set<FunctionModifier>
     abstract val argumentExpression: ArgumentExpression
     abstract val name: NameExpression
     abstract val returnTypeMatchingExpression: TypeMatchingExpression
+
     data class ClassMethod(
         override val modifiers: Set<FunctionModifier>,
         override val argumentExpression: ArgumentExpression,
         override val name: NameExpression,
         override val returnTypeMatchingExpression: TypeMatchingExpression,
         val classMatchingExpression: TypeMatchingExpression,
-    ): FunctionMatchingExpression()
+    ) : FunctionMatchingExpression()
 
     data class TopLevelFunction(
         override val modifiers: Set<FunctionModifier>,

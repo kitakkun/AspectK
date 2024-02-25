@@ -1,8 +1,8 @@
 package com.github.kitakkun.aspectk.compiler.pointcut.expression
 
-data class ArgumentExpression(val args: List<ArgumentMatchingExpression>)
+data class ArgumentExpression(val args: List<ArgumentMatchingExpression>) : AspectKExpression
 
-sealed interface ArgumentMatchingExpression {
+sealed interface ArgumentMatchingExpression : AspectKExpression {
     /**
      * single "*" expression
      * matches any single argument
