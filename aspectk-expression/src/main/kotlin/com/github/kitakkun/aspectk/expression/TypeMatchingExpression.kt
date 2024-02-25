@@ -1,6 +1,6 @@
 package com.github.kitakkun.aspectk.expression
 
-sealed class TypeMatchingExpression : AspectKExpression {
+sealed class TypeMatchingExpression {
     /**
      * single "*" expression
      */

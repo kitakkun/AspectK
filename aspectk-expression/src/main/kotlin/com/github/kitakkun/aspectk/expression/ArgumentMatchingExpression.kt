@@ -1,6 +1,6 @@
 package com.github.kitakkun.aspectk.expression
 
-sealed interface ArgumentMatchingExpression : AspectKExpression {
+sealed interface ArgumentMatchingExpression {
     /**
      * single "*" expression
      * matches any single argument

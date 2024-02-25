@@ -1,6 +1,6 @@
 package com.github.kitakkun.aspectk.expression
 
-sealed class FunctionMatchingExpression : AspectKExpression {
+sealed class FunctionMatchingExpression {
     abstract val modifiers: Set<FunctionModifier>
     abstract val argumentExpression: PointcutExpression.Args
     abstract val name: NameExpression
