@@ -44,81 +44,52 @@ class AspectKPointcutExpressionLexer(private val expression: String) {
 
     private fun scanToken() {
         when (advance()) {
-            '(' -> pointcutLiteral()
+            '(' -> addToken(AspectKTokenType.LEFT_PAREN)
+            ')' -> addToken(AspectKTokenType.RIGHT_PAREN)
 
-            ')' -> {
-                // Right parenthesis is handled when matching left parenthesis
-                // FIXME: should throw an error if right parenthesis is found
-            }
-
+            // pointcut operators
             '&' -> if (match('&')) addToken(AspectKTokenType.AND)
             '|' -> if (match('|')) addToken(AspectKTokenType.OR)
             '!' -> addToken(AspectKTokenType.NOT)
-            ' ' -> while (peek() == ' ') {
-                advance()
+
+            ':' -> addToken(AspectKTokenType.COLON) // function signature and its return type separator
+
+            '/' -> addToken(AspectKTokenType.SLASH) // package separator
+
+            ' ' -> {
+                while (peek() == ' ') {
+                    advance()
+                }
+                addToken(AspectKTokenType.WHITESPACE) // expressions inside execution pointcut separator
             }
 
-            '@' -> annotation()
+            ',' -> addToken(AspectKTokenType.COMMA) // argument separator
+
+            '*' -> if (match('*')) addToken(AspectKTokenType.DOUBLE_STAR) else addToken(AspectKTokenType.STAR)
+
+            '.' -> if (match('.')) {
+                if (match('.')) {
+                    addToken(AspectKTokenType.TRIPLE_DOT) // vararg
+                } else {
+                    addToken(AspectKTokenType.DOUBLE_DOT) // match zero or more
+                }
+            } else {
+                addToken(AspectKTokenType.DOT) // class name and function name separator
+            }
+
             else -> identifier()
         }
     }
 
-    private fun pointcutLiteral() {
-        addToken(AspectKTokenType.LEFT_PAREN)
-        var parenthesisCount = 1
-
-        while (!isAtEnd && parenthesisCount > 0) {
-            val c = advance()
-            if (c == '(') {
-                parenthesisCount++
-            } else if (c == ')') {
-                parenthesisCount--
-            }
-        }
-
-        if (parenthesisCount > 0) {
-            error("Unmatched left parenthesis exists")
-        }
-
-        start += 1
-        current -= 1
-        addToken(AspectKTokenType.POINTCUT_STRING_LITERAL)
-
-        start = current
-        current += 1
-        addToken(AspectKTokenType.RIGHT_PAREN)
-    }
-
-    private fun annotation() {
-        while (!isAtEnd && isAlpha(peek())) {
-            advance()
-        }
-        when (expression.substring(start + 1, current)) {
-            "args" -> addToken(AspectKTokenType.ANNOTATED_ARGS)
-            "annotation" -> addToken(AspectKTokenType.ANNOTATED_METHOD)
-            "target" -> addToken(AspectKTokenType.ANNOTATED_TARGET)
-            "within" -> addToken(AspectKTokenType.ANNOTATED_WITHIN)
-            else -> error("Invalid annotation")
-        }
-    }
-
     private fun identifier() {
-        while (!isAtEnd && isAlpha(peek())) {
+        while (!isAtEnd && isIdentifierChar(peek())) {
             advance()
         }
-        when (expression.substring(start, current)) {
-            // pointcut keywords
-            "execution" -> addToken(AspectKTokenType.EXECUTION)
-            "within" -> addToken(AspectKTokenType.WITHIN)
-            "args" -> addToken(AspectKTokenType.ARGS)
-            "target" -> addToken(AspectKTokenType.TARGET)
-            "this" -> addToken(AspectKTokenType.THIS)
-            else -> addToken(AspectKTokenType.UNKNOWN_POINTCUT)
-        }
+        addToken(AspectKTokenType.IDENTIFIER)
     }
 
-    private fun isAlpha(c: Char): Boolean {
+    private fun isIdentifierChar(c: Char): Boolean {
         // FIXME: No Japanese or Chinese name support
-        return c in 'a'..'z' || c in 'A'..'Z' || c == '_'
+        return c in 'a'..'z' || c in 'A'..'Z' || c == '_' || c in '0'..'9'
     }
 }

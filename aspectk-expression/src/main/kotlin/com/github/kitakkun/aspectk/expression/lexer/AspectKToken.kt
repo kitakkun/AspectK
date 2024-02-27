@@ -9,16 +9,15 @@ enum class AspectKTokenType {
     // parentheses
     LEFT_PAREN, RIGHT_PAREN,
 
-    // primitive pointcut keywords
-    EXECUTION, WITHIN, ARGS, TARGET, THIS,
-    ANNOTATED_ARGS, ANNOTATED_METHOD, ANNOTATED_TARGET, ANNOTATED_WITHIN,
-
-    // user-defined pointcut keywords
-    UNKNOWN_POINTCUT,
-
-    // pointcut string literal
-    POINTCUT_STRING_LITERAL,
-
     // pointcut operators
     AND, OR, NOT,
+
+    // wildcard
+    STAR, DOUBLE_STAR,
+
+    SLASH, COMMA, DOT, COLON, DOUBLE_DOT, TRIPLE_DOT,
+
+    WHITESPACE,
+
+    IDENTIFIER,
 }

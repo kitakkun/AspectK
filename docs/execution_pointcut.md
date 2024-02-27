@@ -6,7 +6,7 @@ If you learn `execution` pointcut, it means that you can do most of the things w
 `execution` pointcut follows the following pattern:
 
 ```
-execution(modifiers? (extension|companion)? package?::class?.function(args?) : returnType? (in extension-package)?)
+execution(modifiers? package?/class?.function(args?) : returnType? (extends package?/class)?)
 ```
 
 `?` means that its part can be omitted in a specific case.
@@ -19,7 +19,7 @@ It looks like a bit complex, but it's not so difficult and flexible enough!
 
 ### Basic top-level function example
 
-`execution(com.example::foo())`
+`execution(com/example/foo())`
 
 ```kotlin
 package com.example
@@ -29,7 +29,7 @@ fun foo() {}
 
 ### Basic class method example
 
-`execution(com.example::A.foo())`
+`execution(com/example/A.foo())`
 
 ```kotlin
 package com.example
@@ -41,7 +41,7 @@ class A {
 
 ### Nested class example
 
-`execution(com.example::A.B.foo())`
+`execution(com/example/A.B.foo())`
 
 ```kotlin
 package com.example
@@ -55,7 +55,7 @@ class A {
 
 ### Nested top-level function example
 
-`execution(com.example::parent().foo())`
+`execution(com/example/parent().foo())`
 
 ```kotlin
 package com.example
@@ -67,7 +67,7 @@ fun parent() {
 
 ### Extension function example
 
-`execution(extension com.example::A.foo() : Unit in com.example.extension)`
+`execution(com/example/extension/foo() extends com/example/A)`
 
 ```kotlin
 package com.example
@@ -88,10 +88,10 @@ It's available in `package`, `class`, `function`, `args`, `returnType`, and `ext
 
 ### Package
 
-- `com.example` matches all declarations in `com.example` package
-- `com.example*` matches all declarations in package whose name starts with `com.example` (ex: `com.example1`)
-- `com.example.*` matches all declarations in direct subpackages of `com.example` package (ex: `com.example.a`)
-- `com.example.**` matches all declarations in `com.example` package and its subpackages
+- `com/example` matches all declarations in `com.example` package
+- `com/example*` matches all declarations in package whose name starts with `com.example` (ex: `com.example1`)
+- `com/example/*` matches all declarations in direct subpackages of `com.example` package (ex: `com.example.a`)
+- `com/example/..` matches all declarations in `com.example` package and its subpackages
 
 ### Class
 
@@ -121,8 +121,8 @@ fun foo() {}
 
 So, two expressions below are equivalent.
 ```
-execution(public com/example::foo())
-execution(com.example::foo())
+execution(public com/example/foo())
+execution(com/example/foo())
 ```
 
 ### Return type
@@ -137,8 +137,8 @@ fun foo() {}
 
 So, two expressions below are equivalent.
 ```
-execution(com/example::foo() : Unit)
-execution(com/example::foo())
+execution(com/example/foo() : Unit)
+execution(com/example/foo())
 ```
 
 ### Package
@@ -152,15 +152,9 @@ class A {
 }
 ```
 
-So, two expressions below are equivalent.
+So, you can simply write like this.
 ```
-execution(::foo())
 execution(foo())
-```
-
-For `foo()` method inside `A` class, it will be like this.
-```
-execution(::A.foo())
 execution(A.foo())
 ```
 
@@ -174,15 +168,8 @@ You can specify the modifier for the function.
 Applying Multiple modifiers is allowed. example:
 
 ```
-execution(public override com.example::A.foo() : Unit)
+execution(public override com/example/A.foo())
 ```
-
-## Package
-
-`package` part is responsible for specifying the package of the function or its parent class, or its receiver class for extension function.
-> [!NOTE]
-> For extension function, first `package` is the package of the receiver class, and the last `package` which is followed by `in` is the package of the extension function.
-> It's a bit tricky, but you can get used to it soon.
 
 ## Argument Matcher
 
