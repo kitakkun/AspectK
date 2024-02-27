@@ -1,6 +1,6 @@
 package com.github.kitakkun.aspectk.expression.lexer
 
-class AspectKPointcutExpressionLexer(private val expression: String) {
+class AspectKLexer(private val expression: String) {
     private val tokens = mutableListOf<AspectKToken>()
     private var start = 0
     private var current = 0

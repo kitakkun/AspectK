@@ -3,10 +3,10 @@ package com.github.kitakkun.aspectk.expression.lexer
 import org.junit.Test
 import kotlin.test.assertContentEquals
 
-class PointcutExpressionLexerTest {
+class AspectKLexerTest {
     @Test
     fun testExecution() {
-        val scanner = AspectKPointcutExpressionLexer("execution(public com/example/extension/foo(..) : Unit receiver com/example/A)")
+        val scanner = AspectKLexer("execution(public com/example/extension/foo(..) : Unit receiver com/example/A)")
         val tokens = scanner.analyze()
         val expected = listOf(
             AspectKToken(AspectKTokenType.IDENTIFIER, "execution"),
@@ -42,7 +42,7 @@ class PointcutExpressionLexerTest {
 
     @Test
     fun testArgs() {
-        val scanner = AspectKPointcutExpressionLexer("args(Int, Boolean, .., String...)")
+        val scanner = AspectKLexer("args(Int, Boolean, .., String...)")
         val tokens = scanner.analyze()
         val expected = listOf(
             AspectKToken(AspectKTokenType.IDENTIFIER, "args"),
@@ -65,7 +65,7 @@ class PointcutExpressionLexerTest {
 
     @Test
     fun testThis() {
-        val scanner = AspectKPointcutExpressionLexer("this(com/example/Hoge.Fuga)")
+        val scanner = AspectKLexer("this(com/example/Hoge.Fuga)")
         val tokens = scanner.analyze()
         val expected = listOf(
             AspectKToken(AspectKTokenType.IDENTIFIER, "this"),
@@ -84,7 +84,7 @@ class PointcutExpressionLexerTest {
 
     @Test
     fun testTarget() {
-        val scanner = AspectKPointcutExpressionLexer("target(com/example/Hoge)")
+        val scanner = AspectKLexer("target(com/example/Hoge)")
         val tokens = scanner.analyze()
         val expected = listOf(
             AspectKToken(AspectKTokenType.IDENTIFIER, "target"),
