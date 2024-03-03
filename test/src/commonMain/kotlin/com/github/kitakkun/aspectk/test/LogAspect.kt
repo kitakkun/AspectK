@@ -21,3 +21,8 @@ class LogAspect {
         println("Before method call 2")
     }
 }
+
+
+fun hoge(a: Int) {
+
+}

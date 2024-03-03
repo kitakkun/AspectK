@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 context(MessageCollector)
 class AspectKIrGenerationExtension : IrGenerationExtension {
@@ -14,6 +15,6 @@ class AspectKIrGenerationExtension : IrGenerationExtension {
         report(CompilerMessageSeverity.WARNING, "AspectK: Found ${aspectClasses.size} aspect classes")
         report(CompilerMessageSeverity.WARNING, "AspectK: ${aspectClasses}")
 
-        // TODO: insert code to matching pointcuts
+        moduleFragment.transformChildrenVoid(AspectKTransformer(aspectClasses))
     }
 }
