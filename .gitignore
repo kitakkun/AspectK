@@ -1,0 +1,6 @@
+.gradle
+build/
+.idea/*
+!.idea/codeStyles
+
+.DS_Store
