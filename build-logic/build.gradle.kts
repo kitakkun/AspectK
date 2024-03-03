@@ -5,3 +5,8 @@ plugins {
     alias(libs.plugins.buildKonfig) apply false
     alias(libs.plugins.ksp) apply false
 }
+
+subprojects {
+    group = "com.github.kitakkun.aspectk"
+    version = "1.0.0"
+}

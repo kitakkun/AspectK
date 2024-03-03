@@ -2,6 +2,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -18,6 +19,7 @@ include(":aspectk-gradle-plugin")
 include(":aspectk-annotations")
 include(":aspectk-plugin-common")
 include(":aspectk-expression")
+include(":test")
 
 rootProject.name = "AspectK"
 

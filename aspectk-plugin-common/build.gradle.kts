@@ -5,6 +5,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.buildKonfig)
+    `maven-publish`
 }
 
 kotlin {

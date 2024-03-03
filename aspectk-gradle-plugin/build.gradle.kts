@@ -3,6 +3,16 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ksp)
     `java-gradle-plugin`
+    `maven-publish`
+}
+
+gradlePlugin {
+    plugins {
+        create("aspectk") {
+            id = "com.github.kitakkun.aspectk"
+            implementationClass = "com.github.kitakkun.aspectk.gradle.AspectKKotlinCompilerPluginSupportPlugin"
+        }
+    }
 }
 
 dependencies {

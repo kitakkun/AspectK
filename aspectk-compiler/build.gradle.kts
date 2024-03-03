@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ksp)
+    `maven-publish`
 }
 
 dependencies {
@@ -17,5 +18,13 @@ dependencies {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xcontext-receivers")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["kotlin"])
+        }
     }
 }
