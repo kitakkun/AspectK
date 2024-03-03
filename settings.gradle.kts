@@ -12,6 +12,7 @@ dependencyResolutionManagement {
     }
 }
 
+includeBuild("build-logic")
 include(":aspectk-compiler")
 include(":aspectk-gradle-plugin")
 include(":aspectk-annotations")
