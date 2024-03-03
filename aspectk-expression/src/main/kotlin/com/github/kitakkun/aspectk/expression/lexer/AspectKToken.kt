@@ -17,7 +17,5 @@ enum class AspectKTokenType {
 
     SLASH, COMMA, DOT, COLON, DOUBLE_DOT, TRIPLE_DOT,
 
-    WHITESPACE,
-
     IDENTIFIER,
 }

@@ -1,6 +1,5 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.FunctionMatchingExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.name.ClassId
@@ -15,32 +14,29 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         modifiers: Set<FunctionModifier>,
         lastArgumentIsVararg: Boolean
     ): Boolean {
-        with(expression.functionMatchingExpression) {
-            // name matching
-            if (!NameExpressionMatcher(name).matches(functionName)) return false
-            // return type matching
-            if (!TypeMatchingExpressionMatcher(returnTypeMatchingExpression).matches(returnType.packageFqName.asString(), returnType.relativeClassName.asString())) return false
-            // argument matching
-            if (!ArgumentExpressionMatcher(argumentExpression).matches(argumentClassIds, lastArgumentIsVararg)) return false
-            // modifier matching
-            if (this.modifiers.any { it !in modifiers }) return false
+        // function name matching
+        if (!NameExpressionMatcher(expression.functionName).matches(functionName)) return false
 
-            when (this) {
-                is FunctionMatchingExpression.ClassMethod -> {
-                    val classMatcher = TypeMatchingExpressionMatcher(classMatchingExpression)
-                    if (!classMatcher.matches(packageName, className)) return false
-                }
-
-                is FunctionMatchingExpression.ExtensionFunction -> {
-                    val receiverMatcher = TypeMatchingExpressionMatcher(receiverType)
-                    if (!receiverMatcher.matches(packageName, className)) return false
-                }
-
-                is FunctionMatchingExpression.TopLevelFunction -> {
-                    // no-op
-                }
-            }
+        // modifier matching
+        if (expression.modifiers.isEmpty() && !modifiers.contains(FunctionModifier.PUBLIC)) {
+            return false
+        } else if (expression.modifiers.any { it !in modifiers }) {
+            return false
         }
-        return true
+
+        // argument matching
+        val argsMatcher = ArgsExpressionMatcher(expression.args)
+        if (!argsMatcher.matches(argumentClassIds, lastArgumentIsVararg)) return false
+
+        // matching dispatcher class
+        if (!ClassMatcher(expression.packageNames, expression.classNames).matches(packageName, className)) {
+            return false
+        }
+
+        // matching return type
+        return ClassMatcher(expression.returnTypePackageNames, expression.returnTypeClassNames).matches(
+            packageName = returnType.packageFqName.asString(),
+            className = returnType.relativeClassName.asString()
+        )
     }
 }

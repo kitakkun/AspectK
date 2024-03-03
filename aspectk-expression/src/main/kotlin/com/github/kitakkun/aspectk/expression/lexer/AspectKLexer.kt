@@ -37,11 +37,6 @@ class AspectKLexer(private val expression: String) {
         return expression[current]
     }
 
-    private fun peekNext(): Char {
-        if (current + 1 >= expression.length) return '\u0000'
-        return expression[current + 1]
-    }
-
     private fun scanToken() {
         when (advance()) {
             '(' -> addToken(AspectKTokenType.LEFT_PAREN)
@@ -60,7 +55,6 @@ class AspectKLexer(private val expression: String) {
                 while (peek() == ' ') {
                     advance()
                 }
-                addToken(AspectKTokenType.WHITESPACE) // expressions inside execution pointcut separator
             }
 
             ',' -> addToken(AspectKTokenType.COMMA) // argument separator

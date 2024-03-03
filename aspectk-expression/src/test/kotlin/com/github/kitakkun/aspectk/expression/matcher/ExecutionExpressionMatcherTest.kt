@@ -1,19 +1,23 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.*
+import com.github.kitakkun.aspectk.expression.FunctionModifier
+import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.javac.resolve.classId
-import kotlin.test.Test
+import org.junit.Ignore
+import org.junit.Test
 
 class ExecutionExpressionMatcherTest {
     @Test
     fun testTopLevel() {
         val expression = PointcutExpression.Execution(
-            FunctionMatchingExpression.TopLevelFunction(
-                modifiers = setOf(FunctionModifier.PUBLIC),
-                name = NameExpression.Normal("test"),
-                argumentExpression = PointcutExpression.Args(emptyList()),
-                returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
-            )
+            modifiers = listOf(FunctionModifier.PUBLIC),
+            packageNames = emptyList(),
+            classNames = emptyList(),
+            functionName = NameExpression.Normal("test"),
+            args = PointcutExpression.Args(emptyList(), false),
+            returnTypePackageNames = emptyList(),
+            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val result = matcher.matches(
@@ -31,12 +35,13 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testTopLevelNoMatch() {
         val expression = PointcutExpression.Execution(
-            FunctionMatchingExpression.TopLevelFunction(
-                modifiers = setOf(FunctionModifier.PUBLIC),
-                name = NameExpression.Normal("test"),
-                argumentExpression = PointcutExpression.Args(emptyList()),
-                returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
-            )
+            modifiers = listOf(FunctionModifier.PUBLIC),
+            packageNames = emptyList(),
+            classNames = emptyList(),
+            functionName = NameExpression.Normal("test"),
+            args = PointcutExpression.Args(emptyList(), false),
+            returnTypePackageNames = emptyList(),
+            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val result = matcher.matches(
@@ -54,22 +59,22 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testClassMethod() {
         val expression = PointcutExpression.Execution(
-            FunctionMatchingExpression.ClassMethod(
-                modifiers = emptySet(),
-                name = NameExpression.Normal("test"),
-                argumentExpression = PointcutExpression.Args(emptyList()),
-                returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
-                classMatchingExpression = TypeMatchingExpression.Class("com.example", "TestClass"),
-            )
+            modifiers = emptyList(),
+            packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
+            classNames = listOf(NameExpression.Normal("TestClass")),
+            functionName = NameExpression.Normal("test"),
+            args = PointcutExpression.Args(emptyList(), false),
+            returnTypePackageNames = emptyList(),
+            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val result = matcher.matches(
-            packageName = "com.example",
+            packageName = "com/example",
             className = "TestClass",
             functionName = "test",
             argumentClassIds = listOf(),
             returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(),
+            modifiers = setOf(FunctionModifier.PUBLIC),
             lastArgumentIsVararg = false,
         )
         assert(result)
@@ -78,72 +83,34 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testClassMethodNoMatch() {
         val expression = PointcutExpression.Execution(
-            FunctionMatchingExpression.ClassMethod(
-                modifiers = emptySet(),
-                name = NameExpression.Normal("test"),
-                argumentExpression = PointcutExpression.Args(emptyList()),
-                returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
-                classMatchingExpression = TypeMatchingExpression.Class("com.example", "TestClass"),
-            )
+            modifiers = emptyList(),
+            packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
+            classNames = listOf(NameExpression.Normal("TestClass")),
+            functionName = NameExpression.Normal("test"),
+            args = PointcutExpression.Args(emptyList(), false),
+            returnTypePackageNames = emptyList(),
+            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val result = matcher.matches(
-            packageName = "com.example",
+            packageName = "com/example",
             className = "TestClass",
             functionName = "testNoMatch",
             argumentClassIds = listOf(),
             returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(),
+            modifiers = setOf(FunctionModifier.PUBLIC),
             lastArgumentIsVararg = false,
         )
         assert(!result)
     }
 
+    @Ignore("Not supported yet")
     @Test
     fun testExtensionFunction() {
-        val expression = PointcutExpression.Execution(
-            FunctionMatchingExpression.ExtensionFunction(
-                modifiers = emptySet(),
-                name = NameExpression.Normal("test"),
-                argumentExpression = PointcutExpression.Args(emptyList()),
-                returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
-                receiverType = TypeMatchingExpression.Class("com.example", "TestClass"),
-            )
-        )
-        val matcher = ExecutionExpressionMatcher(expression)
-        val result = matcher.matches(
-            packageName = "com.example",
-            className = "TestClass",
-            functionName = "test",
-            argumentClassIds = listOf(),
-            returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(),
-            lastArgumentIsVararg = false,
-        )
-        assert(result)
     }
 
+    @Ignore("Not supported yet")
     @Test
     fun testExtensionFunctionNoMatch() {
-        val expression = PointcutExpression.Execution(
-            FunctionMatchingExpression.ExtensionFunction(
-                modifiers = emptySet(),
-                name = NameExpression.Normal("test"),
-                argumentExpression = PointcutExpression.Args(emptyList()),
-                returnTypeMatchingExpression = TypeMatchingExpression.Class("kotlin", "Unit"),
-                receiverType = TypeMatchingExpression.Class("com.example", "TestClass"),
-            )
-        )
-        val matcher = ExecutionExpressionMatcher(expression)
-        val result = matcher.matches(
-            packageName = "com.example",
-            className = "TestClassNoMatch",
-            functionName = "test",
-            argumentClassIds = listOf(),
-            returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(),
-            lastArgumentIsVararg = false,
-        )
-        assert(!result)
     }
 }

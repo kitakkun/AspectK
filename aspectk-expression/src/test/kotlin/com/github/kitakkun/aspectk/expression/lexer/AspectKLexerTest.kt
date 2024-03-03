@@ -6,13 +6,12 @@ import kotlin.test.assertContentEquals
 class AspectKLexerTest {
     @Test
     fun testExecution() {
-        val scanner = AspectKLexer("execution(public com/example/extension/foo(..) : Unit receiver com/example/A)")
+        val scanner = AspectKLexer("execution(public com/example/extension/foo(..): Unit receiver com/example/A)")
         val tokens = scanner.analyze()
         val expected = listOf(
             AspectKToken(AspectKTokenType.IDENTIFIER, "execution"),
             AspectKToken(AspectKTokenType.LEFT_PAREN, "("),
             AspectKToken(AspectKTokenType.IDENTIFIER, "public"),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.IDENTIFIER, "com"),
             AspectKToken(AspectKTokenType.SLASH, "/"),
             AspectKToken(AspectKTokenType.IDENTIFIER, "example"),
@@ -23,13 +22,9 @@ class AspectKLexerTest {
             AspectKToken(AspectKTokenType.LEFT_PAREN, "("),
             AspectKToken(AspectKTokenType.DOUBLE_DOT, ".."),
             AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.COLON, ":"),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.IDENTIFIER, "Unit"),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.IDENTIFIER, "receiver"),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.IDENTIFIER, "com"),
             AspectKToken(AspectKTokenType.SLASH, "/"),
             AspectKToken(AspectKTokenType.IDENTIFIER, "example"),
@@ -49,13 +44,10 @@ class AspectKLexerTest {
             AspectKToken(AspectKTokenType.LEFT_PAREN, "("),
             AspectKToken(AspectKTokenType.IDENTIFIER, "Int"),
             AspectKToken(AspectKTokenType.COMMA, ","),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.IDENTIFIER, "Boolean"),
             AspectKToken(AspectKTokenType.COMMA, ","),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.DOUBLE_DOT, ".."),
             AspectKToken(AspectKTokenType.COMMA, ","),
-            AspectKToken(AspectKTokenType.WHITESPACE, " "),
             AspectKToken(AspectKTokenType.IDENTIFIER, "String"),
             AspectKToken(AspectKTokenType.TRIPLE_DOT, "..."),
             AspectKToken(AspectKTokenType.RIGHT_PAREN, ")"),
