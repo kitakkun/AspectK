@@ -3,6 +3,15 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.buildKonfig) apply false
+}
+
+group = "com.github.kitakkun.aspectk"
+version = "1.0.0"
+
+subprojects {
+    group = rootProject.group
+    version = rootProject.version
 }
 
 true
