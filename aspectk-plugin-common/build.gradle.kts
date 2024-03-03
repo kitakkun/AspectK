@@ -15,6 +15,6 @@ kotlin {
 buildkonfig {
     packageName = "com.github.kitakkun.aspectk.plugin.common"
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "VERSION", version.toString())
+        buildConfigField(FieldSpec.Type.STRING, "VERSION", libs.versions.aspectk.get())
     }
 }

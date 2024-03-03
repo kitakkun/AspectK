@@ -8,5 +8,7 @@ plugins {
 
 subprojects {
     group = "com.github.kitakkun.aspectk"
-    version = "1.0.0"
+    version = rootProject.libs.versions.aspectk.get()
 }
+
+true

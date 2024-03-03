@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    id("com.github.kitakkun.aspectk") version "1.0.0"
+    id("com.github.kitakkun.aspectk") version libs.versions.aspectk
 }
 
 kotlin {

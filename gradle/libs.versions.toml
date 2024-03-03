@@ -1,4 +1,5 @@
 [versions]
+aspectk = "1.0.0" # TODO: Update this when releasing a new version
 kotlin = "1.9.22"
 auto-service = "1.1.1"
 auto-service-ksp = "1.1.0"
