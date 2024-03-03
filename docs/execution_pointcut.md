@@ -53,20 +53,9 @@ class A {
 }
 ```
 
-### Nested top-level function example
+### Extension function example(not-supported-yet)
 
-`execution(com/example/parent().foo())`
-
-```kotlin
-package com.example
-
-fun parent() {
-    fun foo() {}
-}
-```
-
-### Extension function example
-
+Proposed syntax for extension function is be like...
 `execution(com/example/extension/foo() extends com/example/A)`
 
 ```kotlin
@@ -88,10 +77,10 @@ It's available in `package`, `class`, `function`, `args`, `returnType`, and `ext
 
 ### Package
 
-- `com/example` matches all declarations in `com.example` package
-- `com/example*` matches all declarations in package whose name starts with `com.example` (ex: `com.example1`)
-- `com/example/*` matches all declarations in direct subpackages of `com.example` package (ex: `com.example.a`)
-- `com/example/..` matches all declarations in `com.example` package and its subpackages
+- `com/example/` matches all declarations in `com.example` package
+- `com/example*/` matches all declarations in package whose name starts with `com.example` (ex: `com.example1`)
+- `com/example/*/` matches all declarations in direct subpackages of `com.example` package (ex: `com.example.a`)
+- `com/example/**/` matches all declarations in `com.example` package and its subpackages
 
 ### Class
 
