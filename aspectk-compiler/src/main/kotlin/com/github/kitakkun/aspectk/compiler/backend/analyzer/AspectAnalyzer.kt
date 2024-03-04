@@ -59,14 +59,14 @@ class AspectAnalyzer private constructor() : IrElementVisitorVoid {
 
         val beforeAdvices = declaration.simpleFunctions()
             .filter { it.hasAnnotation(AspectKAnnotations.BEFORE_FQ_NAME) }
-            .map { it.getAnnotation(AspectKAnnotations.BEFORE_FQ_NAME)?.getStringConstArgument(0) }
-            .mapNotNull { expression ->
+            .associateWith { it.getAnnotation(AspectKAnnotations.BEFORE_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (declaration, expression) ->
                 val pointcutExpression = expression?.let {
                     val tokens = AspectKLexer(it).analyze()
                     PointcutExpressionParser(tokens).expression()
                 }
                 if (pointcutExpression != null) {
-                    Advice(AdviceType.BEFORE, pointcutExpression)
+                    Advice(AdviceType.BEFORE, pointcutExpression, declaration)
                 } else {
                     null
                 }
@@ -74,14 +74,14 @@ class AspectAnalyzer private constructor() : IrElementVisitorVoid {
 
         val afterAdvices = declaration.simpleFunctions()
             .filter { it.hasAnnotation(AspectKAnnotations.AFTER_FQ_NAME) }
-            .map { it.getAnnotation(AspectKAnnotations.AFTER_FQ_NAME)?.getStringConstArgument(0) }
-            .mapNotNull { expression ->
+            .associateWith { it.getAnnotation(AspectKAnnotations.AFTER_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (declaration, expression) ->
                 val pointcutExpression = expression?.let {
                     val tokens = AspectKLexer(it).analyze()
                     PointcutExpressionParser(tokens).expression()
                 }
                 if (pointcutExpression != null) {
-                    Advice(AdviceType.AFTER, pointcutExpression)
+                    Advice(AdviceType.AFTER, pointcutExpression, declaration)
                 } else {
                     null
                 }
@@ -89,14 +89,14 @@ class AspectAnalyzer private constructor() : IrElementVisitorVoid {
 
         val aroundAdvices = declaration.simpleFunctions()
             .filter { it.hasAnnotation(AspectKAnnotations.AROUND_FQ_NAME) }
-            .map { it.getAnnotation(AspectKAnnotations.AROUND_FQ_NAME)?.getStringConstArgument(0) }
-            .mapNotNull { expression ->
+            .associateWith { it.getAnnotation(AspectKAnnotations.AROUND_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (declaration, expression) ->
                 val pointcutExpression = expression?.let {
                     val tokens = AspectKLexer(it).analyze()
                     PointcutExpressionParser(tokens).expression()
                 }
                 if (pointcutExpression != null) {
-                    Advice(AdviceType.AROUND, pointcutExpression)
+                    Advice(AdviceType.AROUND, pointcutExpression, declaration)
                 } else {
                     null
                 }
