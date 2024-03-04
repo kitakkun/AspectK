@@ -1,6 +1,10 @@
 package com.github.kitakkun.aspectk.expression
 
 import com.github.kitakkun.aspectk.expression.expressionparser.ArgMatchingExpression
+import org.jetbrains.kotlin.javac.resolve.classId
+import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.Name
 
 sealed class PointcutExpression {
     data class And(val left: PointcutExpression, val right: PointcutExpression) : PointcutExpression()
@@ -21,4 +25,14 @@ sealed class PointcutExpression {
         val args: List<ArgMatchingExpression>,
         val lastIsVarArg: Boolean,
     ) : PointcutExpression()
+
+    data class Named(
+        val packageNames: List<NameExpression.Normal>,
+        val classNames: List<NameExpression.Normal>,
+        val functionName: NameExpression.Normal,
+    ) : PointcutExpression() {
+        val name = "${packageNames.joinToString("/")}/${classNames.joinToString(".")}.${functionName}"
+        val classId: ClassId = classId(packageNames.joinToString("/"), classNames.joinToString("."))
+        val callableId = CallableId(classId = classId, callableName = Name.identifier(functionName.name))
+    }
 }
