@@ -1,9 +1,11 @@
 package com.github.kitakkun.aspectk.compiler.backend
 
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AspectClass
+import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.matcher.FunctionSpec
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -37,7 +39,27 @@ private fun IrSimpleFunction.toFunctionSpec(): FunctionSpec {
         functionName = this.name.asString(),
         args = this.valueParameters.map { it.type.classOrFail.owner.classId!! },
         returnType = this.returnType.classOrFail.owner.classId!!,
-        modifiers = emptySet(),
+        modifiers = this.modifiers(),
         lastArgumentIsVararg = this.valueParameters.lastOrNull()?.isVararg ?: false,
     )
 }
+
+private fun IrSimpleFunction.modifiers(): Set<FunctionModifier> {
+    val modifiers = mutableSetOf<FunctionModifier>()
+    when (this.visibility) {
+        DescriptorVisibilities.PUBLIC -> modifiers.add(FunctionModifier.PUBLIC)
+        DescriptorVisibilities.PRIVATE -> modifiers.add(FunctionModifier.PRIVATE)
+        DescriptorVisibilities.PROTECTED -> modifiers.add(FunctionModifier.PROTECTED)
+        DescriptorVisibilities.INTERNAL -> modifiers.add(FunctionModifier.INTERNAL)
+        // FIXME: Not tested
+        DescriptorVisibilities.INHERITED -> this.overriddenSymbols.mapNotNull { it.owner.modifiers().firstOrNull() }
+            .firstOrNull { it in listOf(FunctionModifier.PUBLIC, FunctionModifier.PROTECTED, FunctionModifier.INTERNAL) }?.let { modifiers.add(it) }
+    }
+    if (this.isInfix) modifiers.add(FunctionModifier.INFIX)
+    if (this.isSuspend) modifiers.add(FunctionModifier.SUSPEND)
+    if (this.isTailrec) modifiers.add(FunctionModifier.TAILREC)
+    if (this.isOperator) modifiers.add(FunctionModifier.OPERATOR)
+    if (this.isInline) modifiers.add(FunctionModifier.INLINE)
+    if (this.isExternal) modifiers.add(FunctionModifier.EXTERNAL)
+}
+
