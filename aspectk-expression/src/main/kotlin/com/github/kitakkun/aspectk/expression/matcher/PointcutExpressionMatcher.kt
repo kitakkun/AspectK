@@ -15,22 +15,22 @@ data class FunctionSpec(
 )
 
 class PointcutExpressionMatcher(private val expression: PointcutExpression) {
-    fun matches(functionSpec: FunctionSpec): Boolean {
+    fun matches(functionSpec: FunctionSpec, namedPointcutResolver: (PointcutExpression.Named) -> PointcutExpression?): Boolean {
         when (expression) {
             is PointcutExpression.And -> {
-                val left = PointcutExpressionMatcher(expression.left).matches(functionSpec)
-                val right = PointcutExpressionMatcher(expression.right).matches(functionSpec)
+                val left = PointcutExpressionMatcher(expression.left).matches(functionSpec, namedPointcutResolver)
+                val right = PointcutExpressionMatcher(expression.right).matches(functionSpec, namedPointcutResolver)
                 return left && right
             }
 
             is PointcutExpression.Or -> {
-                val left = PointcutExpressionMatcher(expression.left).matches(functionSpec)
-                val right = PointcutExpressionMatcher(expression.right).matches(functionSpec)
+                val left = PointcutExpressionMatcher(expression.left).matches(functionSpec, namedPointcutResolver)
+                val right = PointcutExpressionMatcher(expression.right).matches(functionSpec, namedPointcutResolver)
                 return left || right
             }
 
             is PointcutExpression.Not -> {
-                return !PointcutExpressionMatcher(expression.expression).matches(functionSpec)
+                return !PointcutExpressionMatcher(expression.expression).matches(functionSpec, namedPointcutResolver)
             }
 
             is PointcutExpression.Execution -> {
@@ -52,7 +52,10 @@ class PointcutExpressionMatcher(private val expression: PointcutExpression) {
                 )
             }
 
-            else -> return false
+            is PointcutExpression.Named -> {
+                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
+                return PointcutExpressionMatcher(correspondingExpression).matches(functionSpec, namedPointcutResolver)
+            }
         }
     }
 }

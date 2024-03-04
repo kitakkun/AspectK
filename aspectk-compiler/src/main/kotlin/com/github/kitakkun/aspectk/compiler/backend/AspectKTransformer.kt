@@ -1,8 +1,10 @@
 package com.github.kitakkun.aspectk.compiler.backend
 
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
+import com.github.kitakkun.aspectk.compiler.backend.analyzer.AdviceType
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AspectClass
 import com.github.kitakkun.aspectk.expression.FunctionModifier
+import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.matcher.FunctionSpec
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -10,12 +12,19 @@ import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.classOrFail
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 context(MessageCollector)
 class AspectKTransformer(private val aspectClasses: List<AspectClass>) : IrElementTransformerVoid() {
+    private val namedPointcutResolver = { namedPointcut: PointcutExpression.Named ->
+        aspectClasses.find { it.classId == namedPointcut.classId }?.pointcuts?.find {
+            it.name == namedPointcut.functionName.name
+        }?.expression
+    }
+
     override fun visitElement(element: IrElement): IrElement {
         element.transformChildrenVoid()
         return element
@@ -26,8 +35,23 @@ class AspectKTransformer(private val aspectClasses: List<AspectClass>) : IrEleme
 
         aspectClasses.forEach { aspectClass ->
             aspectClass.advices.forEach { advice ->
-                if (advice.matcher.matches(declaration.toFunctionSpec())) {
-                    report(CompilerMessageSeverity.WARNING, "AspectK: Matched ${advice} to ${declaration.name}")
+                if (advice.matcher.matches(declaration.toFunctionSpec(), namedPointcutResolver)) {
+                    // FIXME: experimental implementation
+                    when (advice.type) {
+                        AdviceType.AFTER -> {
+                            (declaration.body as? IrBlockBody)?.statements?.addAll(advice.functionDeclaration.body?.statements.orEmpty())
+                        }
+
+                        AdviceType.BEFORE -> {
+                            (declaration.body as? IrBlockBody)?.statements?.addAll(0, advice.functionDeclaration.body?.statements.orEmpty())
+                        }
+
+                        AdviceType.AROUND -> {
+                            (declaration.body as? IrBlockBody)?.statements?.addAll(0, advice.functionDeclaration.body?.statements.orEmpty())
+                            (declaration.body as? IrBlockBody)?.statements?.addAll(advice.functionDeclaration.body?.statements.orEmpty())
+                        }
+                    }
+                    report(CompilerMessageSeverity.WARNING, "AspectK: Matched $advice to ${declaration.name}")
                 }
             }
         }

@@ -5,6 +5,7 @@ import com.github.kitakkun.aspectk.expression.lexer.AspectKToken
 import com.github.kitakkun.aspectk.expression.lexer.AspectKTokenType
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsTokenParser
 import com.github.kitakkun.aspectk.expression.tokenparser.ExecutionTokenParser
+import com.github.kitakkun.aspectk.expression.tokenparser.NamedPointcutTokenParser
 
 class PointcutExpressionParser(
     private val tokens: List<AspectKToken>
@@ -84,7 +85,8 @@ class PointcutExpressionParser(
         return when (identifier.lexeme) {
             "execution" -> execution(expressionTokens)
             "args" -> args(expressionTokens)
-            else -> error("Unknown pointcut identifier")
+            "named" -> namedPointcut(expressionTokens)
+            else -> throw IllegalStateException("Unknown pointcut identifier: ${identifier.lexeme}")
         }
     }
 
@@ -98,6 +100,12 @@ class PointcutExpressionParser(
     private fun args(expressionTokens: List<AspectKToken>): PointcutExpression.Args {
         val tokenParser = ArgsTokenParser(expressionTokens)
         val expressionParser = ArgsExpressionParser(tokenParser.parseTokens())
+        return expressionParser.parse()
+    }
+
+    private fun namedPointcut(expressionTokens: List<AspectKToken>): PointcutExpression {
+        val tokenParser = NamedPointcutTokenParser(expressionTokens)
+        val expressionParser = NamedPointcutExpressionParser(tokenParser.parseToNamedPointcutTokens())
         return expressionParser.parse()
     }
 
