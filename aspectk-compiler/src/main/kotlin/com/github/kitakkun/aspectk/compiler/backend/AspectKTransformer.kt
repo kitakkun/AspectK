@@ -1,5 +1,6 @@
 package com.github.kitakkun.aspectk.compiler.backend
 
+import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AspectClass
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.matcher.FunctionSpec
@@ -21,6 +22,8 @@ class AspectKTransformer(private val aspectClasses: List<AspectClass>) : IrEleme
     }
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
+        if (declaration.isAspectRelevantDeclaration()) return declaration
+
         aspectClasses.forEach { aspectClass ->
             aspectClass.advices.forEach { advice ->
                 if (advice.matcher.matches(declaration.toFunctionSpec())) {
@@ -30,6 +33,14 @@ class AspectKTransformer(private val aspectClasses: List<AspectClass>) : IrEleme
         }
         return super.visitSimpleFunction(declaration)
     }
+}
+
+private fun IrSimpleFunction.isAspectRelevantDeclaration(): Boolean {
+    return this.parentClassOrNull?.hasAnnotation(AspectKAnnotations.ASPECT_FQ_NAME) == true ||
+        this.hasAnnotation(AspectKAnnotations.POINTCUT_FQ_NAME) ||
+        this.hasAnnotation(AspectKAnnotations.BEFORE_FQ_NAME) ||
+        this.hasAnnotation(AspectKAnnotations.AFTER_FQ_NAME) ||
+        this.hasAnnotation(AspectKAnnotations.AROUND_FQ_NAME)
 }
 
 private fun IrSimpleFunction.toFunctionSpec(): FunctionSpec {
