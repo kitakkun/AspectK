@@ -72,5 +72,7 @@ private fun IrSimpleFunction.modifiers(): Set<FunctionModifier> {
     if (this.isOperator) modifiers.add(FunctionModifier.OPERATOR)
     if (this.isInline) modifiers.add(FunctionModifier.INLINE)
     if (this.isExternal) modifiers.add(FunctionModifier.EXTERNAL)
+
+    return modifiers
 }
 
