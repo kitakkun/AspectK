@@ -16,7 +16,7 @@ class PointcutExpressionMatcherTest {
 
         assert(
             matcher.matches(
-                FunctionSpec(
+                functionSpec = FunctionSpec(
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     packageName = "com/example",
                     className = "",
@@ -24,13 +24,14 @@ class PointcutExpressionMatcherTest {
                     args = emptyList(),
                     returnType = classId("", "Unit"),
                     lastArgumentIsVararg = false,
-                )
+                ),
+                namedPointcutResolver = { null },
             )
         )
 
         assert(
             matcher.matches(
-                FunctionSpec(
+                functionSpec = FunctionSpec(
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     packageName = "com/example/hogehoge/submodule",
                     className = "",
@@ -38,13 +39,14 @@ class PointcutExpressionMatcherTest {
                     args = emptyList(),
                     returnType = classId("", "Unit"),
                     lastArgumentIsVararg = false,
-                )
+                ),
+                namedPointcutResolver = { null },
             )
         )
 
         assertFalse {
             matcher.matches(
-                FunctionSpec(
+                functionSpec = FunctionSpec(
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     packageName = "com/example/hogehoge/submodule",
                     className = "SomeClass",
@@ -52,7 +54,8 @@ class PointcutExpressionMatcherTest {
                     args = emptyList(),
                     returnType = classId("", "Unit"),
                     lastArgumentIsVararg = false,
-                )
+                ),
+                namedPointcutResolver = { null },
             )
         }
     }
