@@ -1,6 +1,7 @@
 package com.github.kitakkun.aspectk.compiler.backend
 
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
+import com.github.kitakkun.aspectk.compiler.AspectKConsts
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AdviceType
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AspectClass
 import com.github.kitakkun.aspectk.expression.FunctionModifier
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.classOrFail
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
@@ -78,7 +80,9 @@ class AspectKTransformer(
                     val adviceCall = with(irBuilder) {
                         irCall(advice.functionDeclaration.symbol).apply {
                             dispatchReceiver = irGet(aspectClassInstance)
-                            putValueArgument(0, irGet(joinPointVariable))
+                            if (advice.functionDeclaration.valueParameters.firstOrNull()?.type?.classOrNull?.owner?.classId == AspectKConsts.JOIN_POINT_CLASS_ID) {
+                                putValueArgument(0, irGet(joinPointVariable))
+                            }
                         }
                     }
 
