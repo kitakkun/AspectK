@@ -21,7 +21,7 @@ class ClassMatcher(
             if (isKotlinPrimitive(className)) return true
         }
 
-        packageName.split("/").filterNot { it.isEmpty() }.forEachIndexed { index, name ->
+        packageName.split("/", ".").filterNot { it.isEmpty() }.forEachIndexed { index, name ->
             val nameExpression = packageNameExpressions.getOrNull(index) ?: return false
             if (!NameExpressionMatcher(nameExpression).matches(name)) {
                 return false
