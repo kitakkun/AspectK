@@ -13,6 +13,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":aspectk-annotations"))
+            implementation(project(":aspectk-core"))
         }
     }
 }
