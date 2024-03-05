@@ -78,6 +78,11 @@ class ExecutionTokenParser(
                 tryParsePackage(token)
             }
 
+            // if the next token is a double star, it's a package name
+            AspectKTokenType.DOUBLE_STAR -> {
+                context = ExecutionExpressionResolvingContext.PACKAGE
+            }
+
             // if the next token is a dot, it's a class name
             AspectKTokenType.DOT -> {
                 context = ExecutionExpressionResolvingContext.CLASS
