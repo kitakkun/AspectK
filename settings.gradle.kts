@@ -20,6 +20,6 @@ include(":aspectk-annotations")
 include(":aspectk-plugin-common")
 include(":aspectk-expression")
 include(":test")
+include(":aspectk-core")
 
 rootProject.name = "AspectK"
-

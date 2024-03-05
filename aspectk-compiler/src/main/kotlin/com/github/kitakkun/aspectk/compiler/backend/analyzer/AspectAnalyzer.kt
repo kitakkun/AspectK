@@ -105,9 +105,10 @@ class AspectAnalyzer private constructor() : IrElementVisitorVoid {
         val advices = beforeAdvices + afterAdvices + aroundAdvices
 
         return AspectClass(
-            classId,
-            pointcuts,
-            advices,
+            classId = classId,
+            pointcuts = pointcuts,
+            advices = advices,
+            classDeclaration = declaration,
         )
     }
 }

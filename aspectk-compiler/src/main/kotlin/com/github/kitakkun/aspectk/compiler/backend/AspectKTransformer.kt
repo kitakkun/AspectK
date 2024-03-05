@@ -11,14 +11,18 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.builders.*
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.classOrFail
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
-context(MessageCollector)
-class AspectKTransformer(private val aspectClasses: List<AspectClass>) : IrElementTransformerVoid() {
+context(MessageCollector, AspectKIrPluginContext)
+class AspectKTransformer(
+    private val aspectClasses: List<AspectClass>,
+) : IrElementTransformerVoid() {
     private val namedPointcutResolver = { namedPointcut: PointcutExpression.Named ->
         aspectClasses.find { it.classId == namedPointcut.classId }?.pointcuts?.find {
             it.name == namedPointcut.functionName.name
@@ -33,25 +37,66 @@ class AspectKTransformer(private val aspectClasses: List<AspectClass>) : IrEleme
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         if (declaration.isAspectRelevantDeclaration()) return declaration
 
+        val functionSpec = declaration.toFunctionSpec()
+        val irBuilder = IrBlockBodyBuilder(context = context, startOffset = declaration.startOffset, endOffset = declaration.endOffset, scope = Scope(declaration.symbol))
+
+        val declarationBody = declaration.body as? IrBlockBody ?: return declaration
+
         aspectClasses.forEach { aspectClass ->
             aspectClass.advices.forEach { advice ->
-                if (advice.matcher.matches(declaration.toFunctionSpec(), namedPointcutResolver)) {
-                    // FIXME: experimental implementation
+                if (advice.matcher.matches(functionSpec, namedPointcutResolver)) {
+                    report(CompilerMessageSeverity.WARNING, "AspectK: Matched $advice to ${declaration.name}")
+
+                    val aspectClassInstance = with(irBuilder) {
+                        irTemporary(
+                            value = if (aspectClass.classDeclaration.isObject) {
+                                irGetObject(aspectClass.classDeclaration.symbol)
+                            } else {
+                                val constructor = aspectClass.classConstructor ?: error("Primary constructor for ${aspectClass.classId} not found")
+                                irCallConstructor(constructor.symbol, emptyList())
+                            },
+                            origin = IrDeclarationOrigin.DEFINED,
+                        )
+                    }
+
+                    val joinPointVariable = with(irBuilder) {
+                        val parentClassGetCall = declaration.dispatchReceiverParameter?.let { irGet(it) } ?: irNull()
+                        val argListConstructCall = irCall(listOfFunction).apply {
+                            putValueArgument(index = 0, valueArgument = irVararg(irBuiltIns.anyNType, declaration.valueParameters.map { irGet(it) }))
+                        }
+                        val joinPointConstructCall = irCallConstructor(joinPointClassConstructor, emptyList()).apply {
+                            putValueArgument(0, parentClassGetCall)
+                            putValueArgument(1, argListConstructCall)
+                        }
+
+                        irTemporary(joinPointConstructCall, origin = IrDeclarationOrigin.DEFINED)
+                    }
+
+                    declarationBody.statements.add(0, aspectClassInstance)
+                    declarationBody.statements.add(1, joinPointVariable)
+
+                    val adviceCall = with(irBuilder) {
+                        irCall(advice.functionDeclaration.symbol).apply {
+                            dispatchReceiver = irGet(aspectClassInstance)
+                            putValueArgument(0, irGet(joinPointVariable))
+                        }
+                    }
+
                     when (advice.type) {
                         AdviceType.AFTER -> {
-                            (declaration.body as? IrBlockBody)?.statements?.addAll(advice.functionDeclaration.body?.statements.orEmpty())
+                            declarationBody.statements.add(adviceCall)
                         }
 
                         AdviceType.BEFORE -> {
-                            (declaration.body as? IrBlockBody)?.statements?.addAll(0, advice.functionDeclaration.body?.statements.orEmpty())
+                            declarationBody.statements.add(2, adviceCall)
                         }
 
                         AdviceType.AROUND -> {
-                            (declaration.body as? IrBlockBody)?.statements?.addAll(0, advice.functionDeclaration.body?.statements.orEmpty())
-                            (declaration.body as? IrBlockBody)?.statements?.addAll(advice.functionDeclaration.body?.statements.orEmpty())
+                            // FIXME: This may not work as expected
+                            declarationBody.statements.add(2, adviceCall)
+                            declarationBody.statements.add(adviceCall.deepCopyWithSymbols())
                         }
                     }
-                    report(CompilerMessageSeverity.WARNING, "AspectK: Matched $advice to ${declaration.name}")
                 }
             }
         }

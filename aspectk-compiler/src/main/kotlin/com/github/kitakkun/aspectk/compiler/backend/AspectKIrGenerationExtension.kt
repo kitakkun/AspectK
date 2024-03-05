@@ -15,6 +15,9 @@ class AspectKIrGenerationExtension : IrGenerationExtension {
         report(CompilerMessageSeverity.WARNING, "AspectK: Found ${aspectClasses.size} aspect classes")
         report(CompilerMessageSeverity.WARNING, "AspectK: ${aspectClasses}")
 
-        moduleFragment.transformChildrenVoid(AspectKTransformer(aspectClasses))
+        val context = AspectKIrPluginContext(pluginContext)
+        with(context) {
+            moduleFragment.transformChildrenVoid(AspectKTransformer(aspectClasses))
+        }
     }
 }
