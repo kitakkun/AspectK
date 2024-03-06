@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
 sealed class PointcutExpression {
+    data object Empty : PointcutExpression()
     data class And(val left: PointcutExpression, val right: PointcutExpression) : PointcutExpression()
     data class Or(val left: PointcutExpression, val right: PointcutExpression) : PointcutExpression()
     data class Not(val expression: PointcutExpression) : PointcutExpression()

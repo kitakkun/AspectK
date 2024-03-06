@@ -14,6 +14,7 @@ class PointcutExpressionParser(
     private val isAtEnd get() = current >= tokens.size
 
     fun expression(): PointcutExpression {
+        if (tokens.isEmpty()) return PointcutExpression.Empty
         if (isAtEnd) throw IllegalStateException("parse operation can be called only once.")
         return or()
     }

@@ -17,6 +17,10 @@ data class FunctionSpec(
 class PointcutExpressionMatcher(private val expression: PointcutExpression) {
     fun matches(functionSpec: FunctionSpec, namedPointcutResolver: (PointcutExpression.Named) -> PointcutExpression?): Boolean {
         when (expression) {
+            is PointcutExpression.Empty -> {
+                return false
+            }
+
             is PointcutExpression.And -> {
                 val left = PointcutExpressionMatcher(expression.left).matches(functionSpec, namedPointcutResolver)
                 val right = PointcutExpressionMatcher(expression.right).matches(functionSpec, namedPointcutResolver)
