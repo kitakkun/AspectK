@@ -1,6 +1,7 @@
 package com.github.kitakkun.aspectk.compiler
 
 import org.jetbrains.kotlin.javac.resolve.classId
+import org.jetbrains.kotlin.name.Name
 
 object AspectKAnnotations {
     val ASPECT_CLASS_ID = classId("com.github.kitakkun.aspectk.annotations", "Aspect")
@@ -14,4 +15,7 @@ object AspectKAnnotations {
     val AFTER_FQ_NAME = AFTER_CLASS_ID.asSingleFqName()
     val AROUND_FQ_NAME = AROUND_CLASS_ID.asSingleFqName()
     val POINTCUT_FQ_NAME = POINTCUT_CLASS_ID.asSingleFqName()
+
+    val POINTCUT_ARGUMENT_EXPRESSION_NAME = Name.identifier("expression")
+    val ADVICE_ARGUMENT_POINTCUT_NAME = Name.identifier("pointcut")
 }
