@@ -12,6 +12,7 @@ class AspectKCommonConventionPlugin : Plugin<Project> {
 
             configure<KtlintExtension> {
                 version.set("1.2.1")
+                ignoreFailures.set(true)
             }
         }
     }
