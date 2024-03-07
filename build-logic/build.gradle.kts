@@ -1,14 +1,18 @@
 @file:Suppress("DSL_SCOPE_VIOLATION")
+
 plugins {
-    alias(libs.plugins.kotlinJvm) apply false
-    alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.buildKonfig) apply false
-    alias(libs.plugins.ksp) apply false
+    `kotlin-dsl`
 }
 
-subprojects {
-    group = "com.github.kitakkun.aspectk"
-    version = rootProject.libs.versions.aspectk.get()
+gradlePlugin {
+    plugins {
+        register("aspectkCommon") {
+            id = "aspectk.common"
+            implementationClass = "AspectKCommonConventionPlugin"
+        }
+    }
 }
 
-true
+dependencies {
+    compileOnly(libs.ktlint.gradle)
+}

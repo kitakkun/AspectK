@@ -7,6 +7,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
+        gradlePluginPortal()
         mavenCentral()
     }
     versionCatalogs {
@@ -16,10 +17,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(
-    ":aspectk-plugin-common",
-    ":aspectk-gradle-plugin",
-)
-
-project(":aspectk-gradle-plugin").projectDir = file("../aspectk-gradle-plugin")
-project(":aspectk-plugin-common").projectDir = file("../aspectk-plugin-common")
+rootProject.name = "build-logic"
