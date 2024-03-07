@@ -22,7 +22,5 @@ class LogAspect {
     }
 }
 
-
 fun hoge(a: Int) {
-
 }

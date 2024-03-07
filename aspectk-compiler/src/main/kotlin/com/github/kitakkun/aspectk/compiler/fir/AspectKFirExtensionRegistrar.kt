@@ -10,4 +10,3 @@ class AspectKFirExtensionRegistrar : FirExtensionRegistrar() {
         +::AspectKFirCheckerExtension
     }
 }
-

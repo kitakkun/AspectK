@@ -25,13 +25,15 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
         }
     }
 
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = kotlinCompilation.project.plugins.hasPlugin(AspectKPluginConsts.PLUGIN_ID)
+    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) =
+        kotlinCompilation.project.plugins.hasPlugin(AspectKPluginConsts.PLUGIN_ID)
 
     override fun getCompilerPluginId() = AspectKPluginConsts.PLUGIN_ID
 
-    override fun getPluginArtifact() = SubpluginArtifact(
-        groupId = "com.github.kitakkun.aspectk",
-        artifactId = "aspectk-compiler",
-        version = AspectKPluginConsts.PLUGIN_VERSION,
-    )
+    override fun getPluginArtifact() =
+        SubpluginArtifact(
+            groupId = "com.github.kitakkun.aspectk",
+            artifactId = "aspectk-compiler",
+            version = AspectKPluginConsts.PLUGIN_VERSION,
+        )
 }

@@ -14,7 +14,11 @@ import org.jetbrains.kotlin.fir.declarations.getStringArgument
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 
 class AdviceOrPointcutFunctionChecker : FirFunctionChecker() {
-    override fun check(declaration: FirFunction, context: CheckerContext, reporter: DiagnosticReporter) {
+    override fun check(
+        declaration: FirFunction,
+        context: CheckerContext,
+        reporter: DiagnosticReporter,
+    ) {
         with(context) {
             verifyScope(declaration, reporter)
             verifyPointcutExpression(declaration, reporter)
@@ -25,19 +29,31 @@ class AdviceOrPointcutFunctionChecker : FirFunctionChecker() {
     private fun tryGetPointcutExpression(declaration: FirFunction): String? {
         return when {
             declaration.hasAnnotation(AspectKAnnotations.POINTCUT_CLASS_ID, session) -> {
-                declaration.getAnnotationByClassId(AspectKAnnotations.POINTCUT_CLASS_ID, session)?.getStringArgument(AspectKAnnotations.POINTCUT_ARGUMENT_EXPRESSION_NAME)
+                declaration.getAnnotationByClassId(
+                    AspectKAnnotations.POINTCUT_CLASS_ID,
+                    session,
+                )?.getStringArgument(AspectKAnnotations.POINTCUT_ARGUMENT_EXPRESSION_NAME)
             }
 
             declaration.hasAnnotation(AspectKAnnotations.BEFORE_CLASS_ID, session) -> {
-                declaration.getAnnotationByClassId(AspectKAnnotations.BEFORE_CLASS_ID, session)?.getStringArgument(AspectKAnnotations.ADVICE_ARGUMENT_POINTCUT_NAME)
+                declaration.getAnnotationByClassId(
+                    AspectKAnnotations.BEFORE_CLASS_ID,
+                    session,
+                )?.getStringArgument(AspectKAnnotations.ADVICE_ARGUMENT_POINTCUT_NAME)
             }
 
             declaration.hasAnnotation(AspectKAnnotations.AFTER_CLASS_ID, session) -> {
-                declaration.getAnnotationByClassId(AspectKAnnotations.AFTER_CLASS_ID, session)?.getStringArgument(AspectKAnnotations.ADVICE_ARGUMENT_POINTCUT_NAME)
+                declaration.getAnnotationByClassId(
+                    AspectKAnnotations.AFTER_CLASS_ID,
+                    session,
+                )?.getStringArgument(AspectKAnnotations.ADVICE_ARGUMENT_POINTCUT_NAME)
             }
 
             declaration.hasAnnotation(AspectKAnnotations.AROUND_CLASS_ID, session) -> {
-                declaration.getAnnotationByClassId(AspectKAnnotations.AROUND_CLASS_ID, session)?.getStringArgument(AspectKAnnotations.ADVICE_ARGUMENT_POINTCUT_NAME)
+                declaration.getAnnotationByClassId(
+                    AspectKAnnotations.AROUND_CLASS_ID,
+                    session,
+                )?.getStringArgument(AspectKAnnotations.ADVICE_ARGUMENT_POINTCUT_NAME)
             }
 
             else -> null
@@ -45,7 +61,10 @@ class AdviceOrPointcutFunctionChecker : FirFunctionChecker() {
     }
 
     context(CheckerContext)
-    private fun verifyScope(declaration: FirFunction, reporter: DiagnosticReporter) {
+    private fun verifyScope(
+        declaration: FirFunction,
+        reporter: DiagnosticReporter,
+    ) {
         val isInsideAspectClass = declaration.hasAnnotationOrInsideAnnotatedClass(AspectKAnnotations.ASPECT_CLASS_ID, session)
         if (isInsideAspectClass) return
 
@@ -55,21 +74,36 @@ class AdviceOrPointcutFunctionChecker : FirFunctionChecker() {
             }
 
             declaration.hasAnnotation(AspectKAnnotations.BEFORE_CLASS_ID, session) -> {
-                reporter.reportOn(declaration.source, AspectKErrors.ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION, AspectKAnnotations.BEFORE_CLASS_ID.shortClassName.asString())
+                reporter.reportOn(
+                    declaration.source,
+                    AspectKErrors.ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION,
+                    AspectKAnnotations.BEFORE_CLASS_ID.shortClassName.asString(),
+                )
             }
 
             declaration.hasAnnotation(AspectKAnnotations.AFTER_CLASS_ID, session) -> {
-                reporter.reportOn(declaration.source, AspectKErrors.ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION, AspectKAnnotations.AFTER_CLASS_ID.shortClassName.asString())
+                reporter.reportOn(
+                    declaration.source,
+                    AspectKErrors.ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION,
+                    AspectKAnnotations.AFTER_CLASS_ID.shortClassName.asString(),
+                )
             }
 
             declaration.hasAnnotation(AspectKAnnotations.AROUND_CLASS_ID, session) -> {
-                reporter.reportOn(declaration.source, AspectKErrors.ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION, AspectKAnnotations.AROUND_CLASS_ID.shortClassName.asString())
+                reporter.reportOn(
+                    declaration.source,
+                    AspectKErrors.ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION,
+                    AspectKAnnotations.AROUND_CLASS_ID.shortClassName.asString(),
+                )
             }
         }
     }
 
     context(CheckerContext)
-    private fun verifyPointcutExpression(declaration: FirFunction, reporter: DiagnosticReporter) {
+    private fun verifyPointcutExpression(
+        declaration: FirFunction,
+        reporter: DiagnosticReporter,
+    ) {
         val pointcutExpression = tryGetPointcutExpression(declaration) ?: return
 
         if (pointcutExpression.isEmpty()) {

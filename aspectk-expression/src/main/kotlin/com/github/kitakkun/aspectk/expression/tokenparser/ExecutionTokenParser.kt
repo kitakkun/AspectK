@@ -174,8 +174,8 @@ class ExecutionTokenParser(
         val start = current
 
         var depth = 1
-        while(!isAtEnd) {
-            when(advance().type) {
+        while (!isAtEnd) {
+            when (advance().type) {
                 AspectKTokenType.LEFT_PAREN -> depth++
                 AspectKTokenType.RIGHT_PAREN -> depth--
                 else -> {}
@@ -214,7 +214,10 @@ class ExecutionTokenParser(
         }
     }
 
-    private fun addToken(type: ExecutionTokenType, lexeme: String) {
+    private fun addToken(
+        type: ExecutionTokenType,
+        lexeme: String,
+    ) {
         tokens.add(ExecutionToken(type, lexeme))
     }
 

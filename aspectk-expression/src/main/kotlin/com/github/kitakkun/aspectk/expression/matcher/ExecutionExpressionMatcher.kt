@@ -12,7 +12,7 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         argumentClassIds: List<ClassId>,
         returnType: ClassId,
         modifiers: Set<FunctionModifier>,
-        lastArgumentIsVararg: Boolean
+        lastArgumentIsVararg: Boolean,
     ): Boolean {
         // function name matching
         if (!NameExpressionMatcher(expression.functionName).matches(functionName)) return false
@@ -36,7 +36,7 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         // matching return type
         return ClassMatcher(expression.returnTypePackageNames, expression.returnTypeClassNames).matches(
             packageName = returnType.packageFqName.asString(),
-            className = returnType.relativeClassName.asString()
+            className = returnType.relativeClassName.asString(),
         )
     }
 }

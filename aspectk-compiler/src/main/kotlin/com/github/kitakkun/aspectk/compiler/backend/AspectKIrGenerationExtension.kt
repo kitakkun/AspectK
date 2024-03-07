@@ -10,10 +10,13 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 context(MessageCollector)
 class AspectKIrGenerationExtension : IrGenerationExtension {
-    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+    override fun generate(
+        moduleFragment: IrModuleFragment,
+        pluginContext: IrPluginContext,
+    ) {
         val aspectClasses = AspectAnalyzer.analyze(moduleFragment)
         report(CompilerMessageSeverity.WARNING, "AspectK: Found ${aspectClasses.size} aspect classes")
-        report(CompilerMessageSeverity.WARNING, "AspectK: ${aspectClasses}")
+        report(CompilerMessageSeverity.WARNING, "AspectK: $aspectClasses")
 
         val context = AspectKIrPluginContext(pluginContext)
         with(context) {

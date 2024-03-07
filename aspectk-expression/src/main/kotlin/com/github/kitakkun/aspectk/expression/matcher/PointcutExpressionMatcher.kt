@@ -15,7 +15,10 @@ data class FunctionSpec(
 )
 
 class PointcutExpressionMatcher(private val expression: PointcutExpression) {
-    fun matches(functionSpec: FunctionSpec, namedPointcutResolver: (PointcutExpression.Named) -> PointcutExpression?): Boolean {
+    fun matches(
+        functionSpec: FunctionSpec,
+        namedPointcutResolver: (PointcutExpression.Named) -> PointcutExpression?,
+    ): Boolean {
         when (expression) {
             is PointcutExpression.Empty -> {
                 return false
@@ -57,7 +60,10 @@ class PointcutExpressionMatcher(private val expression: PointcutExpression) {
             }
 
             is PointcutExpression.Named -> {
-                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
+                val correspondingExpression =
+                    namedPointcutResolver(
+                        expression,
+                    ) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
                 return PointcutExpressionMatcher(correspondingExpression).matches(functionSpec, namedPointcutResolver)
             }
         }

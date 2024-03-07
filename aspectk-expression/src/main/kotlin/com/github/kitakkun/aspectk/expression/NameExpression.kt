@@ -11,11 +11,15 @@ sealed class NameExpression {
                 else -> Normal(name)
             }
         }
-
     }
+
     data class Normal(val name: String) : NameExpression()
+
     data class Prefixed(val prefix: String) : NameExpression()
+
     data class Suffixed(val suffix: String) : NameExpression()
-    data object Recursive: NameExpression()
-    data object Any: NameExpression()
+
+    data object Recursive : NameExpression()
+
+    data object Any : NameExpression()
 }

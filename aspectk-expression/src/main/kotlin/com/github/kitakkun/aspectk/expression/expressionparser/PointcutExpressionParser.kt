@@ -8,7 +8,7 @@ import com.github.kitakkun.aspectk.expression.tokenparser.ExecutionTokenParser
 import com.github.kitakkun.aspectk.expression.tokenparser.NamedPointcutTokenParser
 
 class PointcutExpressionParser(
-    private val tokens: List<AspectKToken>
+    private val tokens: List<AspectKToken>,
 ) {
     private var current = 0
     private val isAtEnd get() = current >= tokens.size
@@ -29,7 +29,6 @@ class PointcutExpressionParser(
 
         return left
     }
-
 
     private fun and(): PointcutExpression {
         var left: PointcutExpression = not()
@@ -82,7 +81,10 @@ class PointcutExpressionParser(
         return processPointcutExpression(identifier, expressionTokens)
     }
 
-    private fun processPointcutExpression(identifier: AspectKToken, expressionTokens: List<AspectKToken>): PointcutExpression {
+    private fun processPointcutExpression(
+        identifier: AspectKToken,
+        expressionTokens: List<AspectKToken>,
+    ): PointcutExpression {
         return when (identifier.lexeme) {
             "execution" -> execution(expressionTokens)
             "args" -> args(expressionTokens)
@@ -137,4 +139,3 @@ class PointcutExpressionParser(
         return tokens[current - 1]
     }
 }
-

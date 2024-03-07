@@ -65,7 +65,10 @@ class NamedPointcutTokenParser(
         return rawTokens[current].type == type
     }
 
-    private fun addToken(type: NamedPointcutTokenType, lexeme: String) {
+    private fun addToken(
+        type: NamedPointcutTokenType,
+        lexeme: String,
+    ) {
         tokens.add(NamedPointcutToken(type, lexeme))
     }
 }

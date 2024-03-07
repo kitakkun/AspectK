@@ -61,15 +61,16 @@ class AspectKLexer(private val expression: String) {
 
             '*' -> if (match('*')) addToken(AspectKTokenType.DOUBLE_STAR) else addToken(AspectKTokenType.STAR)
 
-            '.' -> if (match('.')) {
+            '.' ->
                 if (match('.')) {
-                    addToken(AspectKTokenType.TRIPLE_DOT) // vararg
+                    if (match('.')) {
+                        addToken(AspectKTokenType.TRIPLE_DOT) // vararg
+                    } else {
+                        addToken(AspectKTokenType.DOUBLE_DOT) // match zero or more
+                    }
                 } else {
-                    addToken(AspectKTokenType.DOUBLE_DOT) // match zero or more
+                    addToken(AspectKTokenType.DOT) // class name and function name separator
                 }
-            } else {
-                addToken(AspectKTokenType.DOT) // class name and function name separator
-            }
 
             else -> identifier()
         }

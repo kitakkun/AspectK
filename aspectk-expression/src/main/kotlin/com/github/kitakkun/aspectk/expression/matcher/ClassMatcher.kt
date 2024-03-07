@@ -4,9 +4,12 @@ import com.github.kitakkun.aspectk.expression.NameExpression
 
 class ClassMatcher(
     private val packageNameExpressions: List<NameExpression>,
-    private val classNameExpressions: List<NameExpression>
+    private val classNameExpressions: List<NameExpression>,
 ) {
-    fun matches(packageName: String, className: String): Boolean {
+    fun matches(
+        packageName: String,
+        className: String,
+    ): Boolean {
         className.split(".").filterNot { it.isEmpty() }.forEachIndexed { index, name ->
             val nameExpression = classNameExpressions.getOrNull(index) ?: return false
             if (!NameExpressionMatcher(nameExpression).matches(name)) {
@@ -37,7 +40,8 @@ class ClassMatcher(
     private fun isKotlinPrimitive(className: String): Boolean {
         return when (className) {
             "Byte", "Short", "Int", "Long", "Float", "Double",
-            "UByte", "UShort", "UInt", "ULong" -> true
+            "UByte", "UShort", "UInt", "ULong",
+            -> true
 
             "Boolean" -> true
 

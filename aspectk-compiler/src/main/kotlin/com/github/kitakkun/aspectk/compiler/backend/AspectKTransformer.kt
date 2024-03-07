@@ -40,7 +40,13 @@ class AspectKTransformer(
         if (declaration.isAspectRelevantDeclaration()) return declaration
 
         val functionSpec = declaration.toFunctionSpec()
-        val irBuilder = IrBlockBodyBuilder(context = context, startOffset = declaration.startOffset, endOffset = declaration.endOffset, scope = Scope(declaration.symbol))
+        val irBuilder =
+            IrBlockBodyBuilder(
+                context = context,
+                startOffset = declaration.startOffset,
+                endOffset = declaration.endOffset,
+                scope = Scope(declaration.symbol),
+            )
 
         val declarationBody = declaration.body as? IrBlockBody ?: return declaration
 
@@ -49,42 +55,54 @@ class AspectKTransformer(
                 if (advice.matcher.matches(functionSpec, namedPointcutResolver)) {
                     report(CompilerMessageSeverity.WARNING, "AspectK: Matched $advice to ${declaration.name}")
 
-                    val aspectClassInstance = with(irBuilder) {
-                        irTemporary(
-                            value = if (aspectClass.classDeclaration.isObject) {
-                                irGetObject(aspectClass.classDeclaration.symbol)
-                            } else {
-                                val constructor = aspectClass.classConstructor ?: error("Primary constructor for ${aspectClass.classId} not found")
-                                irCallConstructor(constructor.symbol, emptyList())
-                            },
-                            origin = IrDeclarationOrigin.DEFINED,
-                        )
-                    }
-
-                    val joinPointVariable = with(irBuilder) {
-                        val parentClassGetCall = declaration.dispatchReceiverParameter?.let { irGet(it) } ?: irNull()
-                        val argListConstructCall = irCall(listOfFunction).apply {
-                            putValueArgument(index = 0, valueArgument = irVararg(irBuiltIns.anyNType, declaration.valueParameters.map { irGet(it) }))
-                        }
-                        val joinPointConstructCall = irCallConstructor(joinPointClassConstructor, emptyList()).apply {
-                            putValueArgument(0, parentClassGetCall)
-                            putValueArgument(1, argListConstructCall)
+                    val aspectClassInstance =
+                        with(irBuilder) {
+                            irTemporary(
+                                value =
+                                    if (aspectClass.classDeclaration.isObject) {
+                                        irGetObject(aspectClass.classDeclaration.symbol)
+                                    } else {
+                                        val constructor =
+                                            aspectClass.classConstructor ?: error(
+                                                "Primary constructor for ${aspectClass.classId} not found",
+                                            )
+                                        irCallConstructor(constructor.symbol, emptyList())
+                                    },
+                                origin = IrDeclarationOrigin.DEFINED,
+                            )
                         }
 
-                        irTemporary(joinPointConstructCall, origin = IrDeclarationOrigin.DEFINED)
-                    }
+                    val joinPointVariable =
+                        with(irBuilder) {
+                            val parentClassGetCall = declaration.dispatchReceiverParameter?.let { irGet(it) } ?: irNull()
+                            val argListConstructCall =
+                                irCall(listOfFunction).apply {
+                                    putValueArgument(
+                                        index = 0,
+                                        valueArgument = irVararg(irBuiltIns.anyNType, declaration.valueParameters.map { irGet(it) }),
+                                    )
+                                }
+                            val joinPointConstructCall =
+                                irCallConstructor(joinPointClassConstructor, emptyList()).apply {
+                                    putValueArgument(0, parentClassGetCall)
+                                    putValueArgument(1, argListConstructCall)
+                                }
+
+                            irTemporary(joinPointConstructCall, origin = IrDeclarationOrigin.DEFINED)
+                        }
 
                     declarationBody.statements.add(0, aspectClassInstance)
                     declarationBody.statements.add(1, joinPointVariable)
 
-                    val adviceCall = with(irBuilder) {
-                        irCall(advice.functionDeclaration.symbol).apply {
-                            dispatchReceiver = irGet(aspectClassInstance)
-                            if (advice.functionDeclaration.valueParameters.firstOrNull()?.type?.classOrNull?.owner?.classId == AspectKConsts.JOIN_POINT_CLASS_ID) {
-                                putValueArgument(0, irGet(joinPointVariable))
+                    val adviceCall =
+                        with(irBuilder) {
+                            irCall(advice.functionDeclaration.symbol).apply {
+                                dispatchReceiver = irGet(aspectClassInstance)
+                                if (advice.functionDeclaration.valueParameters.firstOrNull()?.type?.classOrNull?.owner?.classId == AspectKConsts.JOIN_POINT_CLASS_ID) {
+                                    putValueArgument(0, irGet(joinPointVariable))
+                                }
                             }
                         }
-                    }
 
                     when (advice.type) {
                         AdviceType.AFTER -> {
@@ -136,8 +154,16 @@ private fun IrSimpleFunction.modifiers(): Set<FunctionModifier> {
         DescriptorVisibilities.PROTECTED -> modifiers.add(FunctionModifier.PROTECTED)
         DescriptorVisibilities.INTERNAL -> modifiers.add(FunctionModifier.INTERNAL)
         // FIXME: Not tested
-        DescriptorVisibilities.INHERITED -> this.overriddenSymbols.mapNotNull { it.owner.modifiers().firstOrNull() }
-            .firstOrNull { it in listOf(FunctionModifier.PUBLIC, FunctionModifier.PROTECTED, FunctionModifier.INTERNAL) }?.let { modifiers.add(it) }
+        DescriptorVisibilities.INHERITED ->
+            this.overriddenSymbols.mapNotNull { it.owner.modifiers().firstOrNull() }
+                .firstOrNull {
+                    it in
+                        listOf(
+                            FunctionModifier.PUBLIC,
+                            FunctionModifier.PROTECTED,
+                            FunctionModifier.INTERNAL,
+                        )
+                }?.let { modifiers.add(it) }
     }
     if (this.isInfix) modifiers.add(FunctionModifier.INFIX)
     if (this.isSuspend) modifiers.add(FunctionModifier.SUSPEND)
@@ -148,4 +174,3 @@ private fun IrSimpleFunction.modifiers(): Set<FunctionModifier> {
 
     return modifiers
 }
-

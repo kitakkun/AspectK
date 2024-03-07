@@ -7,7 +7,9 @@ import com.github.kitakkun.aspectk.expression.tokenparser.ArgsTokenType
 
 sealed class ArgMatchingExpression {
     data object AnySingle : ArgMatchingExpression()
+
     data object NoneOrMore : ArgMatchingExpression()
+
     data class Class(
         val packageNames: List<NameExpression>,
         val classNames: List<NameExpression>,
@@ -15,7 +17,7 @@ sealed class ArgMatchingExpression {
 }
 
 class ArgsExpressionParser(
-    private val argsTokens: List<ArgsToken>
+    private val argsTokens: List<ArgsToken>,
 ) {
     fun parse(): PointcutExpression.Args {
         val mutableTokens = argsTokens.toMutableList()
@@ -51,7 +53,7 @@ class ArgsExpressionParser(
                 }
 
                 else -> {
-                    /* do nothing */
+                    // do nothing
                 }
             }
 

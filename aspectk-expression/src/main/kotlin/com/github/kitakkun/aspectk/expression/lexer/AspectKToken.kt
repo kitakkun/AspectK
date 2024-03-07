@@ -7,15 +7,24 @@ data class AspectKToken(
 
 enum class AspectKTokenType {
     // parentheses
-    LEFT_PAREN, RIGHT_PAREN,
+    LEFT_PAREN,
+    RIGHT_PAREN,
 
     // pointcut operators
-    AND, OR, NOT,
+    AND,
+    OR,
+    NOT,
 
     // wildcard
-    STAR, DOUBLE_STAR,
+    STAR,
+    DOUBLE_STAR,
 
-    SLASH, COMMA, DOT, COLON, DOUBLE_DOT, TRIPLE_DOT,
+    SLASH,
+    COMMA,
+    DOT,
+    COLON,
+    DOUBLE_DOT,
+    TRIPLE_DOT,
 
     IDENTIFIER,
 }
