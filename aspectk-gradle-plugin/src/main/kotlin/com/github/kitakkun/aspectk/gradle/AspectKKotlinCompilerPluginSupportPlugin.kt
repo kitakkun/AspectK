@@ -25,8 +25,7 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
         }
     }
 
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) =
-        kotlinCompilation.project.plugins.hasPlugin(AspectKPluginConsts.PLUGIN_ID)
+    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = kotlinCompilation.project.plugins.hasPlugin(AspectKPluginConsts.PLUGIN_ID)
 
     override fun getCompilerPluginId() = AspectKPluginConsts.PLUGIN_ID
 

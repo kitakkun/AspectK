@@ -23,7 +23,6 @@ class ClassMatcher(
         return packageSequenceMatcher.matches(packageName.split(".", "/"))
     }
 
-
     private fun isKotlinPrimitive(className: String): Boolean {
         return when (className) {
             "Byte", "Short", "Int", "Long", "Float", "Double",

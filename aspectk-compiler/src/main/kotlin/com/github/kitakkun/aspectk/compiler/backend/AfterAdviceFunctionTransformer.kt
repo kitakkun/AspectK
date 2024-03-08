@@ -85,12 +85,12 @@ class AfterAdviceFunctionBodyTransformer private constructor(
 private fun IrStatementsBuilder<*>.generateAspectInstance(aspectClass: IrClass): IrVariable {
     return irTemporary(
         value =
-        if (aspectClass.isObject) {
-            irGetObject(aspectClass.symbol)
-        } else {
-            val constructor = aspectClass.primaryConstructor ?: error("Primary constructor for ${aspectClass.classId} not found")
-            irCallConstructor(constructor.symbol, emptyList())
-        },
+            if (aspectClass.isObject) {
+                irGetObject(aspectClass.symbol)
+            } else {
+                val constructor = aspectClass.primaryConstructor ?: error("Primary constructor for ${aspectClass.classId} not found")
+                irCallConstructor(constructor.symbol, emptyList())
+            },
         origin = IrDeclarationOrigin.DEFINED,
     )
 }
