@@ -14,13 +14,13 @@ class ClassMatcher(
         packageName: String,
         className: String,
     ): Boolean {
-        if (!classSequenceMatcher.matches(className.split("."))) return false
+        if (!classSequenceMatcher.matches(className.split(".").filter { it.isNotEmpty() })) return false
 
         if (packageName == "kotlin" && emptyPackageExpressions) {
             if (isKotlinPrimitive(className)) return true
         }
 
-        return packageSequenceMatcher.matches(packageName.split(".", "/"))
+        return packageSequenceMatcher.matches(packageName.split(".", "/").filter { it.isNotEmpty() })
     }
 
     private fun isKotlinPrimitive(className: String): Boolean {

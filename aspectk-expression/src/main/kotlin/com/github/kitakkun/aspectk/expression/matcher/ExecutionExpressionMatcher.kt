@@ -1,6 +1,7 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
+import com.github.kitakkun.aspectk.expression.NameExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.ClassId
@@ -36,8 +37,11 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
 
         // implicit return type matching support
         // FIXME: temporary solution
-        if (returnType == classId("kotlin", "Unit") && expression.returnTypePackageNames.isEmpty() && expression.returnTypeClassNames.isEmpty()) {
-            return true
+        if (returnType == classId("kotlin", "Unit")) {
+            val packageMatch = expression.returnTypePackageNames.isEmpty() || expression.returnTypePackageNames.singleOrNull() == NameExpression.fromString("kotlin")
+            val classMatch = expression.returnTypeClassNames.isEmpty() || expression.returnTypeClassNames.singleOrNull() == NameExpression.fromString("Unit")
+
+            return packageMatch && classMatch
         }
 
         // normal matching return type
