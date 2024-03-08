@@ -41,7 +41,7 @@ class ArgsTokenParser(
                     match(AspectKTokenType.SLASH) -> addToken(ArgsTokenType.PACKAGE_PART, token.lexeme)
                     match(AspectKTokenType.DOT) -> addToken(ArgsTokenType.CLASS, token.lexeme)
                     match(AspectKTokenType.COMMA) || isAtEnd -> {
-                        when(tokens.lastOrNull()?.type) {
+                        when (tokens.lastOrNull()?.type) {
                             ArgsTokenType.CLASS, ArgsTokenType.PACKAGE_PART -> addToken(ArgsTokenType.CLASS, token.lexeme)
                             ArgsTokenType.ARG_SEPARATOR, null -> addToken(ArgsTokenType.SINGLE_ANY_ARG, token.lexeme)
                             else -> error("Unexpected token type $token")
@@ -52,7 +52,6 @@ class ArgsTokenParser(
                     }
                 }
             }
-
 
             AspectKTokenType.DOUBLE_STAR -> {
                 if (match(AspectKTokenType.SLASH)) {
@@ -140,7 +139,10 @@ class ArgsTokenParser(
         return rawTokens[current - 1]
     }
 
-    private fun addToken(type: ArgsTokenType, lexeme: String) {
+    private fun addToken(
+        type: ArgsTokenType,
+        lexeme: String,
+    ) {
         tokens.add(ArgsToken(type, lexeme))
     }
 }

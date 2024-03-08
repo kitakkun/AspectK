@@ -78,6 +78,11 @@ class ExecutionTokenParser(
                 tryParsePackage(token)
             }
 
+            // if the next token is a double star, it's a package name
+            AspectKTokenType.DOUBLE_STAR -> {
+                context = ExecutionExpressionResolvingContext.PACKAGE
+            }
+
             // if the next token is a dot, it's a class name
             AspectKTokenType.DOT -> {
                 context = ExecutionExpressionResolvingContext.CLASS
@@ -169,8 +174,8 @@ class ExecutionTokenParser(
         val start = current
 
         var depth = 1
-        while(!isAtEnd) {
-            when(advance().type) {
+        while (!isAtEnd) {
+            when (advance().type) {
                 AspectKTokenType.LEFT_PAREN -> depth++
                 AspectKTokenType.RIGHT_PAREN -> depth--
                 else -> {}
@@ -209,7 +214,10 @@ class ExecutionTokenParser(
         }
     }
 
-    private fun addToken(type: ExecutionTokenType, lexeme: String) {
+    private fun addToken(
+        type: ExecutionTokenType,
+        lexeme: String,
+    ) {
         tokens.add(ExecutionToken(type, lexeme))
     }
 

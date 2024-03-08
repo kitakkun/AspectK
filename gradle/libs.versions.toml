@@ -1,12 +1,19 @@
 [versions]
+aspectk = "1.0.0" # TODO: Update this when releasing a new version
 kotlin = "1.9.22"
 auto-service = "1.1.1"
 auto-service-ksp = "1.1.0"
+buildKonfig = "0.15.1"
+ktlint-gradle = "12.1.0"
 
 [plugins]
+aspectkCommon = { id = "aspectk.common", version = "unspecified" }
+
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17"}
+ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17" }
+buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 [libraries]
 kotlin-compiler-embeddable = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }
@@ -14,3 +21,4 @@ kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-p
 kotlin-gradle-plugin-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
 auto-service-ksp = { group = "dev.zacsweers.autoservice", name = "auto-service-ksp", version.ref = "auto-service-ksp" }
+ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }

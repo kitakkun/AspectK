@@ -5,14 +5,16 @@ import com.github.kitakkun.aspectk.expression.lexer.AspectKToken
 import com.github.kitakkun.aspectk.expression.lexer.AspectKTokenType
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsTokenParser
 import com.github.kitakkun.aspectk.expression.tokenparser.ExecutionTokenParser
+import com.github.kitakkun.aspectk.expression.tokenparser.NamedPointcutTokenParser
 
 class PointcutExpressionParser(
-    private val tokens: List<AspectKToken>
+    private val tokens: List<AspectKToken>,
 ) {
     private var current = 0
     private val isAtEnd get() = current >= tokens.size
 
     fun expression(): PointcutExpression {
+        if (tokens.isEmpty()) return PointcutExpression.Empty
         if (isAtEnd) throw IllegalStateException("parse operation can be called only once.")
         return or()
     }
@@ -27,7 +29,6 @@ class PointcutExpressionParser(
 
         return left
     }
-
 
     private fun and(): PointcutExpression {
         var left: PointcutExpression = not()
@@ -80,11 +81,15 @@ class PointcutExpressionParser(
         return processPointcutExpression(identifier, expressionTokens)
     }
 
-    private fun processPointcutExpression(identifier: AspectKToken, expressionTokens: List<AspectKToken>): PointcutExpression {
+    private fun processPointcutExpression(
+        identifier: AspectKToken,
+        expressionTokens: List<AspectKToken>,
+    ): PointcutExpression {
         return when (identifier.lexeme) {
             "execution" -> execution(expressionTokens)
             "args" -> args(expressionTokens)
-            else -> error("Unknown pointcut identifier")
+            "named" -> namedPointcut(expressionTokens)
+            else -> throw IllegalStateException("Unknown pointcut identifier: ${identifier.lexeme}")
         }
     }
 
@@ -98,6 +103,12 @@ class PointcutExpressionParser(
     private fun args(expressionTokens: List<AspectKToken>): PointcutExpression.Args {
         val tokenParser = ArgsTokenParser(expressionTokens)
         val expressionParser = ArgsExpressionParser(tokenParser.parseTokens())
+        return expressionParser.parse()
+    }
+
+    private fun namedPointcut(expressionTokens: List<AspectKToken>): PointcutExpression {
+        val tokenParser = NamedPointcutTokenParser(expressionTokens)
+        val expressionParser = NamedPointcutExpressionParser(tokenParser.parseToNamedPointcutTokens())
         return expressionParser.parse()
     }
 
@@ -128,4 +139,3 @@ class PointcutExpressionParser(
         return tokens[current - 1]
     }
 }
-

@@ -5,7 +5,10 @@ import com.github.kitakkun.aspectk.expression.expressionparser.ArgMatchingExpres
 import org.jetbrains.kotlin.name.ClassId
 
 class ArgsExpressionMatcher(private val expression: PointcutExpression.Args) {
-    fun matches(valueParameterClassIds: List<ClassId>, lastIsVarArg: Boolean): Boolean {
+    fun matches(
+        valueParameterClassIds: List<ClassId>,
+        lastIsVarArg: Boolean,
+    ): Boolean {
         if (lastIsVarArg != expression.lastIsVarArg) return false
 
         if (valueParameterClassIds.isEmpty()) {
@@ -20,7 +23,12 @@ class ArgsExpressionMatcher(private val expression: PointcutExpression.Args) {
 
                 is ArgMatchingExpression.NoneOrMore -> {
                     if (matches(valueParameterClassIds.drop(1), lastIsVarArg)) return true
-                    if (ArgsExpressionMatcher(expression.copy(args = expression.args.drop(1))).matches(valueParameterClassIds, lastIsVarArg = lastIsVarArg)) return true
+                    if (ArgsExpressionMatcher(
+                            expression.copy(args = expression.args.drop(1)),
+                        ).matches(valueParameterClassIds, lastIsVarArg = lastIsVarArg)
+                    ) {
+                        return true
+                    }
                     return@forEachIndexed
                 }
 
