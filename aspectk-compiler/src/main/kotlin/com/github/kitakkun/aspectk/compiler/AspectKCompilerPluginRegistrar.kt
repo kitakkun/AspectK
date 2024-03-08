@@ -25,8 +25,6 @@ class AspectKCompilerPluginRegistrar : CompilerPluginRegistrar() {
 
         FirExtensionRegistrarAdapter.registerExtension(AspectKFirExtensionRegistrar())
 
-        with(messageCollector) {
-            IrGenerationExtension.registerExtension(AspectKIrGenerationExtension())
-        }
+        IrGenerationExtension.registerExtension(AspectKIrGenerationExtension(messageCollector))
     }
 }
