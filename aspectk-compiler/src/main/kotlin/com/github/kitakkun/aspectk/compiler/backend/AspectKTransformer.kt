@@ -1,8 +1,8 @@
 package com.github.kitakkun.aspectk.compiler.backend
 
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
-import com.github.kitakkun.aspectk.compiler.backend.analyzer.AdviceType
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AspectClass
+import com.github.kitakkun.aspectk.compiler.backend.transformer.ApplyAdviceTransformer
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.matcher.FunctionSpec
@@ -43,21 +43,12 @@ class AspectKTransformer(
             aspectClass.advices
                 .filter { advice -> advice.matcher.matches(functionSpec, namedPointcutResolver) }
                 .forEach { advice ->
-                    when (advice.type) {
-                        AdviceType.AFTER -> {
-                            AfterAdviceFunctionBodyTransformer.transform(
-                                declaration = declaration,
-                                aspectClass = aspectClass.classDeclaration,
-                                adviceFunction = advice.functionDeclaration,
-                            )
-                        }
-
-                        AdviceType.BEFORE -> {
-                        }
-
-                        AdviceType.AROUND -> {
-                        }
-                    }
+                    ApplyAdviceTransformer(
+                        targetFunction = declaration,
+                        aspectClass = aspectClass.classDeclaration,
+                        adviceFunction = advice.functionDeclaration,
+                        adviceType = advice.type,
+                    ).visitSimpleFunction(declaration)
                 }
         }
 
