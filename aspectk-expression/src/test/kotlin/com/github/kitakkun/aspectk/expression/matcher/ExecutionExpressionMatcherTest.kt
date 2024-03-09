@@ -24,13 +24,15 @@ class ExecutionExpressionMatcherTest {
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
             matcher.matches(
-                packageName = "",
-                className = "",
-                functionName = "test",
-                argumentClassIds = listOf(),
-                returnType = classId("kotlin", "Unit"),
-                modifiers = setOf(FunctionModifier.PUBLIC),
-                lastArgumentIsVararg = false,
+                FunctionSpec(
+                    packageName = "",
+                    className = "",
+                    functionName = "test",
+                    args = listOf(),
+                    returnType = classId("kotlin", "Unit"),
+                    modifiers = setOf(FunctionModifier.PUBLIC),
+                    lastArgumentIsVararg = false,
+                )
             )
         assert(result)
     }
@@ -51,13 +53,15 @@ class ExecutionExpressionMatcherTest {
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
             matcher.matches(
-                packageName = "",
-                className = "",
-                functionName = "test",
-                argumentClassIds = listOf(),
-                returnType = classId("kotlin", "Unit"),
-                modifiers = setOf(FunctionModifier.PRIVATE),
-                lastArgumentIsVararg = false,
+                FunctionSpec(
+                    packageName = "",
+                    className = "",
+                    functionName = "test",
+                    args = listOf(),
+                    returnType = classId("kotlin", "Unit"),
+                    modifiers = setOf(FunctionModifier.PRIVATE),
+                    lastArgumentIsVararg = false,
+                )
             )
         assert(!result)
     }
@@ -78,13 +82,15 @@ class ExecutionExpressionMatcherTest {
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
             matcher.matches(
-                packageName = "com/example",
-                className = "TestClass",
-                functionName = "test",
-                argumentClassIds = listOf(),
-                returnType = classId("kotlin", "Unit"),
-                modifiers = setOf(FunctionModifier.PUBLIC),
-                lastArgumentIsVararg = false,
+                FunctionSpec(
+                    packageName = "com/example",
+                    className = "TestClass",
+                    functionName = "test",
+                    args = listOf(),
+                    returnType = classId("kotlin", "Unit"),
+                    modifiers = setOf(FunctionModifier.PUBLIC),
+                    lastArgumentIsVararg = false,
+                )
             )
         assert(result)
     }
@@ -105,13 +111,15 @@ class ExecutionExpressionMatcherTest {
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
             matcher.matches(
-                packageName = "com/example",
-                className = "TestClass",
-                functionName = "testNoMatch",
-                argumentClassIds = listOf(),
-                returnType = classId("kotlin", "Unit"),
-                modifiers = setOf(FunctionModifier.PUBLIC),
-                lastArgumentIsVararg = false,
+                FunctionSpec(
+                    packageName = "com/example",
+                    className = "TestClass",
+                    functionName = "testNoMatch",
+                    args = listOf(),
+                    returnType = classId("kotlin", "Unit"),
+                    modifiers = setOf(FunctionModifier.PUBLIC),
+                    lastArgumentIsVararg = false,
+                )
             )
         assert(!result)
     }

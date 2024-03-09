@@ -41,15 +41,7 @@ class PointcutExpressionMatcher(private val expression: PointcutExpression) {
             }
 
             is PointcutExpression.Execution -> {
-                return ExecutionExpressionMatcher(expression).matches(
-                    packageName = functionSpec.packageName,
-                    className = functionSpec.className,
-                    functionName = functionSpec.functionName,
-                    argumentClassIds = functionSpec.args,
-                    returnType = functionSpec.returnType,
-                    modifiers = functionSpec.modifiers,
-                    lastArgumentIsVararg = functionSpec.lastArgumentIsVararg,
-                )
+                return ExecutionExpressionMatcher(expression).matches(functionSpec = functionSpec)
             }
 
             is PointcutExpression.Args -> {

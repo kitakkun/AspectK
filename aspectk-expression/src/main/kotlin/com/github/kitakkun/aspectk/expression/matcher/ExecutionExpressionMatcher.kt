@@ -4,40 +4,31 @@ import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.javac.resolve.classId
-import org.jetbrains.kotlin.name.ClassId
 
 class ExecutionExpressionMatcher(private val expression: PointcutExpression.Execution) {
-    fun matches(
-        packageName: String,
-        className: String,
-        functionName: String,
-        argumentClassIds: List<ClassId>,
-        returnType: ClassId,
-        modifiers: Set<FunctionModifier>,
-        lastArgumentIsVararg: Boolean,
-    ): Boolean {
+    fun matches(functionSpec: FunctionSpec): Boolean {
         // function name matching
-        if (!NameExpressionMatcher(expression.functionName).matches(functionName)) return false
+        if (!NameExpressionMatcher(expression.functionName).matches(functionSpec.functionName)) return false
 
         // modifier matching
-        if (expression.modifiers.isEmpty() && !modifiers.contains(FunctionModifier.PUBLIC)) {
+        if (expression.modifiers.isEmpty() && !functionSpec.modifiers.contains(FunctionModifier.PUBLIC)) {
             return false
-        } else if (expression.modifiers.any { it !in modifiers }) {
+        } else if (expression.modifiers.any { it !in functionSpec.modifiers }) {
             return false
         }
 
         // argument matching
         val argsMatcher = ArgsExpressionMatcher(expression.args)
-        if (!argsMatcher.matches(argumentClassIds, lastArgumentIsVararg)) return false
+        if (!argsMatcher.matches(functionSpec.args, functionSpec.lastArgumentIsVararg)) return false
 
         // matching dispatcher class
-        if (!ClassMatcher(expression.packageNames, expression.classNames).matches(packageName, className)) {
+        if (!ClassMatcher(expression.packageNames, expression.classNames).matches(functionSpec.packageName, functionSpec.className)) {
             return false
         }
 
         // implicit return type matching support
         // FIXME: temporary solution
-        if (returnType == classId("kotlin", "Unit")) {
+        if (functionSpec.returnType == classId("kotlin", "Unit")) {
             val packageMatch = expression.returnTypePackageNames.isEmpty() || expression.returnTypePackageNames.singleOrNull() == NameExpression.fromString("kotlin")
             val classMatch = expression.returnTypeClassNames.isEmpty() || expression.returnTypeClassNames.singleOrNull() == NameExpression.fromString("Unit")
 
@@ -46,8 +37,8 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
 
         // normal matching return type
         return ClassMatcher(expression.returnTypePackageNames, expression.returnTypeClassNames).matches(
-            packageName = returnType.packageFqName.asString(),
-            className = returnType.relativeClassName.asString(),
+            packageName = functionSpec.returnType.packageFqName.asString(),
+            className = functionSpec.returnType.relativeClassName.asString(),
         )
     }
 }
