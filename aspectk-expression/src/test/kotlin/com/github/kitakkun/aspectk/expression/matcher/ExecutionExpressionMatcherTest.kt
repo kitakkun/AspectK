@@ -11,15 +11,13 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testTopLevel() {
         val expression =
-            PointcutExpression.Execution(
+            PointcutExpression.Execution.TopLevelFunction(
                 modifiers = listOf(FunctionModifier.PUBLIC),
                 packageNames = emptyList(),
-                classNames = emptyList(),
                 functionName = NameExpression.Normal("test"),
                 args = PointcutExpression.Args(emptyList(), false),
                 returnTypePackageNames = emptyList(),
                 returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
-                includeSubClass = false,
             )
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
@@ -32,7 +30,7 @@ class ExecutionExpressionMatcherTest {
                     returnType = classId("kotlin", "Unit"),
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     lastArgumentIsVararg = false,
-                )
+                ),
             )
         assert(result)
     }
@@ -40,15 +38,13 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testTopLevelNoMatch() {
         val expression =
-            PointcutExpression.Execution(
+            PointcutExpression.Execution.TopLevelFunction(
                 modifiers = listOf(FunctionModifier.PUBLIC),
                 packageNames = emptyList(),
-                classNames = emptyList(),
                 functionName = NameExpression.Normal("test"),
                 args = PointcutExpression.Args(emptyList(), false),
                 returnTypePackageNames = emptyList(),
                 returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
-                includeSubClass = false,
             )
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
@@ -61,7 +57,7 @@ class ExecutionExpressionMatcherTest {
                     returnType = classId("kotlin", "Unit"),
                     modifiers = setOf(FunctionModifier.PRIVATE),
                     lastArgumentIsVararg = false,
-                )
+                ),
             )
         assert(!result)
     }
@@ -69,7 +65,7 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testClassMethod() {
         val expression =
-            PointcutExpression.Execution(
+            PointcutExpression.Execution.MemberFunction(
                 modifiers = emptyList(),
                 packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
                 classNames = listOf(NameExpression.Normal("TestClass")),
@@ -90,7 +86,7 @@ class ExecutionExpressionMatcherTest {
                     returnType = classId("kotlin", "Unit"),
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     lastArgumentIsVararg = false,
-                )
+                ),
             )
         assert(result)
     }
@@ -98,7 +94,7 @@ class ExecutionExpressionMatcherTest {
     @Test
     fun testClassMethodNoMatch() {
         val expression =
-            PointcutExpression.Execution(
+            PointcutExpression.Execution.MemberFunction(
                 modifiers = emptyList(),
                 packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
                 classNames = listOf(NameExpression.Normal("TestClass")),
@@ -119,7 +115,7 @@ class ExecutionExpressionMatcherTest {
                     returnType = classId("kotlin", "Unit"),
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     lastArgumentIsVararg = false,
-                )
+                ),
             )
         assert(!result)
     }

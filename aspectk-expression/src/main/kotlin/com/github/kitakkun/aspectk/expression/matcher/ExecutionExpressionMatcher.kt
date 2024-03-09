@@ -22,8 +22,18 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         if (!argsMatcher.matches(functionSpec.args, functionSpec.lastArgumentIsVararg)) return false
 
         // matching dispatcher class
-        if (!ClassMatcher(expression.packageNames, expression.classNames).matches(functionSpec.packageName, functionSpec.className)) {
-            return false
+        when (expression) {
+            is PointcutExpression.Execution.MemberFunction -> {
+                if (!ClassMatcher(expression.packageNames, expression.classNames).matches(functionSpec.packageName, functionSpec.className)) {
+                    return false
+                }
+            }
+
+            is PointcutExpression.Execution.TopLevelFunction -> {
+                if (functionSpec.className.isNotEmpty()) {
+                    return false
+                }
+            }
         }
 
         // implicit return type matching support

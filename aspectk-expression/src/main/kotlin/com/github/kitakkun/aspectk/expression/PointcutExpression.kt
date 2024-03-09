@@ -15,16 +15,34 @@ sealed class PointcutExpression {
 
     data class Not(val expression: PointcutExpression) : PointcutExpression()
 
-    data class Execution(
-        val modifiers: List<FunctionModifier>,
-        val packageNames: List<NameExpression>,
-        val classNames: List<NameExpression>,
-        val functionName: NameExpression,
-        val args: Args,
-        val returnTypePackageNames: List<NameExpression>,
-        val returnTypeClassNames: List<NameExpression>,
-        val includeSubClass: Boolean,
-    ) : PointcutExpression()
+    sealed class Execution : PointcutExpression() {
+        abstract val modifiers: List<FunctionModifier>
+        abstract val packageNames: List<NameExpression>
+        abstract val functionName: NameExpression
+        abstract val args: Args
+        abstract val returnTypePackageNames: List<NameExpression>
+        abstract val returnTypeClassNames: List<NameExpression>
+
+        data class TopLevelFunction(
+            override val modifiers: List<FunctionModifier>,
+            override val packageNames: List<NameExpression>,
+            override val functionName: NameExpression,
+            override val args: Args,
+            override val returnTypePackageNames: List<NameExpression>,
+            override val returnTypeClassNames: List<NameExpression>,
+        ) : Execution()
+
+        data class MemberFunction(
+            override val modifiers: List<FunctionModifier>,
+            override val packageNames: List<NameExpression>,
+            val classNames: List<NameExpression>,
+            override val functionName: NameExpression,
+            override val args: Args,
+            override val returnTypePackageNames: List<NameExpression>,
+            override val returnTypeClassNames: List<NameExpression>,
+            val includeSubClass: Boolean,
+        ) : Execution()
+    }
 
     data class Args(
         val args: List<ArgMatchingExpression>,

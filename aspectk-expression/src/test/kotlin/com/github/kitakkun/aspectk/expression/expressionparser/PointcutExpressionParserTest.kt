@@ -16,10 +16,9 @@ class PointcutExpressionParserTest {
         val expected =
             PointcutExpression.And(
                 left =
-                    PointcutExpression.Execution(
+                    PointcutExpression.Execution.TopLevelFunction(
                         modifiers = listOf(FunctionModifier.PUBLIC),
                         packageNames = listOf(NameExpression.fromString("com"), NameExpression.fromString("example")),
-                        classNames = emptyList(),
                         functionName = NameExpression.fromString("foo"),
                         args =
                             PointcutExpression.Args(
