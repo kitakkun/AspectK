@@ -23,6 +23,7 @@ sealed class PointcutExpression {
         val args: Args,
         val returnTypePackageNames: List<NameExpression>,
         val returnTypeClassNames: List<NameExpression>,
+        val includeSubClass: Boolean,
     ) : PointcutExpression()
 
     data class Args(

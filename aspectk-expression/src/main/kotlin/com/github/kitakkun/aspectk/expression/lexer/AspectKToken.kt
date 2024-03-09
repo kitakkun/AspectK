@@ -25,6 +25,7 @@ enum class AspectKTokenType {
     COLON,
     DOUBLE_DOT,
     TRIPLE_DOT,
+    PLUS,
 
     IDENTIFIER,
 }

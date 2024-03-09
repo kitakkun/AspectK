@@ -19,6 +19,7 @@ class ExecutionExpressionMatcherTest {
                 args = PointcutExpression.Args(emptyList(), false),
                 returnTypePackageNames = emptyList(),
                 returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+                includeSubClass = false,
             )
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
@@ -45,6 +46,7 @@ class ExecutionExpressionMatcherTest {
                 args = PointcutExpression.Args(emptyList(), false),
                 returnTypePackageNames = emptyList(),
                 returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+                includeSubClass = false,
             )
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
@@ -71,6 +73,7 @@ class ExecutionExpressionMatcherTest {
                 args = PointcutExpression.Args(emptyList(), false),
                 returnTypePackageNames = emptyList(),
                 returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+                includeSubClass = false,
             )
         val matcher = ExecutionExpressionMatcher(expression)
         val result =
@@ -97,6 +100,7 @@ class ExecutionExpressionMatcherTest {
                 args = PointcutExpression.Args(emptyList(), false),
                 returnTypePackageNames = emptyList(),
                 returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+                includeSubClass = false,
             )
         val matcher = ExecutionExpressionMatcher(expression)
         val result =

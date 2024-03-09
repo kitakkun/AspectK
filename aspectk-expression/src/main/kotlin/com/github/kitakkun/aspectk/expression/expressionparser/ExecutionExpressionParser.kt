@@ -18,9 +18,9 @@ class ExecutionExpressionParser(
                 it.type != ExecutionTokenType.RETURN_TYPE_START
             }.filter { it.type == ExecutionTokenType.PACKAGE_PART }.map { NameExpression.fromString(it.lexeme) }
         val classNames =
-            tokens.takeWhile {
-                it.type != ExecutionTokenType.RETURN_TYPE_START
-            }.filter { it.type == ExecutionTokenType.CLASS }.map { NameExpression.fromString(it.lexeme) }
+            tokens.takeWhile { it.type != ExecutionTokenType.RETURN_TYPE_START }
+                .filter { it.type == ExecutionTokenType.CLASS || it.type == ExecutionTokenType.CLASS_INCLUDING_SUBCLASS }
+                .map { NameExpression.fromString(it.lexeme) }
         val functionName = tokens.first { it.type == ExecutionTokenType.FUNCTION }.let { NameExpression.fromString(it.lexeme) }
 
         val returnTypeTokens =
@@ -37,6 +37,10 @@ class ExecutionExpressionParser(
 
         val args = ArgsExpressionParser(argsTokens).parse()
 
+        val includeSubClass =
+            tokens.takeWhile { it.type == ExecutionTokenType.RETURN_TYPE_START }
+                .any { it.type == ExecutionTokenType.CLASS_INCLUDING_SUBCLASS }
+
         return PointcutExpression.Execution(
             modifiers = modifiers,
             packageNames = packageNames,
@@ -45,6 +49,7 @@ class ExecutionExpressionParser(
             args = args,
             returnTypePackageNames = returnTypePackageNames,
             returnTypeClassNames = returnTypeNames,
+            includeSubClass = includeSubClass,
         )
     }
 }
