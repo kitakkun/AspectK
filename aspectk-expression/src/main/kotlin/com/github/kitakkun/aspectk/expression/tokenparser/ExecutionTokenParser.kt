@@ -143,12 +143,11 @@ class ExecutionTokenParser(
         when {
             match(AspectKTokenType.DOT) -> {
                 addToken(ExecutionTokenType.CLASS, token.lexeme)
-                context =
-                    when (peekNext()?.type) {
-                        AspectKTokenType.DOT -> ExecutionExpressionResolvingContext.CLASS
-                        AspectKTokenType.LEFT_PAREN -> ExecutionExpressionResolvingContext.FUNCTION
-                        else -> error("unexpected token")
-                    }
+                context = when (peekNext()?.type) {
+                    AspectKTokenType.DOT -> ExecutionExpressionResolvingContext.CLASS
+                    AspectKTokenType.LEFT_PAREN -> ExecutionExpressionResolvingContext.FUNCTION
+                    else -> error("unexpected token")
+                }
             }
 
             match(AspectKTokenType.PLUS) && match(AspectKTokenType.DOT) -> {

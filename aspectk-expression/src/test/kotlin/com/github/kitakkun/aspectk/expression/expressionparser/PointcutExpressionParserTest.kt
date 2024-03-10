@@ -14,33 +14,28 @@ class PointcutExpressionParserTest {
         val tokens = AspectKLexer("execution(public com/example/foo(..): Unit) && args(String)").analyze()
         val parser = PointcutExpressionParser(tokens)
         val actual = parser.expression()
-        val expected =
-            PointcutExpression.And(
-                left =
-                    PointcutExpression.Execution.TopLevelFunction(
-                        modifiers = listOf(FunctionModifier.PUBLIC),
-                        packageNames = NameSequenceExpression.fromString("com/example"),
-                        functionName = NameExpression.fromString("foo"),
-                        args =
-                            PointcutExpression.Args(
-                                args = listOf(ArgMatchingExpression.NoneOrMore),
-                                lastIsVarArg = false,
-                            ),
-                        returnTypePackageNames = NameSequenceExpression.fromString(""),
-                        returnTypeClassNames = NameSequenceExpression.fromString("Unit"),
+        val expected = PointcutExpression.And(
+            left = PointcutExpression.Execution.TopLevelFunction(
+                modifiers = listOf(FunctionModifier.PUBLIC),
+                packageNames = NameSequenceExpression.fromString("com/example"),
+                functionName = NameExpression.fromString("foo"),
+                args = PointcutExpression.Args(
+                    args = listOf(ArgMatchingExpression.NoneOrMore),
+                    lastIsVarArg = false,
+                ),
+                returnTypePackageNames = NameSequenceExpression.fromString(""),
+                returnTypeClassNames = NameSequenceExpression.fromString("Unit"),
+            ),
+            right = PointcutExpression.Args(
+                args = listOf(
+                    ArgMatchingExpression.Class(
+                        packageNames = emptyList(),
+                        classNames = listOf(NameExpression.fromString("String")),
                     ),
-                right =
-                    PointcutExpression.Args(
-                        args =
-                            listOf(
-                                ArgMatchingExpression.Class(
-                                    packageNames = emptyList(),
-                                    classNames = listOf(NameExpression.fromString("String")),
-                                ),
-                            ),
-                        lastIsVarArg = false,
-                    ),
-            )
+                ),
+                lastIsVarArg = false,
+            ),
+        )
 
         assertEquals(expected, actual)
         println(actual)
