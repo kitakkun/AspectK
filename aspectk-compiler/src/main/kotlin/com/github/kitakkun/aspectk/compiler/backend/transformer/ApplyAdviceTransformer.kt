@@ -41,12 +41,11 @@ class ApplyAdviceTransformer(
         val aspectInstance = irBuilder.generateAspectInstance(aspectClass)
         val joinPointVariable = irBuilder.generateJoinPointVariable(declaration)
 
-        val adviceCall =
-            irBuilder.adviceCall(
-                functionDeclaration = adviceFunction,
-                aspectInstance = aspectInstance,
-                joinPointVariable = joinPointVariable,
-            )
+        val adviceCall = irBuilder.adviceCall(
+            functionDeclaration = adviceFunction,
+            aspectInstance = aspectInstance,
+            joinPointVariable = joinPointVariable,
+        )
 
         (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(aspectInstance, joinPointVariable))
 
@@ -66,13 +65,12 @@ class ApplyAdviceTransformer(
 
 private fun IrStatementsBuilder<*>.generateAspectInstance(aspectClass: IrClass): IrVariable {
     return irTemporary(
-        value =
-            if (aspectClass.isObject) {
-                irGetObject(aspectClass.symbol)
-            } else {
-                val constructor = aspectClass.primaryConstructor ?: error("Primary constructor for ${aspectClass.classId} not found")
-                irCallConstructor(constructor.symbol, emptyList())
-            },
+        value = if (aspectClass.isObject) {
+            irGetObject(aspectClass.symbol)
+        } else {
+            val constructor = aspectClass.primaryConstructor ?: error("Primary constructor for ${aspectClass.classId} not found")
+            irCallConstructor(constructor.symbol, emptyList())
+        },
         origin = IrDeclarationOrigin.DEFINED,
     )
 }

@@ -16,48 +16,45 @@ class PointcutExpressionMatcherTest {
 
         assert(
             matcher.matches(
-                functionSpec =
-                    FunctionSpec(
-                        modifiers = setOf(FunctionModifier.PUBLIC),
-                        packageName = "com/example",
-                        className = "",
-                        functionName = "foo",
-                        args = emptyList(),
-                        returnType = classId("", "Unit"),
-                        lastArgumentIsVararg = false,
-                    ),
+                functionSpec = FunctionSpec(
+                    modifiers = setOf(FunctionModifier.PUBLIC),
+                    packageName = "com/example",
+                    className = "",
+                    functionName = "foo",
+                    args = emptyList(),
+                    returnType = classId("", "Unit"),
+                    lastArgumentIsVararg = false,
+                ),
                 namedPointcutResolver = { null },
             ),
         )
 
         assert(
             matcher.matches(
-                functionSpec =
-                    FunctionSpec(
-                        modifiers = setOf(FunctionModifier.PUBLIC),
-                        packageName = "com/example/hogehoge/submodule",
-                        className = "",
-                        functionName = "foo",
-                        args = emptyList(),
-                        returnType = classId("", "Unit"),
-                        lastArgumentIsVararg = false,
-                    ),
+                functionSpec = FunctionSpec(
+                    modifiers = setOf(FunctionModifier.PUBLIC),
+                    packageName = "com/example/hogehoge/submodule",
+                    className = "",
+                    functionName = "foo",
+                    args = emptyList(),
+                    returnType = classId("", "Unit"),
+                    lastArgumentIsVararg = false,
+                ),
                 namedPointcutResolver = { null },
             ),
         )
 
         assertFalse {
             matcher.matches(
-                functionSpec =
-                    FunctionSpec(
-                        modifiers = setOf(FunctionModifier.PUBLIC),
-                        packageName = "com/example/hogehoge/submodule",
-                        className = "SomeClass",
-                        functionName = "foo",
-                        args = emptyList(),
-                        returnType = classId("", "Unit"),
-                        lastArgumentIsVararg = false,
-                    ),
+                functionSpec = FunctionSpec(
+                    modifiers = setOf(FunctionModifier.PUBLIC),
+                    packageName = "com/example/hogehoge/submodule",
+                    className = "SomeClass",
+                    functionName = "foo",
+                    args = emptyList(),
+                    returnType = classId("", "Unit"),
+                    lastArgumentIsVararg = false,
+                ),
                 namedPointcutResolver = { null },
             )
         }
