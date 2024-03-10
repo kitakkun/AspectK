@@ -8,11 +8,7 @@ import kotlin.test.assertTrue
 class NameExpressionSequenceMatcherTest {
     @Test
     fun testBasic() {
-        val nameExpressions =
-            listOf(
-                "com",
-                "example",
-            ).map { NameExpression.fromString(it) }
+        val nameExpressions = listOf("com", "example").map { NameExpression.fromString(it) }
         val matcher = NameExpressionSequenceMatcher(nameExpressions)
         assertTrue { matcher.matches(listOf("com", "example")) }
         assertFalse { matcher.matches(listOf("com", "examplee")) }
@@ -21,11 +17,7 @@ class NameExpressionSequenceMatcherTest {
 
     @Test
     fun testWithAnySingle() {
-        val nameExpressions =
-            listOf(
-                "com",
-                "*",
-            ).map { NameExpression.fromString(it) }
+        val nameExpressions = listOf("com", "*").map { NameExpression.fromString(it) }
         val matcher = NameExpressionSequenceMatcher(nameExpressions)
         assertTrue { matcher.matches(listOf("com", "example")) }
         assertTrue { matcher.matches(listOf("com", "examplee")) }
@@ -34,12 +26,7 @@ class NameExpressionSequenceMatcherTest {
 
     @Test
     fun testRecursive() {
-        val nameExpressions =
-            listOf(
-                "com",
-                "example",
-                "**",
-            ).map { NameExpression.fromString(it) }
+        val nameExpressions = listOf("com", "example", "**").map { NameExpression.fromString(it) }
         val matcher = NameExpressionSequenceMatcher(nameExpressions)
         assertTrue { matcher.matches(listOf("com", "example")) }
         assertTrue { matcher.matches(listOf("com", "example", "hoge")) }

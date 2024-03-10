@@ -60,10 +60,7 @@ class PointcutExpressionMatcher(private val expression: PointcutExpression) {
             }
 
             is PointcutExpression.Named -> {
-                val correspondingExpression =
-                    namedPointcutResolver(
-                        expression,
-                    ) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
+                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
                 return PointcutExpressionMatcher(correspondingExpression).matches(functionSpec, namedPointcutResolver)
             }
         }
