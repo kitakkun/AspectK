@@ -4,16 +4,15 @@ import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AspectClass
 import com.github.kitakkun.aspectk.compiler.backend.transformer.ApplyAdviceTransformer
 import com.github.kitakkun.aspectk.compiler.backend.utils.callableId
+import com.github.kitakkun.aspectk.compiler.backend.utils.toClassSignature
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.matcher.FunctionSpec
-import com.github.kitakkun.aspectk.expression.model.ClassSignature
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.types.classOrFail
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.getPackageFragment
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isVararg
@@ -75,22 +74,8 @@ private fun IrSimpleFunction.toFunctionSpec(): FunctionSpec {
         packageName = this.getPackageFragment().packageFqName.asString(),
         className = this.parentClassOrNull?.name?.asString() ?: "",
         functionName = this.name.asString(),
-        args = this.valueParameters
-            .map { it.type.classOrFail.owner.classId!! }
-            .map {
-                ClassSignature(
-                    packageName = it.packageFqName.asString(),
-                    className = it.relativeClassName.asString(),
-                    superTypes = emptyList(),
-                )
-            },
-        returnType = this.returnType.classOrFail.owner.classId!!.let {
-            ClassSignature(
-                packageName = it.packageFqName.asString(),
-                className = it.relativeClassName.asString(),
-                superTypes = emptyList(),
-            )
-        },
+        args = this.valueParameters.map { it.type.classOrFail.owner.toClassSignature() },
+        returnType = this.returnType.classOrFail.owner.toClassSignature(),
         modifiers = this.modifiers(),
         lastArgumentIsVararg = this.valueParameters.lastOrNull()?.isVararg ?: false,
     )
