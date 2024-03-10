@@ -42,73 +42,65 @@ class AspectAnalyzer private constructor() : IrElementVisitorVoid {
     private fun analyzeClass(declaration: IrClass): AspectClass {
         val classId = declaration.classId ?: error("ClassId is null")
 
-        val pointcuts =
-            declaration.simpleFunctions()
-                .filter { it.hasAnnotation(AspectKAnnotations.POINTCUT_FQ_NAME) }
-                .map { it.name.asString() to it.getAnnotation(AspectKAnnotations.POINTCUT_FQ_NAME)?.getStringConstArgument(0) }
-                .mapNotNull { (name, expression) ->
-                    val pointcutExpression =
-                        expression?.let {
-                            val tokens = AspectKLexer(it).analyze()
-                            PointcutExpressionParser(tokens).expression()
-                        }
-                    if (pointcutExpression != null) {
-                        Pointcut(name, pointcutExpression)
-                    } else {
-                        null
-                    }
+        val pointcuts = declaration.simpleFunctions()
+            .filter { it.hasAnnotation(AspectKAnnotations.POINTCUT_FQ_NAME) }
+            .map { it.name.asString() to it.getAnnotation(AspectKAnnotations.POINTCUT_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (name, expression) ->
+                val pointcutExpression = expression?.let {
+                    val tokens = AspectKLexer(it).analyze()
+                    PointcutExpressionParser(tokens).expression()
                 }
+                if (pointcutExpression != null) {
+                    Pointcut(name, pointcutExpression)
+                } else {
+                    null
+                }
+            }
 
-        val beforeAdvices =
-            declaration.simpleFunctions()
-                .filter { it.hasAnnotation(AspectKAnnotations.BEFORE_FQ_NAME) }
-                .associateWith { it.getAnnotation(AspectKAnnotations.BEFORE_FQ_NAME)?.getStringConstArgument(0) }
-                .mapNotNull { (declaration, expression) ->
-                    val pointcutExpression =
-                        expression?.let {
-                            val tokens = AspectKLexer(it).analyze()
-                            PointcutExpressionParser(tokens).expression()
-                        }
-                    if (pointcutExpression != null) {
-                        Advice(AdviceType.BEFORE, pointcutExpression, declaration)
-                    } else {
-                        null
-                    }
+        val beforeAdvices = declaration.simpleFunctions()
+            .filter { it.hasAnnotation(AspectKAnnotations.BEFORE_FQ_NAME) }
+            .associateWith { it.getAnnotation(AspectKAnnotations.BEFORE_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (declaration, expression) ->
+                val pointcutExpression = expression?.let {
+                    val tokens = AspectKLexer(it).analyze()
+                    PointcutExpressionParser(tokens).expression()
                 }
+                if (pointcutExpression != null) {
+                    Advice(AdviceType.BEFORE, pointcutExpression, declaration)
+                } else {
+                    null
+                }
+            }
 
-        val afterAdvices =
-            declaration.simpleFunctions()
-                .filter { it.hasAnnotation(AspectKAnnotations.AFTER_FQ_NAME) }
-                .associateWith { it.getAnnotation(AspectKAnnotations.AFTER_FQ_NAME)?.getStringConstArgument(0) }
-                .mapNotNull { (declaration, expression) ->
-                    val pointcutExpression =
-                        expression?.let {
-                            val tokens = AspectKLexer(it).analyze()
-                            PointcutExpressionParser(tokens).expression()
-                        }
-                    if (pointcutExpression != null) {
-                        Advice(AdviceType.AFTER, pointcutExpression, declaration)
-                    } else {
-                        null
-                    }
+        val afterAdvices = declaration.simpleFunctions()
+            .filter { it.hasAnnotation(AspectKAnnotations.AFTER_FQ_NAME) }
+            .associateWith { it.getAnnotation(AspectKAnnotations.AFTER_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (declaration, expression) ->
+                val pointcutExpression = expression?.let {
+                    val tokens = AspectKLexer(it).analyze()
+                    PointcutExpressionParser(tokens).expression()
                 }
+                if (pointcutExpression != null) {
+                    Advice(AdviceType.AFTER, pointcutExpression, declaration)
+                } else {
+                    null
+                }
+            }
 
-        val aroundAdvices =
-            declaration.simpleFunctions()
-                .filter { it.hasAnnotation(AspectKAnnotations.AROUND_FQ_NAME) }
-                .associateWith { it.getAnnotation(AspectKAnnotations.AROUND_FQ_NAME)?.getStringConstArgument(0) }
-                .mapNotNull { (declaration, expression) ->
-                    val pointcutExpression =
-                        expression?.let {
-                            val tokens = AspectKLexer(it).analyze()
-                            PointcutExpressionParser(tokens).expression()
-                        }
-                    if (pointcutExpression != null) {
-                        Advice(AdviceType.AROUND, pointcutExpression, declaration)
-                    } else {
-                        null
-                    }
+        val aroundAdvices = declaration.simpleFunctions()
+            .filter { it.hasAnnotation(AspectKAnnotations.AROUND_FQ_NAME) }
+            .associateWith { it.getAnnotation(AspectKAnnotations.AROUND_FQ_NAME)?.getStringConstArgument(0) }
+            .mapNotNull { (declaration, expression) ->
+                val pointcutExpression = expression?.let {
+                    val tokens = AspectKLexer(it).analyze()
+                    PointcutExpressionParser(tokens).expression()
                 }
+                if (pointcutExpression != null) {
+                    Advice(AdviceType.AROUND, pointcutExpression, declaration)
+                } else {
+                    null
+                }
+            }
 
         val advices = beforeAdvices + afterAdvices + aroundAdvices
 

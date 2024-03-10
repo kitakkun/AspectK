@@ -28,13 +28,12 @@ class AspectClassChecker : FirClassChecker() {
 
         if (!isAspectClass) return
 
-        val hasPointcutOrAdviceEntries =
-            declaration.declarations.any {
-                it.hasAnnotation(AspectKAnnotations.POINTCUT_CLASS_ID, session) ||
-                    it.hasAnnotation(AspectKAnnotations.BEFORE_CLASS_ID, session) ||
-                    it.hasAnnotation(AspectKAnnotations.AFTER_CLASS_ID, session) ||
-                    it.hasAnnotation(AspectKAnnotations.AROUND_CLASS_ID, session)
-            }
+        val hasPointcutOrAdviceEntries = declaration.declarations.any {
+            it.hasAnnotation(AspectKAnnotations.POINTCUT_CLASS_ID, session) ||
+                it.hasAnnotation(AspectKAnnotations.BEFORE_CLASS_ID, session) ||
+                it.hasAnnotation(AspectKAnnotations.AFTER_CLASS_ID, session) ||
+                it.hasAnnotation(AspectKAnnotations.AROUND_CLASS_ID, session)
+        }
 
         if (hasPointcutOrAdviceEntries) return
 

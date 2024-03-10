@@ -10,26 +10,23 @@ import kotlin.test.assertTrue
 class ArgsExpressionMatcherTest {
     @Test
     fun basic() {
-        val valueParameterClassIds =
-            listOf(
-                classId("kotlin", "String"),
-                classId("kotlin", "Int"),
-            )
-        val expression =
-            PointcutExpression.Args(
-                args =
-                    listOf(
-                        ArgMatchingExpression.Class(
-                            packageNames = listOf(NameExpression.fromString("kotlin")),
-                            classNames = listOf(NameExpression.fromString("String")),
-                        ),
-                        ArgMatchingExpression.Class(
-                            packageNames = listOf(NameExpression.fromString("kotlin")),
-                            classNames = listOf(NameExpression.fromString("Int")),
-                        ),
-                    ),
-                lastIsVarArg = false,
-            )
+        val valueParameterClassIds = listOf(
+            classId("kotlin", "String"),
+            classId("kotlin", "Int"),
+        )
+        val expression = PointcutExpression.Args(
+            args = listOf(
+                ArgMatchingExpression.Class(
+                    packageNames = listOf(NameExpression.fromString("kotlin")),
+                    classNames = listOf(NameExpression.fromString("String")),
+                ),
+                ArgMatchingExpression.Class(
+                    packageNames = listOf(NameExpression.fromString("kotlin")),
+                    classNames = listOf(NameExpression.fromString("Int")),
+                ),
+            ),
+            lastIsVarArg = false,
+        )
         val argsMatcher = ArgsExpressionMatcher(expression)
         val result = argsMatcher.matches(valueParameterClassIds = valueParameterClassIds, lastIsVarArg = false)
         assertTrue { result }
@@ -37,23 +34,20 @@ class ArgsExpressionMatcherTest {
 
     @Test
     fun withSingleAnyMatching() {
-        val valueParameterClassIds =
-            listOf(
-                classId("kotlin", "String"),
-                classId("kotlin", "Int"),
-            )
-        val expression =
-            PointcutExpression.Args(
-                args =
-                    listOf(
-                        ArgMatchingExpression.Class(
-                            packageNames = listOf(NameExpression.fromString("kotlin")),
-                            classNames = listOf(NameExpression.fromString("String")),
-                        ),
-                        ArgMatchingExpression.AnySingle,
-                    ),
-                lastIsVarArg = false,
-            )
+        val valueParameterClassIds = listOf(
+            classId("kotlin", "String"),
+            classId("kotlin", "Int"),
+        )
+        val expression = PointcutExpression.Args(
+            args = listOf(
+                ArgMatchingExpression.Class(
+                    packageNames = listOf(NameExpression.fromString("kotlin")),
+                    classNames = listOf(NameExpression.fromString("String")),
+                ),
+                ArgMatchingExpression.AnySingle,
+            ),
+            lastIsVarArg = false,
+        )
         val argsMatcher = ArgsExpressionMatcher(expression)
         val result = argsMatcher.matches(valueParameterClassIds = valueParameterClassIds, lastIsVarArg = false)
         assertTrue { result }
@@ -61,23 +55,20 @@ class ArgsExpressionMatcherTest {
 
     @Test
     fun withAnyZeroOrMoreMatching() {
-        val valueParameterClassIds =
-            listOf(
-                classId("kotlin", "String"),
-                classId("kotlin", "Int"),
-            )
-        val expression =
-            PointcutExpression.Args(
-                args =
-                    listOf(
-                        ArgMatchingExpression.Class(
-                            packageNames = listOf(NameExpression.fromString("kotlin")),
-                            classNames = listOf(NameExpression.fromString("String")),
-                        ),
-                        ArgMatchingExpression.NoneOrMore,
-                    ),
-                lastIsVarArg = false,
-            )
+        val valueParameterClassIds = listOf(
+            classId("kotlin", "String"),
+            classId("kotlin", "Int"),
+        )
+        val expression = PointcutExpression.Args(
+            args = listOf(
+                ArgMatchingExpression.Class(
+                    packageNames = listOf(NameExpression.fromString("kotlin")),
+                    classNames = listOf(NameExpression.fromString("String")),
+                ),
+                ArgMatchingExpression.NoneOrMore,
+            ),
+            lastIsVarArg = false,
+        )
         val argsMatcher = ArgsExpressionMatcher(expression)
         val result = argsMatcher.matches(valueParameterClassIds = valueParameterClassIds, lastIsVarArg = false)
         assertTrue { result }
@@ -85,23 +76,20 @@ class ArgsExpressionMatcherTest {
 
     @Test
     fun withVarargMatching() {
-        val valueParameterClassIds =
-            listOf(
-                classId("kotlin", "String"),
-                classId("kotlin", "Int"),
-            )
-        val expression =
-            PointcutExpression.Args(
-                args =
-                    listOf(
-                        ArgMatchingExpression.Class(
-                            packageNames = listOf(NameExpression.fromString("kotlin")),
-                            classNames = listOf(NameExpression.fromString("String")),
-                        ),
-                        ArgMatchingExpression.NoneOrMore,
-                    ),
-                lastIsVarArg = true,
-            )
+        val valueParameterClassIds = listOf(
+            classId("kotlin", "String"),
+            classId("kotlin", "Int"),
+        )
+        val expression = PointcutExpression.Args(
+            args = listOf(
+                ArgMatchingExpression.Class(
+                    packageNames = listOf(NameExpression.fromString("kotlin")),
+                    classNames = listOf(NameExpression.fromString("String")),
+                ),
+                ArgMatchingExpression.NoneOrMore,
+            ),
+            lastIsVarArg = true,
+        )
         val argsMatcher = ArgsExpressionMatcher(expression)
         val result = argsMatcher.matches(valueParameterClassIds = valueParameterClassIds, lastIsVarArg = true)
         assertTrue { result }
@@ -109,24 +97,21 @@ class ArgsExpressionMatcherTest {
 
     @Test
     fun anyZeroOrMoreSandwiched() {
-        val valueParameterClassIds =
-            listOf(
-                classId("kotlin", "String"),
-                classId("kotlin", "Int"),
-            )
-        val expression =
-            PointcutExpression.Args(
-                args =
-                    listOf(
-                        ArgMatchingExpression.NoneOrMore,
-                        ArgMatchingExpression.Class(
-                            packageNames = listOf(NameExpression.fromString("kotlin")),
-                            classNames = listOf(NameExpression.fromString("Int")),
-                        ),
-                        ArgMatchingExpression.NoneOrMore,
-                    ),
-                lastIsVarArg = false,
-            )
+        val valueParameterClassIds = listOf(
+            classId("kotlin", "String"),
+            classId("kotlin", "Int"),
+        )
+        val expression = PointcutExpression.Args(
+            args = listOf(
+                ArgMatchingExpression.NoneOrMore,
+                ArgMatchingExpression.Class(
+                    packageNames = listOf(NameExpression.fromString("kotlin")),
+                    classNames = listOf(NameExpression.fromString("Int")),
+                ),
+                ArgMatchingExpression.NoneOrMore,
+            ),
+            lastIsVarArg = false,
+        )
         val argsMatcher = ArgsExpressionMatcher(expression)
         val result = argsMatcher.matches(valueParameterClassIds = valueParameterClassIds, lastIsVarArg = false)
         assertTrue { result }

@@ -14,16 +14,15 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 class AspectKCommandLineProcessor : CommandLineProcessor {
     override val pluginId = AspectKPluginConsts.PLUGIN_ID
 
-    override val pluginOptions =
-        listOf(
-            CliOption(
-                optionName = "enabled",
-                description = "Enable AspectK plugin or not",
-                valueDescription = "<true|false>",
-                allowMultipleOccurrences = false,
-                required = false,
-            ),
-        )
+    override val pluginOptions = listOf(
+        CliOption(
+            optionName = "enabled",
+            description = "Enable AspectK plugin or not",
+            valueDescription = "<true|false>",
+            allowMultipleOccurrences = false,
+            required = false,
+        ),
+    )
 
     override fun processOption(
         option: AbstractCliOption,
