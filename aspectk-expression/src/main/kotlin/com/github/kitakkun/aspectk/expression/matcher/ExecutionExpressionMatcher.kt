@@ -2,6 +2,7 @@ package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import org.jetbrains.kotlin.javac.resolve.classId
 
@@ -21,10 +22,15 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         val argsMatcher = ArgsExpressionMatcher(expression.args)
         if (!argsMatcher.matches(functionSpec.args, functionSpec.lastArgumentIsVararg)) return false
 
-        // matching dispatcher class
+        // matching package
+        if (!NameSequenceExpressionMatcher(expression.packageNames).matches(functionSpec.packageName)) {
+            return false
+        }
+
+        // matching class
         when (expression) {
             is PointcutExpression.Execution.MemberFunction -> {
-                if (!ClassMatcher(expression.packageNames, expression.classNames).matches(functionSpec.packageName, functionSpec.className)) {
+                if (!NameSequenceExpressionMatcher(expression.classNames).matches(functionSpec.className)) {
                     return false
                 }
             }
@@ -39,16 +45,14 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         // implicit return type matching support
         // FIXME: temporary solution
         if (functionSpec.returnType == classId("kotlin", "Unit")) {
-            val packageMatch = expression.returnTypePackageNames.isEmpty() || expression.returnTypePackageNames.singleOrNull() == NameExpression.fromString("kotlin")
-            val classMatch = expression.returnTypeClassNames.isEmpty() || expression.returnTypeClassNames.singleOrNull() == NameExpression.fromString("Unit")
-
-            return packageMatch && classMatch
+            val unspecifiedPackage = expression.returnTypePackageNames is NameSequenceExpression.Empty
+            val unspecifiedReturnType = unspecifiedPackage && expression.returnTypeClassNames is NameSequenceExpression.Empty
+            if (unspecifiedReturnType || unspecifiedPackage && (expression.returnTypeClassNames as? NameSequenceExpression.Sequence)?.names?.singleOrNull() == NameExpression.fromString("Unit")) {
+                return true
+            }
         }
 
-        // normal matching return type
-        return ClassMatcher(expression.returnTypePackageNames, expression.returnTypeClassNames).matches(
-            packageName = functionSpec.returnType.packageFqName.asString(),
-            className = functionSpec.returnType.relativeClassName.asString(),
-        )
+        return ClassMatcher(expression.returnTypePackageNames, expression.returnTypeClassNames)
+            .matches(functionSpec.returnType.packageFqName.asString(), functionSpec.returnType.relativeClassName.asString())
     }
 }

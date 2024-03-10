@@ -1,26 +1,26 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 
 class ClassMatcher(
-    packageNameExpressions: List<NameExpression>,
-    classNameExpressions: List<NameExpression>,
+    packageNameExpressions: NameSequenceExpression,
+    classNameExpressions: NameSequenceExpression,
 ) {
-    private val packageSequenceMatcher = NameExpressionSequenceMatcher(packageNameExpressions)
-    private val classSequenceMatcher = NameExpressionSequenceMatcher(classNameExpressions)
-    private val emptyPackageExpressions = packageNameExpressions.isEmpty()
+    private val packageSequenceMatcher = NameSequenceExpressionMatcher(packageNameExpressions)
+    private val classSequenceMatcher = NameSequenceExpressionMatcher(classNameExpressions)
+    private val emptyPackageExpressions = packageNameExpressions is NameSequenceExpression.Empty
 
     fun matches(
         packageName: String,
         className: String,
     ): Boolean {
-        if (!classSequenceMatcher.matches(className.split(".").filter { it.isNotEmpty() })) return false
+        if (!classSequenceMatcher.matches(className)) return false
 
         if (packageName == "kotlin" && emptyPackageExpressions) {
             if (isKotlinPrimitive(className)) return true
         }
 
-        return packageSequenceMatcher.matches(packageName.split(".", "/").filter { it.isNotEmpty() })
+        return packageSequenceMatcher.matches(packageName)
     }
 
     private fun isKotlinPrimitive(className: String): Boolean {

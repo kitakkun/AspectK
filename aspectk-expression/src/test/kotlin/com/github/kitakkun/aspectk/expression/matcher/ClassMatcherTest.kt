@@ -1,6 +1,6 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -8,8 +8,8 @@ import kotlin.test.assertTrue
 class ClassMatcherTest {
     @Test
     fun normalCase() {
-        val packageNames = listOf("com", "example").map { NameExpression.fromString(it) }
-        val classNames = listOf("Foo").map { NameExpression.fromString(it) }
+        val packageNames = NameSequenceExpression.fromString("com/example")
+        val classNames = NameSequenceExpression.fromString("Foo")
 
         val matcher = ClassMatcher(packageNames, classNames)
 
@@ -27,8 +27,8 @@ class ClassMatcherTest {
 
     @Test
     fun singleStarInPackage() {
-        val packageNames = listOf("com", "example", "*").map { NameExpression.fromString(it) }
-        val classNames = listOf("Foo").map { NameExpression.fromString(it) }
+        val packageNames = NameSequenceExpression.fromString("com/example/*")
+        val classNames = NameSequenceExpression.fromString("Foo")
 
         val matcher = ClassMatcher(packageNames, classNames)
         assertTrue { matcher.matches("com.example.hoge", "Foo") }

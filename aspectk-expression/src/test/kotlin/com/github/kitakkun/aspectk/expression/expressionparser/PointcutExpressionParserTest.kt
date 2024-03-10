@@ -2,6 +2,7 @@ package com.github.kitakkun.aspectk.expression.expressionparser
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.lexer.AspectKLexer
 import org.junit.Test
@@ -18,15 +19,15 @@ class PointcutExpressionParserTest {
                 left =
                     PointcutExpression.Execution.TopLevelFunction(
                         modifiers = listOf(FunctionModifier.PUBLIC),
-                        packageNames = listOf(NameExpression.fromString("com"), NameExpression.fromString("example")),
+                        packageNames = NameSequenceExpression.fromString("com/example"),
                         functionName = NameExpression.fromString("foo"),
                         args =
                             PointcutExpression.Args(
                                 args = listOf(ArgMatchingExpression.NoneOrMore),
                                 lastIsVarArg = false,
                             ),
-                        returnTypePackageNames = emptyList(),
-                        returnTypeClassNames = listOf(NameExpression.fromString("Unit")),
+                        returnTypePackageNames = NameSequenceExpression.fromString(""),
+                        returnTypeClassNames = NameSequenceExpression.fromString("Unit"),
                     ),
                 right =
                     PointcutExpression.Args(

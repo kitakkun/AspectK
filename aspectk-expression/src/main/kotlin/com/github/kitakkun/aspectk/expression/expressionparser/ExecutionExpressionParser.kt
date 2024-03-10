@@ -2,6 +2,7 @@ package com.github.kitakkun.aspectk.expression.expressionparser
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsToken
 import com.github.kitakkun.aspectk.expression.tokenparser.ExecutionToken
@@ -44,22 +45,22 @@ class ExecutionExpressionParser(
             classNames.isEmpty() ->
                 PointcutExpression.Execution.TopLevelFunction(
                     modifiers = modifiers,
-                    packageNames = packageNames,
+                    packageNames = NameSequenceExpression.fromExpressions(packageNames),
                     functionName = functionName,
                     args = args,
-                    returnTypePackageNames = returnTypePackageNames,
-                    returnTypeClassNames = returnTypeNames,
+                    returnTypePackageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
+                    returnTypeClassNames = NameSequenceExpression.fromExpressions(returnTypeNames),
                 )
 
             else ->
                 PointcutExpression.Execution.MemberFunction(
                     modifiers = modifiers,
-                    packageNames = packageNames,
-                    classNames = classNames,
+                    packageNames = NameSequenceExpression.fromExpressions(packageNames),
+                    classNames = NameSequenceExpression.fromExpressions(classNames),
                     functionName = functionName,
                     args = args,
-                    returnTypePackageNames = returnTypePackageNames,
-                    returnTypeClassNames = returnTypeNames,
+                    returnTypePackageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
+                    returnTypeClassNames = NameSequenceExpression.fromExpressions(returnTypeNames),
                     includeSubClass = includeSubClass,
                 )
         }

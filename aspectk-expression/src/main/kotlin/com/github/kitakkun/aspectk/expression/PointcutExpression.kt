@@ -17,29 +17,29 @@ sealed class PointcutExpression {
 
     sealed class Execution : PointcutExpression() {
         abstract val modifiers: List<FunctionModifier>
-        abstract val packageNames: List<NameExpression>
+        abstract val packageNames: NameSequenceExpression
         abstract val functionName: NameExpression
         abstract val args: Args
-        abstract val returnTypePackageNames: List<NameExpression>
-        abstract val returnTypeClassNames: List<NameExpression>
+        abstract val returnTypePackageNames: NameSequenceExpression
+        abstract val returnTypeClassNames: NameSequenceExpression
 
         data class TopLevelFunction(
             override val modifiers: List<FunctionModifier>,
-            override val packageNames: List<NameExpression>,
+            override val packageNames: NameSequenceExpression,
             override val functionName: NameExpression,
             override val args: Args,
-            override val returnTypePackageNames: List<NameExpression>,
-            override val returnTypeClassNames: List<NameExpression>,
+            override val returnTypePackageNames: NameSequenceExpression,
+            override val returnTypeClassNames: NameSequenceExpression,
         ) : Execution()
 
         data class MemberFunction(
             override val modifiers: List<FunctionModifier>,
-            override val packageNames: List<NameExpression>,
-            val classNames: List<NameExpression>,
+            override val packageNames: NameSequenceExpression,
+            val classNames: NameSequenceExpression,
             override val functionName: NameExpression,
             override val args: Args,
-            override val returnTypePackageNames: List<NameExpression>,
-            override val returnTypeClassNames: List<NameExpression>,
+            override val returnTypePackageNames: NameSequenceExpression,
+            override val returnTypeClassNames: NameSequenceExpression,
             val includeSubClass: Boolean,
         ) : Execution()
     }

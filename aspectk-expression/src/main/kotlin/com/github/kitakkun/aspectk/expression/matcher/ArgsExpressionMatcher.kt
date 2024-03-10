@@ -1,5 +1,6 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.expressionparser.ArgMatchingExpression
 import org.jetbrains.kotlin.name.ClassId
@@ -33,7 +34,11 @@ class ArgsExpressionMatcher(private val expression: PointcutExpression.Args) {
                 }
 
                 is ArgMatchingExpression.Class -> {
-                    val classMatcher = ClassMatcher(argMatchingExpression.packageNames, argMatchingExpression.classNames)
+                    val classMatcher =
+                        ClassMatcher(
+                            packageNameExpressions = NameSequenceExpression.fromExpressions(argMatchingExpression.packageNames),
+                            classNameExpressions = NameSequenceExpression.fromExpressions(argMatchingExpression.classNames),
+                        )
                     if (classMatcher.matches(classId.packageFqName.asString(), classId.relativeClassName.asString())) {
                         return@forEachIndexed
                     } else {

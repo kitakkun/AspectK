@@ -1,19 +1,15 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class NameExpressionSequenceMatcherTest {
+class NameSequenceExpressionMatcherTest {
     @Test
     fun testBasic() {
-        val nameExpressions =
-            listOf(
-                "com",
-                "example",
-            ).map { NameExpression.fromString(it) }
-        val matcher = NameExpressionSequenceMatcher(nameExpressions)
+        val nameExpressions = NameSequenceExpression.fromString("com/example")
+        val matcher = NameSequenceExpressionMatcher(nameExpressions)
         assertTrue { matcher.matches(listOf("com", "example")) }
         assertFalse { matcher.matches(listOf("com", "examplee")) }
         assertFalse { matcher.matches(listOf("com", "example", "Hoge")) }
@@ -21,12 +17,8 @@ class NameExpressionSequenceMatcherTest {
 
     @Test
     fun testWithAnySingle() {
-        val nameExpressions =
-            listOf(
-                "com",
-                "*",
-            ).map { NameExpression.fromString(it) }
-        val matcher = NameExpressionSequenceMatcher(nameExpressions)
+        val nameExpressions = NameSequenceExpression.fromString("com/*")
+        val matcher = NameSequenceExpressionMatcher(nameExpressions)
         assertTrue { matcher.matches(listOf("com", "example")) }
         assertTrue { matcher.matches(listOf("com", "examplee")) }
         assertFalse { matcher.matches(listOf("com", "example", "hoge")) }
@@ -34,13 +26,8 @@ class NameExpressionSequenceMatcherTest {
 
     @Test
     fun testRecursive() {
-        val nameExpressions =
-            listOf(
-                "com",
-                "example",
-                "**",
-            ).map { NameExpression.fromString(it) }
-        val matcher = NameExpressionSequenceMatcher(nameExpressions)
+        val nameExpressions = NameSequenceExpression.fromString("com/example/**")
+        val matcher = NameSequenceExpressionMatcher(nameExpressions)
         assertTrue { matcher.matches(listOf("com", "example")) }
         assertTrue { matcher.matches(listOf("com", "example", "hoge")) }
         assertTrue { matcher.matches(listOf("com", "example", "fuga")) }
