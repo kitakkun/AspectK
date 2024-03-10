@@ -1,5 +1,6 @@
 package com.github.kitakkun.aspectk.expression.expressionparser
 
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
 import com.github.kitakkun.aspectk.expression.NameSequenceExpression
@@ -23,14 +24,18 @@ class PointcutExpressionParserTest {
                     args = listOf(ArgMatchingExpression.NoneOrMore),
                     lastIsVarArg = false,
                 ),
-                returnTypePackageNames = NameSequenceExpression.fromString(""),
-                returnTypeClassNames = NameSequenceExpression.fromString("Unit"),
+                returnType = ClassSignatureExpression.Normal(
+                    packageNames = NameSequenceExpression.Empty,
+                    classNames = NameSequenceExpression.fromString("Unit"),
+                ),
             ),
             right = PointcutExpression.Args(
                 args = listOf(
                     ArgMatchingExpression.Class(
-                        packageNames = emptyList(),
-                        classNames = listOf(NameExpression.fromString("String")),
+                        expression = ClassSignatureExpression.Normal(
+                            packageNames = NameSequenceExpression.Empty,
+                            classNames = NameSequenceExpression.fromString("String"),
+                        ),
                     ),
                 ),
                 lastIsVarArg = false,

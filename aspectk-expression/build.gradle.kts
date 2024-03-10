@@ -7,7 +7,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlin.compiler.embeddable)
     testImplementation(kotlin("test"))
 }
 

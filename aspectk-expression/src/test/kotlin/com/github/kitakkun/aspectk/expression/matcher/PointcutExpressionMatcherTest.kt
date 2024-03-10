@@ -3,7 +3,7 @@ package com.github.kitakkun.aspectk.expression.matcher
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.expressionparser.PointcutExpressionParser
 import com.github.kitakkun.aspectk.expression.lexer.AspectKLexer
-import org.jetbrains.kotlin.javac.resolve.classId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
 import org.junit.Test
 import kotlin.test.assertFalse
 
@@ -22,7 +22,7 @@ class PointcutExpressionMatcherTest {
                     className = "",
                     functionName = "foo",
                     args = emptyList(),
-                    returnType = classId("", "Unit"),
+                    returnType = ClassSignature("", "Unit"),
                     lastArgumentIsVararg = false,
                 ),
                 namedPointcutResolver = { null },
@@ -37,7 +37,7 @@ class PointcutExpressionMatcherTest {
                     className = "",
                     functionName = "foo",
                     args = emptyList(),
-                    returnType = classId("", "Unit"),
+                    returnType = ClassSignature("", "Unit"),
                     lastArgumentIsVararg = false,
                 ),
                 namedPointcutResolver = { null },
@@ -52,7 +52,7 @@ class PointcutExpressionMatcherTest {
                     className = "SomeClass",
                     functionName = "foo",
                     args = emptyList(),
-                    returnType = classId("", "Unit"),
+                    returnType = ClassSignature("", "Unit"),
                     lastArgumentIsVararg = false,
                 ),
                 namedPointcutResolver = { null },

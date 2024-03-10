@@ -1,6 +1,7 @@
 package com.github.kitakkun.aspectk.expression.expressionparser
 
-import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsToken
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsTokenType
@@ -29,17 +30,23 @@ class ArgsExpressionParserTest {
         val expected = PointcutExpression.Args(
             args = listOf(
                 ArgMatchingExpression.Class(
-                    packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
-                    classNames = listOf(NameExpression.Normal("Hoge")),
+                    expression = ClassSignatureExpression.Normal(
+                        packageNames = NameSequenceExpression.fromString("com/example"),
+                        classNames = NameSequenceExpression.fromString("Hoge"),
+                    ),
                 ),
                 ArgMatchingExpression.Class(
-                    packageNames = emptyList(),
-                    classNames = listOf(NameExpression.Normal("Int")),
+                    expression = ClassSignatureExpression.Normal(
+                        packageNames = NameSequenceExpression.Empty,
+                        classNames = NameSequenceExpression.fromString("Int"),
+                    ),
                 ),
                 ArgMatchingExpression.NoneOrMore,
                 ArgMatchingExpression.Class(
-                    packageNames = emptyList(),
-                    classNames = listOf(NameExpression.Normal("String")),
+                    expression = ClassSignatureExpression.Normal(
+                        packageNames = NameSequenceExpression.Empty,
+                        classNames = NameSequenceExpression.fromString("String"),
+                    ),
                 ),
             ),
             lastIsVarArg = true,

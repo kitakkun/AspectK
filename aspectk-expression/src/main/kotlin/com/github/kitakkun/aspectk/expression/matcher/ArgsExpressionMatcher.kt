@@ -1,32 +1,31 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.expressionparser.ArgMatchingExpression
-import org.jetbrains.kotlin.name.ClassId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
 
 class ArgsExpressionMatcher(private val expression: PointcutExpression.Args) {
     fun matches(
-        valueParameterClassIds: List<ClassId>,
+        valueParameterClassSignatures: List<ClassSignature>,
         lastIsVarArg: Boolean,
     ): Boolean {
         if (lastIsVarArg != expression.lastIsVarArg) return false
 
-        if (valueParameterClassIds.isEmpty()) {
+        if (valueParameterClassSignatures.isEmpty()) {
             return expression.args.isEmpty() || expression.args.all { it is ArgMatchingExpression.NoneOrMore }
         }
 
-        valueParameterClassIds.forEachIndexed { index, classId ->
+        valueParameterClassSignatures.forEachIndexed { index, classSignature ->
             val argMatchingExpression = expression.args.getOrNull(index) ?: return false
 
             when (argMatchingExpression) {
                 is ArgMatchingExpression.AnySingle -> return@forEachIndexed
 
                 is ArgMatchingExpression.NoneOrMore -> {
-                    if (matches(valueParameterClassIds.drop(1), lastIsVarArg)) return true
+                    if (matches(valueParameterClassSignatures.drop(1), lastIsVarArg)) return true
                     if (ArgsExpressionMatcher(
                             expression.copy(args = expression.args.drop(1)),
-                        ).matches(valueParameterClassIds, lastIsVarArg = lastIsVarArg)
+                        ).matches(valueParameterClassSignatures, lastIsVarArg = lastIsVarArg)
                     ) {
                         return true
                     }
@@ -34,11 +33,8 @@ class ArgsExpressionMatcher(private val expression: PointcutExpression.Args) {
                 }
 
                 is ArgMatchingExpression.Class -> {
-                    val classMatcher = ClassMatcher(
-                        packageNameExpressions = NameSequenceExpression.fromExpressions(argMatchingExpression.packageNames),
-                        classNameExpressions = NameSequenceExpression.fromExpressions(argMatchingExpression.classNames),
-                    )
-                    if (classMatcher.matches(classId.packageFqName.asString(), classId.relativeClassName.asString())) {
+                    val classSignatureMatcher = ClassSignatureMatcher(argMatchingExpression.expression)
+                    if (classSignatureMatcher.matches(classSignature)) {
                         return@forEachIndexed
                     } else {
                         return false

@@ -1,10 +1,11 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
 import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import org.jetbrains.kotlin.javac.resolve.classId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
 import org.junit.Ignore
 import org.junit.Test
 import kotlin.test.assertFalse
@@ -18,8 +19,10 @@ class ExecutionExpressionMatcherTest {
             packageNames = NameSequenceExpression.Empty,
             functionName = NameExpression.Normal("test"),
             args = PointcutExpression.Args(emptyList(), false),
-            returnTypePackageNames = NameSequenceExpression.Empty,
-            returnTypeClassNames = NameSequenceExpression.fromString("Unit"),
+            returnType = ClassSignatureExpression.Normal(
+                packageNames = NameSequenceExpression.Empty,
+                classNames = NameSequenceExpression.fromString("Unit"),
+            ),
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val matchResult = matcher.matches(
@@ -28,7 +31,7 @@ class ExecutionExpressionMatcherTest {
                 className = "",
                 functionName = "test",
                 args = listOf(),
-                returnType = classId("kotlin", "Unit"),
+                returnType = ClassSignature("", "Unit", emptyList()),
                 modifiers = setOf(FunctionModifier.PUBLIC),
                 lastArgumentIsVararg = false,
             ),
@@ -39,7 +42,7 @@ class ExecutionExpressionMatcherTest {
                 className = "",
                 functionName = "test",
                 args = listOf(),
-                returnType = classId("kotlin", "Unit"),
+                returnType = ClassSignature("", "Unit", emptyList()),
                 modifiers = setOf(FunctionModifier.PRIVATE),
                 lastArgumentIsVararg = false,
             ),
@@ -52,13 +55,16 @@ class ExecutionExpressionMatcherTest {
     fun testClassMethod() {
         val expression = PointcutExpression.Execution.MemberFunction(
             modifiers = emptyList(),
-            packageNames = NameSequenceExpression.fromString("com/example"),
-            classNames = NameSequenceExpression.fromString("TestClass"),
+            classSignature = ClassSignatureExpression.Normal(
+                packageNames = NameSequenceExpression.fromString("com/example"),
+                classNames = NameSequenceExpression.fromString("TestClass"),
+            ),
             functionName = NameExpression.Normal("test"),
             args = PointcutExpression.Args(emptyList(), false),
-            returnTypePackageNames = NameSequenceExpression.Empty,
-            returnTypeClassNames = NameSequenceExpression.fromString("Unit"),
-            includeSubClass = false,
+            returnType = ClassSignatureExpression.Normal(
+                packageNames = NameSequenceExpression.Empty,
+                classNames = NameSequenceExpression.fromString("Unit"),
+            ),
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val matchResult = matcher.matches(
@@ -67,7 +73,7 @@ class ExecutionExpressionMatcherTest {
                 className = "TestClass",
                 functionName = "test",
                 args = listOf(),
-                returnType = classId("kotlin", "Unit"),
+                returnType = ClassSignature("", "Unit", emptyList()),
                 modifiers = setOf(FunctionModifier.PUBLIC),
                 lastArgumentIsVararg = false,
             ),
@@ -78,7 +84,7 @@ class ExecutionExpressionMatcherTest {
                 className = "TestClass",
                 functionName = "test",
                 args = listOf(),
-                returnType = classId("kotlin", "Unit"),
+                returnType = ClassSignature("", "Unit", emptyList()),
                 modifiers = setOf(FunctionModifier.PRIVATE),
                 lastArgumentIsVararg = false,
             ),

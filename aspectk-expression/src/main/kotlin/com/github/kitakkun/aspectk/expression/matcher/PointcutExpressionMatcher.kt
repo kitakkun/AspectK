@@ -2,14 +2,14 @@ package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import org.jetbrains.kotlin.name.ClassId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
 
 data class FunctionSpec(
     val packageName: String,
     val className: String,
     val functionName: String,
-    val args: List<ClassId>,
-    val returnType: ClassId,
+    val args: List<ClassSignature>,
+    val returnType: ClassSignature,
     val modifiers: Set<FunctionModifier>,
     val lastArgumentIsVararg: Boolean,
 )
@@ -46,13 +46,13 @@ class PointcutExpressionMatcher(private val expression: PointcutExpression) {
 
             is PointcutExpression.Args -> {
                 return ArgsExpressionMatcher(expression).matches(
-                    valueParameterClassIds = functionSpec.args,
+                    valueParameterClassSignatures = functionSpec.args,
                     lastIsVarArg = functionSpec.lastArgumentIsVararg,
                 )
             }
 
             is PointcutExpression.Named -> {
-                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
+                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut $expression is not found.")
                 return PointcutExpressionMatcher(correspondingExpression).matches(functionSpec, namedPointcutResolver)
             }
         }

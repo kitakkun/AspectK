@@ -1,5 +1,6 @@
 package com.github.kitakkun.aspectk.expression.expressionparser
 
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
 import com.github.kitakkun.aspectk.expression.NameSequenceExpression
@@ -52,19 +53,31 @@ class ExecutionExpressionParser(
                 packageNames = NameSequenceExpression.fromExpressions(packageNames),
                 functionName = functionName,
                 args = args,
-                returnTypePackageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
-                returnTypeClassNames = NameSequenceExpression.fromExpressions(returnTypeNames),
+                returnType = ClassSignatureExpression.Normal(
+                    packageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
+                    classNames = NameSequenceExpression.fromExpressions(returnTypeNames),
+                ),
             )
 
             else -> PointcutExpression.Execution.MemberFunction(
                 modifiers = modifiers,
-                packageNames = NameSequenceExpression.fromExpressions(packageNames),
-                classNames = NameSequenceExpression.fromExpressions(classNames),
+                classSignature = if (!includeSubClass) {
+                    ClassSignatureExpression.Normal(
+                        packageNames = NameSequenceExpression.fromExpressions(packageNames),
+                        classNames = NameSequenceExpression.fromExpressions(classNames),
+                    )
+                } else {
+                    ClassSignatureExpression.IncludingSubClass(
+                        packageNames = NameSequenceExpression.fromExpressions(packageNames),
+                        classNames = NameSequenceExpression.fromExpressions(classNames),
+                    )
+                },
                 functionName = functionName,
                 args = args,
-                returnTypePackageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
-                returnTypeClassNames = NameSequenceExpression.fromExpressions(returnTypeNames),
-                includeSubClass = includeSubClass,
+                returnType = ClassSignatureExpression.Normal(
+                    packageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
+                    classNames = NameSequenceExpression.fromExpressions(returnTypeNames),
+                ),
             )
         }
     }

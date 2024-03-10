@@ -1,10 +1,8 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
-import com.github.kitakkun.aspectk.expression.NameExpression
-import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import org.jetbrains.kotlin.javac.resolve.classId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
 
 class ExecutionExpressionMatcher(private val expression: PointcutExpression.Execution) {
     fun matches(functionSpec: FunctionSpec): Boolean {
@@ -22,37 +20,27 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         val argsMatcher = ArgsExpressionMatcher(expression.args)
         if (!argsMatcher.matches(functionSpec.args, functionSpec.lastArgumentIsVararg)) return false
 
-        // matching package
-        if (!NameSequenceExpressionMatcher(expression.packageNames).matches(functionSpec.packageName)) {
-            return false
-        }
-
         // matching class
         when (expression) {
             is PointcutExpression.Execution.MemberFunction -> {
-                if (!NameSequenceExpressionMatcher(expression.classNames).matches(functionSpec.className)) {
+                // FIXME: super type matching is not supported yet
+                val classSignature = ClassSignature(packageName = functionSpec.packageName, className = functionSpec.className, superTypes = emptyList())
+                if (!ClassSignatureMatcher(expression.classSignature).matches(classSignature)) {
                     return false
                 }
             }
 
             is PointcutExpression.Execution.TopLevelFunction -> {
+                if (!NameSequenceExpressionMatcher(expression.packageNames).matches(functionSpec.packageName)) {
+                    return false
+                }
                 if (functionSpec.className.isNotEmpty()) {
                     return false
                 }
             }
         }
 
-        // implicit return type matching support
-        // FIXME: temporary solution
-        if (functionSpec.returnType == classId("kotlin", "Unit")) {
-            val unspecifiedPackage = expression.returnTypePackageNames is NameSequenceExpression.Empty
-            val unspecifiedReturnType = unspecifiedPackage && expression.returnTypeClassNames is NameSequenceExpression.Empty
-            if (unspecifiedReturnType || unspecifiedPackage && (expression.returnTypeClassNames as? NameSequenceExpression.Sequence)?.names?.singleOrNull() == NameExpression.fromString("Unit")) {
-                return true
-            }
-        }
-
-        return ClassMatcher(expression.returnTypePackageNames, expression.returnTypeClassNames)
-            .matches(functionSpec.returnType.packageFqName.asString(), functionSpec.returnType.relativeClassName.asString())
+        val returnTypeSignature = ClassSignature(packageName = functionSpec.returnType.packageName, className = functionSpec.returnType.className, superTypes = emptyList())
+        return ClassSignatureMatcher(expression.returnType).matches(returnTypeSignature)
     }
 }
