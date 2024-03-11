@@ -8,12 +8,4 @@ plugins {
     alias(libs.plugins.aspectkCommon) apply false
 }
 
-group = "com.github.kitakkun.aspectk"
-version = libs.versions.aspectk.get()
-
-subprojects {
-    group = rootProject.group
-    version = rootProject.version
-}
-
 true
