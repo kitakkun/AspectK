@@ -1,18 +1,7 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import com.github.kitakkun.aspectk.expression.model.ClassSignature
-
-data class FunctionSpec(
-    val packageName: String,
-    val className: String,
-    val functionName: String,
-    val args: List<ClassSignature>,
-    val returnType: ClassSignature,
-    val modifiers: Set<FunctionModifier>,
-    val lastArgumentIsVararg: Boolean,
-)
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 
 class PointcutExpressionMatcher(private val expression: PointcutExpression) {
     fun matches(

@@ -7,7 +7,7 @@ import com.github.kitakkun.aspectk.compiler.backend.utils.callableId
 import com.github.kitakkun.aspectk.compiler.backend.utils.toClassSignature
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import com.github.kitakkun.aspectk.expression.matcher.FunctionSpec
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -70,15 +70,31 @@ private fun IrSimpleFunction.isAspectRelevantDeclaration(): Boolean {
 }
 
 private fun IrSimpleFunction.toFunctionSpec(): FunctionSpec {
-    return FunctionSpec(
-        packageName = this.getPackageFragment().packageFqName.asString(),
-        className = this.parentClassOrNull?.name?.asString() ?: "",
-        functionName = this.name.asString(),
-        args = this.valueParameters.map { it.type.classOrFail.owner.toClassSignature() },
-        returnType = this.returnType.classOrFail.owner.toClassSignature(),
-        modifiers = this.modifiers(),
-        lastArgumentIsVararg = this.valueParameters.lastOrNull()?.isVararg ?: false,
-    )
+    val parentClass = this.parentClassOrNull
+    val name = this.name.asString()
+    val args = this.valueParameters.map { it.type.classOrFail.owner.toClassSignature() }
+    val returnType = this.returnType.classOrFail.owner.toClassSignature()
+    val modifiers = this.modifiers()
+    val lastArgumentIsVararg = this.valueParameters.lastOrNull()?.isVararg ?: false
+    return if (parentClass != null) {
+        FunctionSpec.Member(
+            classSignature = parentClass.toClassSignature(),
+            functionName = name,
+            args = args,
+            returnType = returnType,
+            modifiers = modifiers,
+            lastArgumentIsVararg = lastArgumentIsVararg,
+        )
+    } else {
+        FunctionSpec.TopLevel(
+            packageName = this.getPackageFragment().packageFqName.asString(),
+            functionName = name,
+            args = args,
+            returnType = returnType,
+            modifiers = modifiers,
+            lastArgumentIsVararg = lastArgumentIsVararg,
+        )
+    }
 }
 
 private fun IrSimpleFunction.modifiers(): Set<FunctionModifier> {

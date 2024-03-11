@@ -2,7 +2,7 @@ package com.github.kitakkun.aspectk.expression.matcher
 
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import com.github.kitakkun.aspectk.expression.model.ClassSignature
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 
 class ExecutionExpressionMatcher(private val expression: PointcutExpression.Execution) {
     fun matches(functionSpec: FunctionSpec): Boolean {
@@ -20,27 +20,27 @@ class ExecutionExpressionMatcher(private val expression: PointcutExpression.Exec
         val argsMatcher = ArgsExpressionMatcher(expression.args)
         if (!argsMatcher.matches(functionSpec.args, functionSpec.lastArgumentIsVararg)) return false
 
-        // matching class
+        // matching package and class
         when (expression) {
             is PointcutExpression.Execution.MemberFunction -> {
-                // FIXME: super type matching is not supported yet
-                val classSignature = ClassSignature(packageName = functionSpec.packageName, className = functionSpec.className, superTypes = emptyList())
-                if (!ClassSignatureMatcher(expression.classSignature).matches(classSignature)) {
+                if (functionSpec !is FunctionSpec.Member) {
+                    return false
+                }
+                if (!ClassSignatureMatcher(expression.classSignature).matches(functionSpec.classSignature)) {
                     return false
                 }
             }
 
             is PointcutExpression.Execution.TopLevelFunction -> {
-                if (!NameSequenceExpressionMatcher(expression.packageNames).matches(functionSpec.packageName)) {
+                if (functionSpec !is FunctionSpec.TopLevel) {
                     return false
                 }
-                if (functionSpec.className.isNotEmpty()) {
+                if (!NameSequenceExpressionMatcher(expression.packageNames).matches(functionSpec.packageName)) {
                     return false
                 }
             }
         }
 
-        val returnTypeSignature = ClassSignature(packageName = functionSpec.returnType.packageName, className = functionSpec.returnType.className, superTypes = emptyList())
-        return ClassSignatureMatcher(expression.returnType).matches(returnTypeSignature)
+        return ClassSignatureMatcher(expression.returnType).matches(functionSpec.returnType)
     }
 }

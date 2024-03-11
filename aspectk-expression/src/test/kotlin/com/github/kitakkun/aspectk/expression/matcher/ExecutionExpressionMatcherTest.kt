@@ -6,6 +6,7 @@ import com.github.kitakkun.aspectk.expression.NameExpression
 import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.model.ClassSignature
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 import org.junit.Ignore
 import org.junit.Test
 import kotlin.test.assertFalse
@@ -26,9 +27,8 @@ class ExecutionExpressionMatcherTest {
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val matchResult = matcher.matches(
-            FunctionSpec(
+            FunctionSpec.TopLevel(
                 packageName = "",
-                className = "",
                 functionName = "test",
                 args = listOf(),
                 returnType = ClassSignature("", "Unit", emptyList()),
@@ -37,9 +37,8 @@ class ExecutionExpressionMatcherTest {
             ),
         )
         val noMatchResult = matcher.matches(
-            FunctionSpec(
+            FunctionSpec.TopLevel(
                 packageName = "",
-                className = "",
                 functionName = "test",
                 args = listOf(),
                 returnType = ClassSignature("", "Unit", emptyList()),
@@ -68,9 +67,8 @@ class ExecutionExpressionMatcherTest {
         )
         val matcher = ExecutionExpressionMatcher(expression)
         val matchResult = matcher.matches(
-            FunctionSpec(
-                packageName = "com/example",
-                className = "TestClass",
+            FunctionSpec.Member(
+                classSignature = ClassSignature(packageName = "com/example", className = "TestClass"),
                 functionName = "test",
                 args = listOf(),
                 returnType = ClassSignature("", "Unit", emptyList()),
@@ -79,9 +77,8 @@ class ExecutionExpressionMatcherTest {
             ),
         )
         val noMatchResult = matcher.matches(
-            FunctionSpec(
-                packageName = "com/example",
-                className = "TestClass",
+            FunctionSpec.Member(
+                classSignature = ClassSignature(packageName = "com/example", className = "TestClass"),
                 functionName = "test",
                 args = listOf(),
                 returnType = ClassSignature("", "Unit", emptyList()),
