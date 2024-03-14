@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
@@ -7,5 +6,3 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.aspectkCommon) apply false
 }
-
-true
