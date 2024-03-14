@@ -1,5 +1,3 @@
-@file:Suppress("DSL_SCOPE_VIOLATION")
-
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 
 plugins {
