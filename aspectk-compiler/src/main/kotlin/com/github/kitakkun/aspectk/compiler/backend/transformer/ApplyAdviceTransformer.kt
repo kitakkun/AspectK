@@ -57,6 +57,9 @@ class ApplyAdviceTransformer(
                 BeforeAdviceTransformer(targetFunction, adviceCall).visitSimpleFunction(declaration)
                 AfterAdviceFunctionBodyTransformer(targetFunction, adviceCall).visitSimpleFunction(declaration)
             }
+
+            AdviceType.AFTER_RETURNING -> AfterReturningAdviceFunctionBodyTransformer(targetFunction, adviceCall).visitSimpleFunction(declaration)
+            AdviceType.AFTER_THROWING -> AfterThrowingAdviceFunctionBodyTransformer(targetFunction, adviceCall).visitSimpleFunction(declaration)
         }
 
         return declaration
