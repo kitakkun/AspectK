@@ -1,7 +1,9 @@
 package com.github.kitakkun.aspectk.expression.expressionparser
 
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsToken
 import com.github.kitakkun.aspectk.expression.tokenparser.ExecutionToken
@@ -21,9 +23,11 @@ class ExecutionExpressionParser(
             .map { NameExpression.fromString(it.lexeme) }
         val classNames = tokens
             .takeWhile { it.type != ExecutionTokenType.RETURN_TYPE_START }
-            .filter { it.type == ExecutionTokenType.CLASS }
+            .filter { it.type == ExecutionTokenType.CLASS || it.type == ExecutionTokenType.CLASS_INCLUDING_SUBCLASS }
             .map { NameExpression.fromString(it.lexeme) }
-        val functionName = tokens.first { it.type == ExecutionTokenType.FUNCTION }.let { NameExpression.fromString(it.lexeme) }
+        val functionName = tokens
+            .first { it.type == ExecutionTokenType.FUNCTION }
+            .let { NameExpression.fromString(it.lexeme) }
 
         val returnTypeTokens = tokens
             .dropWhile { it.type != ExecutionTokenType.RETURN_TYPE_START }
@@ -39,14 +43,42 @@ class ExecutionExpressionParser(
 
         val args = ArgsExpressionParser(argsTokens).parse()
 
-        return PointcutExpression.Execution(
-            modifiers = modifiers,
-            packageNames = packageNames,
-            classNames = classNames,
-            functionName = functionName,
-            args = args,
-            returnTypePackageNames = returnTypePackageNames,
-            returnTypeClassNames = returnTypeNames,
-        )
+        val includeSubClass = tokens
+            .takeWhile { it.type == ExecutionTokenType.RETURN_TYPE_START }
+            .any { it.type == ExecutionTokenType.CLASS_INCLUDING_SUBCLASS }
+
+        return when {
+            classNames.isEmpty() -> PointcutExpression.Execution.TopLevelFunction(
+                modifiers = modifiers,
+                packageNames = NameSequenceExpression.fromExpressions(packageNames),
+                functionName = functionName,
+                args = args,
+                returnType = ClassSignatureExpression.Normal(
+                    packageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
+                    classNames = NameSequenceExpression.fromExpressions(returnTypeNames),
+                ),
+            )
+
+            else -> PointcutExpression.Execution.MemberFunction(
+                modifiers = modifiers,
+                classSignature = if (!includeSubClass) {
+                    ClassSignatureExpression.Normal(
+                        packageNames = NameSequenceExpression.fromExpressions(packageNames),
+                        classNames = NameSequenceExpression.fromExpressions(classNames),
+                    )
+                } else {
+                    ClassSignatureExpression.IncludingSubClass(
+                        packageNames = NameSequenceExpression.fromExpressions(packageNames),
+                        classNames = NameSequenceExpression.fromExpressions(classNames),
+                    )
+                },
+                functionName = functionName,
+                args = args,
+                returnType = ClassSignatureExpression.Normal(
+                    packageNames = NameSequenceExpression.fromExpressions(returnTypePackageNames),
+                    classNames = NameSequenceExpression.fromExpressions(returnTypeNames),
+                ),
+            )
+        }
     }
 }

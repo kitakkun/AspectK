@@ -1,6 +1,7 @@
 package com.github.kitakkun.aspectk.expression.expressionparser
 
-import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsToken
 import com.github.kitakkun.aspectk.expression.tokenparser.ArgsTokenType
@@ -10,10 +11,7 @@ sealed class ArgMatchingExpression {
 
     data object NoneOrMore : ArgMatchingExpression()
 
-    data class Class(
-        val packageNames: List<NameExpression>,
-        val classNames: List<NameExpression>,
-    ) : ArgMatchingExpression()
+    data class Class(val expression: ClassSignatureExpression) : ArgMatchingExpression()
 }
 
 class ArgsExpressionParser(
@@ -57,14 +55,21 @@ class ArgsExpressionParser(
                 }
             }
 
-            val packageExpressions = arg.filter { it.type == ArgsTokenType.PACKAGE_PART }.map { NameExpression.fromString(it.lexeme) }
-            val classExpressions = arg.filter { it.type == ArgsTokenType.CLASS }.map { NameExpression.fromString(it.lexeme) }
+            val packageExpressions = arg.filter { it.type == ArgsTokenType.PACKAGE_PART }.joinToString("/") { it.lexeme }
+            val classExpressions = arg.filter { it.type == ArgsTokenType.CLASS }.joinToString(".") { it.lexeme }
 
             if (packageExpressions.isEmpty() && classExpressions.isEmpty()) {
                 continue
             }
 
-            argMatchingExpressions.add(ArgMatchingExpression.Class(packageNames = packageExpressions, classNames = classExpressions))
+            argMatchingExpressions.add(
+                ArgMatchingExpression.Class(
+                    expression = ClassSignatureExpression.Normal(
+                        packageNames = NameSequenceExpression.fromString(packageExpressions),
+                        classNames = NameSequenceExpression.fromString(classExpressions),
+                    ),
+                ),
+            )
         }
 
         return PointcutExpression.Args(argMatchingExpressions, lastIsVarArg)

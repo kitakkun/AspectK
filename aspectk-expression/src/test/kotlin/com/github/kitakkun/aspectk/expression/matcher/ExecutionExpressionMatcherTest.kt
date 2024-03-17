@@ -1,107 +1,93 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import org.jetbrains.kotlin.javac.resolve.classId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 import org.junit.Ignore
 import org.junit.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ExecutionExpressionMatcherTest {
     @Test
     fun testTopLevel() {
-        val expression = PointcutExpression.Execution(
+        val expression = PointcutExpression.Execution.TopLevelFunction(
             modifiers = listOf(FunctionModifier.PUBLIC),
-            packageNames = emptyList(),
-            classNames = emptyList(),
+            packageNames = NameSequenceExpression.Empty,
             functionName = NameExpression.Normal("test"),
             args = PointcutExpression.Args(emptyList(), false),
-            returnTypePackageNames = emptyList(),
-            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+            returnType = ClassSignatureExpression.Normal(
+                packageNames = NameSequenceExpression.Empty,
+                classNames = NameSequenceExpression.fromString("Unit"),
+            ),
         )
         val matcher = ExecutionExpressionMatcher(expression)
-        val result = matcher.matches(
-            packageName = "",
-            className = "",
-            functionName = "test",
-            argumentClassIds = listOf(),
-            returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(FunctionModifier.PUBLIC),
-            lastArgumentIsVararg = false,
+        val matchResult = matcher.matches(
+            FunctionSpec.TopLevel(
+                packageName = "",
+                functionName = "test",
+                args = listOf(),
+                returnType = ClassSignature("", "Unit", emptyList()),
+                modifiers = setOf(FunctionModifier.PUBLIC),
+                lastArgumentIsVararg = false,
+            ),
         )
-        assert(result)
-    }
-
-    @Test
-    fun testTopLevelNoMatch() {
-        val expression = PointcutExpression.Execution(
-            modifiers = listOf(FunctionModifier.PUBLIC),
-            packageNames = emptyList(),
-            classNames = emptyList(),
-            functionName = NameExpression.Normal("test"),
-            args = PointcutExpression.Args(emptyList(), false),
-            returnTypePackageNames = emptyList(),
-            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+        val noMatchResult = matcher.matches(
+            FunctionSpec.TopLevel(
+                packageName = "",
+                functionName = "test",
+                args = listOf(),
+                returnType = ClassSignature("", "Unit", emptyList()),
+                modifiers = setOf(FunctionModifier.PRIVATE),
+                lastArgumentIsVararg = false,
+            ),
         )
-        val matcher = ExecutionExpressionMatcher(expression)
-        val result = matcher.matches(
-            packageName = "",
-            className = "",
-            functionName = "test",
-            argumentClassIds = listOf(),
-            returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(FunctionModifier.PRIVATE),
-            lastArgumentIsVararg = false,
-        )
-        assert(!result)
+        assertTrue { matchResult }
+        assertFalse { noMatchResult }
     }
 
     @Test
     fun testClassMethod() {
-        val expression = PointcutExpression.Execution(
+        val expression = PointcutExpression.Execution.MemberFunction(
             modifiers = emptyList(),
-            packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
-            classNames = listOf(NameExpression.Normal("TestClass")),
+            classSignature = ClassSignatureExpression.Normal(
+                packageNames = NameSequenceExpression.fromString("com/example"),
+                classNames = NameSequenceExpression.fromString("TestClass"),
+            ),
             functionName = NameExpression.Normal("test"),
             args = PointcutExpression.Args(emptyList(), false),
-            returnTypePackageNames = emptyList(),
-            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+            returnType = ClassSignatureExpression.Normal(
+                packageNames = NameSequenceExpression.Empty,
+                classNames = NameSequenceExpression.fromString("Unit"),
+            ),
         )
         val matcher = ExecutionExpressionMatcher(expression)
-        val result = matcher.matches(
-            packageName = "com/example",
-            className = "TestClass",
-            functionName = "test",
-            argumentClassIds = listOf(),
-            returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(FunctionModifier.PUBLIC),
-            lastArgumentIsVararg = false,
+        val matchResult = matcher.matches(
+            FunctionSpec.Member(
+                classSignature = ClassSignature(packageName = "com/example", className = "TestClass"),
+                functionName = "test",
+                args = listOf(),
+                returnType = ClassSignature("", "Unit", emptyList()),
+                modifiers = setOf(FunctionModifier.PUBLIC),
+                lastArgumentIsVararg = false,
+            ),
         )
-        assert(result)
-    }
-
-    @Test
-    fun testClassMethodNoMatch() {
-        val expression = PointcutExpression.Execution(
-            modifiers = emptyList(),
-            packageNames = listOf(NameExpression.Normal("com"), NameExpression.Normal("example")),
-            classNames = listOf(NameExpression.Normal("TestClass")),
-            functionName = NameExpression.Normal("test"),
-            args = PointcutExpression.Args(emptyList(), false),
-            returnTypePackageNames = emptyList(),
-            returnTypeClassNames = listOf(NameExpression.Normal("Unit")),
+        val noMatchResult = matcher.matches(
+            FunctionSpec.Member(
+                classSignature = ClassSignature(packageName = "com/example", className = "TestClass"),
+                functionName = "test",
+                args = listOf(),
+                returnType = ClassSignature("", "Unit", emptyList()),
+                modifiers = setOf(FunctionModifier.PRIVATE),
+                lastArgumentIsVararg = false,
+            ),
         )
-        val matcher = ExecutionExpressionMatcher(expression)
-        val result = matcher.matches(
-            packageName = "com/example",
-            className = "TestClass",
-            functionName = "testNoMatch",
-            argumentClassIds = listOf(),
-            returnType = classId("kotlin", "Unit"),
-            modifiers = setOf(FunctionModifier.PUBLIC),
-            lastArgumentIsVararg = false,
-        )
-        assert(!result)
+        assert(matchResult)
+        assertFalse { noMatchResult }
     }
 
     @Ignore("Not supported yet")

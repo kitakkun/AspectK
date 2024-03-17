@@ -85,11 +85,17 @@ class PointcutExpressionParser(
         identifier: AspectKToken,
         expressionTokens: List<AspectKToken>,
     ): PointcutExpression {
-        return when (identifier.lexeme) {
+        val parseResult = when (identifier.lexeme) {
             "execution" -> execution(expressionTokens)
             "args" -> args(expressionTokens)
             "named" -> namedPointcut(expressionTokens)
             else -> throw IllegalStateException("Unknown pointcut identifier: ${identifier.lexeme}")
+        }
+
+        if (isAtEnd || peek().type in setOf(AspectKTokenType.AND, AspectKTokenType.OR)) {
+            return parseResult
+        } else {
+            throw IllegalStateException("Expected AND or OR after pointcut expression but found ${peek().type}")
         }
     }
 

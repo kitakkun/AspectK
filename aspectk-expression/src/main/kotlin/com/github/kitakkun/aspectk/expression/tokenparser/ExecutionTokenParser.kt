@@ -12,6 +12,7 @@ enum class ExecutionTokenType {
     MODIFIER,
     PACKAGE_PART,
     CLASS,
+    CLASS_INCLUDING_SUBCLASS,
     FUNCTION,
     RETURN_TYPE_START,
     RETURN_TYPE_END,
@@ -138,24 +139,23 @@ class ExecutionTokenParser(
      */
     private fun tryParseClass(token: AspectKToken) {
         if (token.type !in listOf(AspectKTokenType.IDENTIFIER, AspectKTokenType.STAR)) return
-        if (match(AspectKTokenType.DOT)) {
-            addToken(ExecutionTokenType.CLASS, token.lexeme)
-        } else {
-            error("expected dot after class name")
-        }
 
-        when (peekNext()?.type) {
-            AspectKTokenType.DOT -> {
-                context = ExecutionExpressionResolvingContext.CLASS
+        when {
+            match(AspectKTokenType.DOT) -> {
+                addToken(ExecutionTokenType.CLASS, token.lexeme)
+                context = when (peekNext()?.type) {
+                    AspectKTokenType.DOT -> ExecutionExpressionResolvingContext.CLASS
+                    AspectKTokenType.LEFT_PAREN -> ExecutionExpressionResolvingContext.FUNCTION
+                    else -> error("unexpected token")
+                }
             }
 
-            AspectKTokenType.LEFT_PAREN -> {
+            match(AspectKTokenType.PLUS) && match(AspectKTokenType.DOT) -> {
+                addToken(ExecutionTokenType.CLASS_INCLUDING_SUBCLASS, token.lexeme)
                 context = ExecutionExpressionResolvingContext.FUNCTION
             }
 
-            else -> {
-                error("unexpected token")
-            }
+            else -> error("expected '.' or '+.' character after class name")
         }
     }
 

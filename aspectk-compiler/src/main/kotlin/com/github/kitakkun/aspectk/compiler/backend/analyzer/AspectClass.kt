@@ -35,4 +35,6 @@ enum class AdviceType {
     BEFORE,
     AFTER,
     AROUND,
+    AFTER_RETURNING,
+    AFTER_THROWING,
 }

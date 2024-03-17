@@ -1,18 +1,7 @@
 package com.github.kitakkun.aspectk.expression.matcher
 
-import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.PointcutExpression
-import org.jetbrains.kotlin.name.ClassId
-
-data class FunctionSpec(
-    val packageName: String,
-    val className: String,
-    val functionName: String,
-    val args: List<ClassId>,
-    val returnType: ClassId,
-    val modifiers: Set<FunctionModifier>,
-    val lastArgumentIsVararg: Boolean,
-)
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 
 class PointcutExpressionMatcher(private val expression: PointcutExpression) {
     fun matches(
@@ -41,26 +30,18 @@ class PointcutExpressionMatcher(private val expression: PointcutExpression) {
             }
 
             is PointcutExpression.Execution -> {
-                return ExecutionExpressionMatcher(expression).matches(
-                    packageName = functionSpec.packageName,
-                    className = functionSpec.className,
-                    functionName = functionSpec.functionName,
-                    argumentClassIds = functionSpec.args,
-                    returnType = functionSpec.returnType,
-                    modifiers = functionSpec.modifiers,
-                    lastArgumentIsVararg = functionSpec.lastArgumentIsVararg,
-                )
+                return ExecutionExpressionMatcher(expression).matches(functionSpec = functionSpec)
             }
 
             is PointcutExpression.Args -> {
                 return ArgsExpressionMatcher(expression).matches(
-                    valueParameterClassIds = functionSpec.args,
+                    valueParameterClassSignatures = functionSpec.args,
                     lastIsVarArg = functionSpec.lastArgumentIsVararg,
                 )
             }
 
             is PointcutExpression.Named -> {
-                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut ${expression.name} is not found.")
+                val correspondingExpression = namedPointcutResolver(expression) ?: throw IllegalStateException("Named pointcut $expression is not found.")
                 return PointcutExpressionMatcher(correspondingExpression).matches(functionSpec, namedPointcutResolver)
             }
         }

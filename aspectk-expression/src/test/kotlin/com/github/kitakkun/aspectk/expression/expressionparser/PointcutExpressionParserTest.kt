@@ -1,7 +1,9 @@
 package com.github.kitakkun.aspectk.expression.expressionparser
 
+import com.github.kitakkun.aspectk.expression.ClassSignatureExpression
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.NameExpression
+import com.github.kitakkun.aspectk.expression.NameSequenceExpression
 import com.github.kitakkun.aspectk.expression.PointcutExpression
 import com.github.kitakkun.aspectk.expression.lexer.AspectKLexer
 import org.junit.Test
@@ -14,23 +16,26 @@ class PointcutExpressionParserTest {
         val parser = PointcutExpressionParser(tokens)
         val actual = parser.expression()
         val expected = PointcutExpression.And(
-            left = PointcutExpression.Execution(
+            left = PointcutExpression.Execution.TopLevelFunction(
                 modifiers = listOf(FunctionModifier.PUBLIC),
-                packageNames = listOf(NameExpression.fromString("com"), NameExpression.fromString("example")),
-                classNames = emptyList(),
+                packageNames = NameSequenceExpression.fromString("com/example"),
                 functionName = NameExpression.fromString("foo"),
                 args = PointcutExpression.Args(
                     args = listOf(ArgMatchingExpression.NoneOrMore),
                     lastIsVarArg = false,
                 ),
-                returnTypePackageNames = emptyList(),
-                returnTypeClassNames = listOf(NameExpression.fromString("Unit")),
+                returnType = ClassSignatureExpression.Normal(
+                    packageNames = NameSequenceExpression.Empty,
+                    classNames = NameSequenceExpression.fromString("Unit"),
+                ),
             ),
             right = PointcutExpression.Args(
                 args = listOf(
                     ArgMatchingExpression.Class(
-                        packageNames = emptyList(),
-                        classNames = listOf(NameExpression.fromString("String")),
+                        expression = ClassSignatureExpression.Normal(
+                            packageNames = NameSequenceExpression.Empty,
+                            classNames = NameSequenceExpression.fromString("String"),
+                        ),
                     ),
                 ),
                 lastIsVarArg = false,

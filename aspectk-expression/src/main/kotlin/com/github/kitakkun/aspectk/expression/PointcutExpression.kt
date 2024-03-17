@@ -1,10 +1,6 @@
 package com.github.kitakkun.aspectk.expression
 
 import com.github.kitakkun.aspectk.expression.expressionparser.ArgMatchingExpression
-import org.jetbrains.kotlin.javac.resolve.classId
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.Name
 
 sealed class PointcutExpression {
     data object Empty : PointcutExpression()
@@ -15,15 +11,28 @@ sealed class PointcutExpression {
 
     data class Not(val expression: PointcutExpression) : PointcutExpression()
 
-    data class Execution(
-        val modifiers: List<FunctionModifier>,
-        val packageNames: List<NameExpression>,
-        val classNames: List<NameExpression>,
-        val functionName: NameExpression,
-        val args: Args,
-        val returnTypePackageNames: List<NameExpression>,
-        val returnTypeClassNames: List<NameExpression>,
-    ) : PointcutExpression()
+    sealed class Execution : PointcutExpression() {
+        abstract val modifiers: List<FunctionModifier>
+        abstract val functionName: NameExpression
+        abstract val args: Args
+        abstract val returnType: ClassSignatureExpression
+
+        data class TopLevelFunction(
+            override val modifiers: List<FunctionModifier>,
+            val packageNames: NameSequenceExpression,
+            override val functionName: NameExpression,
+            override val args: Args,
+            override val returnType: ClassSignatureExpression,
+        ) : Execution()
+
+        data class MemberFunction(
+            override val modifiers: List<FunctionModifier>,
+            val classSignature: ClassSignatureExpression,
+            override val functionName: NameExpression,
+            override val args: Args,
+            override val returnType: ClassSignatureExpression,
+        ) : Execution()
+    }
 
     data class Args(
         val args: List<ArgMatchingExpression>,
@@ -34,9 +43,5 @@ sealed class PointcutExpression {
         val packageNames: List<NameExpression.Normal>,
         val classNames: List<NameExpression.Normal>,
         val functionName: NameExpression.Normal,
-    ) : PointcutExpression() {
-        val name = "${packageNames.joinToString("/")}/${classNames.joinToString(".")}.$functionName"
-        val classId: ClassId = classId(packageNames.joinToString("/"), classNames.joinToString("."))
-        val callableId = CallableId(classId = classId, callableName = Name.identifier(functionName.name))
-    }
+    ) : PointcutExpression()
 }

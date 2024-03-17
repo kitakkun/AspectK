@@ -8,6 +8,7 @@ ktlint-gradle = "12.1.0"
 
 [plugins]
 aspectkCommon = { id = "aspectk.common", version = "unspecified" }
+aspectk = { id = "com.github.kitakkun.aspectk", version.ref = "aspectk" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

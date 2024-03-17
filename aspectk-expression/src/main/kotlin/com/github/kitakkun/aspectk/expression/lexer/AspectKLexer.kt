@@ -61,6 +61,8 @@ class AspectKLexer(private val expression: String) {
 
             '*' -> if (match('*')) addToken(AspectKTokenType.DOUBLE_STAR) else addToken(AspectKTokenType.STAR)
 
+            '+' -> addToken(AspectKTokenType.PLUS) // subclass
+
             '.' ->
                 if (match('.')) {
                     if (match('.')) {

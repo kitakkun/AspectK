@@ -3,9 +3,9 @@ package com.github.kitakkun.aspectk.expression.matcher
 import com.github.kitakkun.aspectk.expression.FunctionModifier
 import com.github.kitakkun.aspectk.expression.expressionparser.PointcutExpressionParser
 import com.github.kitakkun.aspectk.expression.lexer.AspectKLexer
-import org.jetbrains.kotlin.javac.resolve.classId
+import com.github.kitakkun.aspectk.expression.model.ClassSignature
+import com.github.kitakkun.aspectk.expression.model.FunctionSpec
 import org.junit.Test
-import kotlin.test.assertFalse
 
 class PointcutExpressionMatcherTest {
     @Test
@@ -16,13 +16,12 @@ class PointcutExpressionMatcherTest {
 
         assert(
             matcher.matches(
-                functionSpec = FunctionSpec(
+                functionSpec = FunctionSpec.TopLevel(
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     packageName = "com/example",
-                    className = "",
                     functionName = "foo",
                     args = emptyList(),
-                    returnType = classId("", "Unit"),
+                    returnType = ClassSignature("", "Unit"),
                     lastArgumentIsVararg = false,
                 ),
                 namedPointcutResolver = { null },
@@ -31,32 +30,16 @@ class PointcutExpressionMatcherTest {
 
         assert(
             matcher.matches(
-                functionSpec = FunctionSpec(
+                functionSpec = FunctionSpec.TopLevel(
                     modifiers = setOf(FunctionModifier.PUBLIC),
                     packageName = "com/example/hogehoge/submodule",
-                    className = "",
                     functionName = "foo",
                     args = emptyList(),
-                    returnType = classId("", "Unit"),
+                    returnType = ClassSignature("", "Unit"),
                     lastArgumentIsVararg = false,
                 ),
                 namedPointcutResolver = { null },
             ),
         )
-
-        assertFalse {
-            matcher.matches(
-                functionSpec = FunctionSpec(
-                    modifiers = setOf(FunctionModifier.PUBLIC),
-                    packageName = "com/example/hogehoge/submodule",
-                    className = "SomeClass",
-                    functionName = "foo",
-                    args = emptyList(),
-                    returnType = classId("", "Unit"),
-                    lastArgumentIsVararg = false,
-                ),
-                namedPointcutResolver = { null },
-            )
-        }
     }
 }
