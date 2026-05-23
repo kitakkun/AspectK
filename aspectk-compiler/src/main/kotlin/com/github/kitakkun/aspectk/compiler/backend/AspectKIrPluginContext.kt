@@ -7,9 +7,11 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.isVararg
 
 class AspectKIrPluginContext(val context: IrPluginContext, val messageCollector: MessageCollector) : IrPluginContext by context {
-    val joinPointClassConstructor = referenceClass(AspectKConsts.JOIN_POINT_CLASS_ID)?.constructors?.first { it.owner.isPrimary }!!
+    val joinPointClassConstructor = referenceClass(AspectKConsts.STATIC_JOIN_POINT_CLASS_ID)?.constructors?.first { it.owner.isPrimary }!!
     val joinPointArgumentClassConstructor =
         referenceClass(AspectKConsts.JOIN_POINT_ARGUMENT_CLASS_ID)?.constructors?.first { it.owner.isPrimary }!!
+    val proceedingJoinPointClassConstructor =
+        referenceClass(AspectKConsts.PROCEEDING_JOIN_POINT_CLASS_ID)?.constructors?.first { it.owner.isPrimary }!!
     val listOfFunction = referenceFunctions(AspectKConsts.LIST_OF_FUNCTION_ID).first {
         it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg
     }

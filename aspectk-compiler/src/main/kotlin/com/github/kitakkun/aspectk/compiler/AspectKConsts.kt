@@ -8,6 +8,9 @@ import org.jetbrains.kotlin.name.Name
 object AspectKConsts {
     val JOIN_POINT_CLASS_ID = classId("com.github.kitakkun.aspectk.core", "JoinPoint")
     val JOIN_POINT_FQ_NAME = JOIN_POINT_CLASS_ID.asSingleFqName()
+    val STATIC_JOIN_POINT_CLASS_ID = classId("com.github.kitakkun.aspectk.core", "StaticJoinPoint")
     val JOIN_POINT_ARGUMENT_CLASS_ID = classId("com.github.kitakkun.aspectk.core", "JoinPointArgument")
+    val PROCEEDING_JOIN_POINT_CLASS_ID = classId("com.github.kitakkun.aspectk.core", "ProceedingJoinPoint")
+    val PROCEEDING_JOIN_POINT_FQ_NAME = PROCEEDING_JOIN_POINT_CLASS_ID.asSingleFqName()
     val LIST_OF_FUNCTION_ID = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
 }

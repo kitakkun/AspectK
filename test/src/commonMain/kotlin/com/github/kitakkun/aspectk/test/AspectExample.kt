@@ -5,6 +5,7 @@ import com.github.kitakkun.aspectk.annotations.Around
 import com.github.kitakkun.aspectk.annotations.Aspect
 import com.github.kitakkun.aspectk.annotations.Before
 import com.github.kitakkun.aspectk.core.JoinPoint
+import com.github.kitakkun.aspectk.core.ProceedingJoinPoint
 
 @Aspect
 class AspectExample {
@@ -24,8 +25,10 @@ class AspectExample {
     }
 
     @Around("execution(public com/github/kitakkun/aspectk/test/ExampleClass.*())")
-    fun aroundExampleClassMethod(joinPoint: JoinPoint) {
-        println(joinPoint)
-        println("Around ExampleClass method call")
+    fun aroundExampleClassMethod(joinPoint: ProceedingJoinPoint): Any? {
+        println("Around: before proceed for ${joinPoint.signature}")
+        val result = joinPoint.proceed()
+        println("Around: after proceed for ${joinPoint.signature} (result=$result)")
+        return result
     }
 }

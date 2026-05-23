@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.types.classId
 import org.jetbrains.kotlin.fir.types.coneType
+import org.jetbrains.kotlin.name.ClassId
 
 class AdviceSignatureChecker : FirFunctionChecker() {
     override fun check(
@@ -18,7 +19,9 @@ class AdviceSignatureChecker : FirFunctionChecker() {
         reporter: DiagnosticReporter,
     ) {
         with(context) {
-            val adviceAnnotationShortName = adviceAnnotationShortName(declaration) ?: return
+            val adviceKind = adviceKind(declaration) ?: return
+            val allowedJoinPointTypes = adviceKind.allowedJoinPointTypes()
+            val allowedNames = allowedJoinPointTypes.joinToString(" or ") { it.shortClassName.asString() }
 
             val params = declaration.valueParameters
             when {
@@ -26,11 +29,11 @@ class AdviceSignatureChecker : FirFunctionChecker() {
 
                 params.size == 1 -> {
                     val paramType = params.single().returnTypeRef.coneType
-                    if (paramType.classId != AspectKConsts.JOIN_POINT_CLASS_ID) {
+                    if (paramType.classId !in allowedJoinPointTypes) {
                         reporter.reportOn(
                             declaration.source,
                             AspectKErrors.ADVICE_INVALID_SIGNATURE,
-                            "@$adviceAnnotationShortName advice must take either no parameters or a single ${AspectKConsts.JOIN_POINT_CLASS_ID.shortClassName.asString()} parameter",
+                            "@${adviceKind.shortName} advice must take either no parameters or a single $allowedNames parameter",
                         )
                     }
                 }
@@ -39,22 +42,31 @@ class AdviceSignatureChecker : FirFunctionChecker() {
                     reporter.reportOn(
                         declaration.source,
                         AspectKErrors.ADVICE_INVALID_SIGNATURE,
-                        "@$adviceAnnotationShortName advice must take either no parameters or a single ${AspectKConsts.JOIN_POINT_CLASS_ID.shortClassName.asString()} parameter (got ${params.size} parameters)",
+                        "@${adviceKind.shortName} advice must take either no parameters or a single $allowedNames parameter (got ${params.size} parameters)",
                     )
                 }
             }
         }
     }
 
+    private enum class AdviceKind(val shortName: String) {
+        BEFORE("Before"),
+        AFTER("After"),
+        AROUND("Around"),
+        ;
+
+        fun allowedJoinPointTypes(): Set<ClassId> = when (this) {
+            BEFORE, AFTER -> setOf(AspectKConsts.JOIN_POINT_CLASS_ID)
+            AROUND -> setOf(AspectKConsts.JOIN_POINT_CLASS_ID, AspectKConsts.PROCEEDING_JOIN_POINT_CLASS_ID)
+        }
+    }
+
     context(CheckerContext)
-    private fun adviceAnnotationShortName(declaration: FirFunction): String? {
+    private fun adviceKind(declaration: FirFunction): AdviceKind? {
         return when {
-            declaration.hasAnnotation(AspectKAnnotations.BEFORE_CLASS_ID, session) ->
-                AspectKAnnotations.BEFORE_CLASS_ID.shortClassName.asString()
-            declaration.hasAnnotation(AspectKAnnotations.AFTER_CLASS_ID, session) ->
-                AspectKAnnotations.AFTER_CLASS_ID.shortClassName.asString()
-            declaration.hasAnnotation(AspectKAnnotations.AROUND_CLASS_ID, session) ->
-                AspectKAnnotations.AROUND_CLASS_ID.shortClassName.asString()
+            declaration.hasAnnotation(AspectKAnnotations.BEFORE_CLASS_ID, session) -> AdviceKind.BEFORE
+            declaration.hasAnnotation(AspectKAnnotations.AFTER_CLASS_ID, session) -> AdviceKind.AFTER
+            declaration.hasAnnotation(AspectKAnnotations.AROUND_CLASS_ID, session) -> AdviceKind.AROUND
             else -> null
         }
     }
