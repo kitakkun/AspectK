@@ -33,5 +33,15 @@ object AspectKDiagnosticRendererFactory : BaseDiagnosticRendererFactory() {
             message = "{0}",
             rendererA = TO_STRING,
         )
+        put(
+            factory = AspectKErrors.NAMED_POINTCUT_CLASS_NOT_FOUND,
+            message = "Named pointcut reference target class ''{0}'' was not found",
+            rendererA = TO_STRING,
+        )
+        put(
+            factory = AspectKErrors.NAMED_POINTCUT_FUNCTION_NOT_FOUND,
+            message = "@Pointcut function ''{0}'' was not found",
+            rendererA = TO_STRING,
+        )
     }
 }
