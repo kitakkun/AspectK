@@ -8,7 +8,10 @@ import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtensi
 
 class AspectKFirCheckerExtension(session: FirSession) : FirAdditionalCheckersExtension(session) {
     override val declarationCheckers = object : DeclarationCheckers() {
-        override val functionCheckers: Set<FirFunctionChecker> = setOf(AdviceOrPointcutFunctionChecker())
+        override val functionCheckers: Set<FirFunctionChecker> = setOf(
+            AdviceOrPointcutFunctionChecker(),
+            AdviceSignatureChecker(),
+        )
         override val classCheckers: Set<FirClassChecker> = setOf(AspectClassChecker())
     }
 }

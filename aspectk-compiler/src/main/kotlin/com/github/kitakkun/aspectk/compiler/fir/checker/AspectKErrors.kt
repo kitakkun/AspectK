@@ -13,6 +13,7 @@ object AspectKErrors {
     val EMPTY_POINTCUT_EXPRESSION by warning0<KtFunction>()
     val ASPECT_CLASS_WITH_NO_POINTCUT_OR_ADVICE_ENTRIES by warning0<KtClass>()
     val INVALID_POINTCUT_EXPRESSION by error1<KtFunction, String>()
+    val ADVICE_INVALID_SIGNATURE by error1<KtFunction, String>()
 
     init {
         RootDiagnosticRendererFactory.registerFactory(AspectKDiagnosticRendererFactory)

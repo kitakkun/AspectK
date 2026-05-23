@@ -28,5 +28,10 @@ object AspectKDiagnosticRendererFactory : BaseDiagnosticRendererFactory() {
             message = "Invalid pointcut expression: {0}",
             rendererA = TO_STRING,
         )
+        put(
+            factory = AspectKErrors.ADVICE_INVALID_SIGNATURE,
+            message = "{0}",
+            rendererA = TO_STRING,
+        )
     }
 }
