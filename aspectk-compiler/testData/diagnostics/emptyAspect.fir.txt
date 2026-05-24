@@ -1,0 +1,7 @@
+FILE: emptyAspect.kt
+    @R|com/github/kitakkun/aspectk/annotations/Aspect|() public final class Empty : R|kotlin/Any| {
+        public constructor(): R|Empty| {
+            super<R|kotlin/Any|>()
+        }
+
+    }
