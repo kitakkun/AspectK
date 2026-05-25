@@ -5,7 +5,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlin.compiler.embeddable)
+    compileOnly(libs.kotlin.compiler)
+    testImplementation(libs.kotlin.compiler)
     testImplementation(kotlin("test"))
 }
 
