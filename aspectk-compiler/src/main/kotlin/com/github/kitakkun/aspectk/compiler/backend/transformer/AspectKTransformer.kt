@@ -9,6 +9,7 @@ import com.github.kitakkun.aspectk.compiler.backend.matching.PointcutMatcher
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -17,24 +18,30 @@ import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.impl.IrTryImpl
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrTransformer
 
 /**
- * Phase 3.1 advice applier.
+ * Phase 3.2 advice applier.
  *
  * Walks every `IrSimpleFunction` in the module fragment. For each function that
  * is **not** itself part of an `@Aspect` class, asks [PointcutMatcher] which
- * advices match, and prepends each matching advice's invocation to the target's
- * body. Binding values (`@DispatchReceiver`, `@ExtensionReceiver`,
+ * advices match, and weaves each matching advice into the target's body.
+ *
+ * - `@Before` advice is **prepended** to the target's body so it runs before
+ *   the target's first statement.
+ * - `@After` advice wraps the target's body in `try { … } finally { advice() }`
+ *   so it runs after both normal returns and exception propagation.
+ * - `@Around` is recognised but no-op'd here; it arrives in Phase 3.3.
+ *
+ * In all cases, binding values (`@DispatchReceiver`, `@ExtensionReceiver`,
  * `@ContextParameter`, `@ValueParameter`) are extracted from the target's
  * parameters and forwarded into the advice's matching slot.
- *
- * Only `@Before` advice is wired up here; `@After` / `@Around` are recognised
- * but no-op'd and arrive in Phase 3.2 / 3.3.
  */
 internal class AspectKTransformer(
     private val pluginContext: IrPluginContext,
@@ -72,7 +79,7 @@ internal class AspectKTransformer(
     ) {
         when (advice.kind) {
             AdviceKind.BEFORE -> applyBefore(target, aspectClass, advice)
-            AdviceKind.AFTER -> Unit // Phase 3.2
+            AdviceKind.AFTER -> applyAfter(target, aspectClass, advice)
             AdviceKind.AROUND -> Unit // Phase 3.3
         }
     }
@@ -83,9 +90,56 @@ internal class AspectKTransformer(
         advice: AdviceMetadata,
     ) {
         val body = target.body as? IrBlockBody ?: return
-        val ctor = aspectClass.primaryConstructor
-            ?: return // No primary constructor — nothing safe to do
-        if (ctor.parameters.isNotEmpty()) return
+        val call = buildAdviceCall(target, aspectClass, advice) ?: return
+        body.statements.add(0, call)
+    }
+
+    private fun applyAfter(
+        target: IrSimpleFunction,
+        aspectClass: IrClass,
+        advice: AdviceMetadata,
+    ) {
+        val body = target.body as? IrBlockBody ?: return
+        val call = buildAdviceCall(target, aspectClass, advice) ?: return
+
+        // Move the current statements into a fresh `try { ... }` block and add
+        // the advice invocation as `finally { ... }`. The result type matches
+        // the target's return type so the original return value flows through.
+        val builder = DeclarationIrBuilder(
+            pluginContext,
+            target.symbol,
+            target.startOffset,
+            target.endOffset,
+        )
+        val originalStatements = body.statements.toList()
+        body.statements.clear()
+        val tryBlock = builder.irBlock(resultType = target.returnType) {
+            for (stmt in originalStatements) +stmt
+        }
+        val tryExpr = IrTryImpl(
+            startOffset = target.startOffset,
+            endOffset = target.endOffset,
+            type = target.returnType,
+        ).apply {
+            tryResult = tryBlock
+            finallyExpression = call
+        }
+        body.statements.add(tryExpr)
+    }
+
+    /**
+     * Builds an `IrCall` invoking [advice] with a freshly constructed aspect
+     * instance as dispatch receiver and each declared binding's extracted value
+     * forwarded into the matching slot. Returns `null` if the aspect has no
+     * no-arg primary constructor (caching arrives in Phase 3.6).
+     */
+    private fun buildAdviceCall(
+        target: IrSimpleFunction,
+        aspectClass: IrClass,
+        advice: AdviceMetadata,
+    ): IrCall? {
+        val ctor = aspectClass.primaryConstructor ?: return null
+        if (ctor.parameters.isNotEmpty()) return null
 
         val adviceFn = advice.function
         val builder = DeclarationIrBuilder(
@@ -94,10 +148,9 @@ internal class AspectKTransformer(
             target.startOffset,
             target.endOffset,
         )
-        val call = builder.irCall(adviceFn.symbol).apply {
+        return builder.irCall(adviceFn.symbol).apply {
             // arguments[0] is the advice's dispatch receiver (the aspect instance).
             arguments[0] = builder.irCallConstructor(ctor.symbol, emptyList())
-            // Forward each binding's extracted value into the matching advice slot.
             for (binding in advice.bindings) {
                 val adviceSlotIndex = adviceFn.parameters.indexOf(binding.adviceParameter)
                 if (adviceSlotIndex < 0) continue
@@ -105,8 +158,6 @@ internal class AspectKTransformer(
                 arguments[adviceSlotIndex] = value
             }
         }
-
-        body.statements.add(0, call)
     }
 
     private fun extractBindingValue(
