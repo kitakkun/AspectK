@@ -27,6 +27,17 @@ object AspectKAnnotations {
     val METHOD_NAME_CLASS_ID = classId(PKG, "MethodName")
     val ANNOTATED_CLASS_ID = classId(PKG, "Annotated")
 
+    // v1 parameter binding annotations
+    val DISPATCH_RECEIVER_CLASS_ID = classId(PKG, "DispatchReceiver")
+    val EXTENSION_RECEIVER_CLASS_ID = classId(PKG, "ExtensionReceiver")
+    val CONTEXT_PARAMETER_CLASS_ID = classId(PKG, "ContextParameter")
+    val VALUE_PARAMETER_CLASS_ID = classId(PKG, "ValueParameter")
+
+    val DISPATCH_RECEIVER_FQ_NAME = DISPATCH_RECEIVER_CLASS_ID.asSingleFqName()
+    val EXTENSION_RECEIVER_FQ_NAME = EXTENSION_RECEIVER_CLASS_ID.asSingleFqName()
+    val CONTEXT_PARAMETER_FQ_NAME = CONTEXT_PARAMETER_CLASS_ID.asSingleFqName()
+    val VALUE_PARAMETER_FQ_NAME = VALUE_PARAMETER_CLASS_ID.asSingleFqName()
+
     val POINTCUT_FQ_NAME = POINTCUT_CLASS_ID.asSingleFqName()
 
     val ADVICE_CLASS_IDS = setOf(BEFORE_CLASS_ID, AFTER_CLASS_ID, AROUND_CLASS_ID)
@@ -34,4 +45,6 @@ object AspectKAnnotations {
     // common annotation argument names
     val PATTERN = Name.identifier("pattern")
     val VALUES = Name.identifier("values")
+    val INDEX = Name.identifier("index")
+    val NAME = Name.identifier("name")
 }
