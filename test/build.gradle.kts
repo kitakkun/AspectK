@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     alias(libs.plugins.aspectkCommon)
@@ -8,10 +8,6 @@ plugins {
 
 kotlin {
     jvm()
-
-    sourceSets.all {
-        languageSettings.languageVersion = "2.0"
-    }
 
     sourceSets {
         commonMain.dependencies {
@@ -29,7 +25,7 @@ tasks.prepareKotlinIdeaImport {
 }
 
 // publish required artifacts when compiling via ./gradlew
-tasks.withType(KotlinCompile::class).all {
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
     dependsOn(":aspectk-plugin-common:publishToMavenLocal")
     dependsOn(":aspectk-compiler:publishToMavenLocal")
     dependsOn(":aspectk-expression:publishToMavenLocal")
