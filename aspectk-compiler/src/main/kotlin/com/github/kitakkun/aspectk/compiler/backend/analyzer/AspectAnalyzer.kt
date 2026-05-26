@@ -8,10 +8,15 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.expressions.IrClassReference
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
+import org.jetbrains.kotlin.ir.expressions.IrVararg
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.getAnnotation
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 
 /**
@@ -20,10 +25,9 @@ import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
  * into a [PointcutFilter], and collects per-parameter [Binding]s from the
  * advice's value parameters.
  *
- * Phase 3.1 scope: `@ClassName` / `@MethodName` matching plus full binding
- * support for `@DispatchReceiver` / `@ExtensionReceiver` / `@ContextParameter` /
- * `@ValueParameter`. The remaining matching annotations (`@Visibility`,
- * `@Package`, `@Annotated`, …) arrive in Phase 3.4.
+ * Phase 3.4 scope: full reading of every v1 matching annotation
+ * (`@Package` / `@ClassName` / `@MethodName` / `@Visibility` / `@Modality` /
+ * `@Modifiers` / `@Annotated`) plus per-parameter binding extraction.
  */
 internal class AspectAnalyzer {
     fun analyze(moduleFragment: IrModuleFragment): List<AspectMetadata> {
@@ -69,16 +73,56 @@ internal class AspectAnalyzer {
         }
 
     private fun pointcutOf(fn: IrSimpleFunction): PointcutFilter {
-        val className = fn
+        val packagePattern = fn
+            .getAnnotation(AspectKAnnotations.PACKAGE_CLASS_ID.asSingleFqName())
+            ?.getStringConstArgument(0)
+        val classNamePattern = fn
             .getAnnotation(AspectKAnnotations.CLASS_NAME_CLASS_ID.asSingleFqName())
             ?.getStringConstArgument(0)
-        val methodName = fn
+        val methodNamePattern = fn
             .getAnnotation(AspectKAnnotations.METHOD_NAME_CLASS_ID.asSingleFqName())
             ?.getStringConstArgument(0)
+        val visibilities = enumValuesArg(fn, AspectKAnnotations.VISIBILITY_CLASS_ID.asSingleFqName())
+        val modalities = enumValuesArg(fn, AspectKAnnotations.MODALITY_CLASS_ID.asSingleFqName())
+        val modifiers = enumValuesArg(fn, AspectKAnnotations.MODIFIERS_CLASS_ID.asSingleFqName())
+        val annotatedFqNames = annotatedFqNamesArg(fn)
         return PointcutFilter(
-            classNamePattern = className,
-            methodNamePattern = methodName,
+            packagePattern = packagePattern,
+            classNamePattern = classNamePattern,
+            methodNamePattern = methodNamePattern,
+            visibilities = visibilities,
+            modalities = modalities,
+            modifiers = modifiers,
+            annotatedFqNames = annotatedFqNames,
         )
+    }
+
+    private fun enumValuesArg(
+        fn: IrSimpleFunction,
+        annotationFqName: org.jetbrains.kotlin.name.FqName,
+    ): List<String> {
+        val ann = fn.getAnnotation(annotationFqName) ?: return emptyList()
+        val vararg = ann.arguments.firstOrNull { it is IrVararg } as? IrVararg ?: return emptyList()
+        return vararg.elements.mapNotNull {
+            (it as? IrGetEnumValue)
+                ?.symbol
+                ?.owner
+                ?.name
+                ?.asString()
+        }
+    }
+
+    private fun annotatedFqNamesArg(fn: IrSimpleFunction): List<String> {
+        val ann = fn.getAnnotation(AspectKAnnotations.ANNOTATED_CLASS_ID.asSingleFqName()) ?: return emptyList()
+        val vararg = ann.arguments.firstOrNull { it is IrVararg } as? IrVararg ?: return emptyList()
+        return vararg.elements.mapNotNull { element ->
+            (element as? IrClassReference)
+                ?.classType
+                ?.classOrNull
+                ?.owner
+                ?.kotlinFqName
+                ?.asString()
+        }
     }
 
     private fun bindingsOf(fn: IrSimpleFunction): List<Binding> =

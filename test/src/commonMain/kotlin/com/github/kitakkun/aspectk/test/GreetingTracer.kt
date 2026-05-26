@@ -5,12 +5,16 @@ import com.github.kitakkun.aspectk.annotations.Aspect
 import com.github.kitakkun.aspectk.annotations.ClassName
 import com.github.kitakkun.aspectk.annotations.DispatchReceiver
 import com.github.kitakkun.aspectk.annotations.MethodName
+import com.github.kitakkun.aspectk.annotations.Package
 import com.github.kitakkun.aspectk.annotations.ValueParameter
+import com.github.kitakkun.aspectk.annotations.Visibility
 import com.github.kitakkun.aspectk.core.interceptableAdvice
 
 @Aspect
 class GreetingTracer {
     @Around
+    @Package("com.github.kitakkun.aspectk.test")
+    @Visibility(Visibility.Kind.PUBLIC)
     @ClassName("Greeter")
     @MethodName("greet")
     fun aroundGreet(
