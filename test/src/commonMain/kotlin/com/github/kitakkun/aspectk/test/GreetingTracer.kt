@@ -1,31 +1,25 @@
 package com.github.kitakkun.aspectk.test
 
-import com.github.kitakkun.aspectk.annotations.After
+import com.github.kitakkun.aspectk.annotations.Around
 import com.github.kitakkun.aspectk.annotations.Aspect
-import com.github.kitakkun.aspectk.annotations.Before
 import com.github.kitakkun.aspectk.annotations.ClassName
 import com.github.kitakkun.aspectk.annotations.DispatchReceiver
 import com.github.kitakkun.aspectk.annotations.MethodName
 import com.github.kitakkun.aspectk.annotations.ValueParameter
+import com.github.kitakkun.aspectk.core.interceptableAdvice
 
 @Aspect
 class GreetingTracer {
-    @Before
+    @Around
     @ClassName("Greeter")
     @MethodName("greet")
-    fun beforeGreet(
+    fun aroundGreet(
         @DispatchReceiver greeter: Greeter,
         @ValueParameter(0) name: String,
-    ) {
-        println("[before] $greeter.greet($name)")
-    }
-
-    @After
-    @ClassName("Greeter")
-    @MethodName("greet")
-    fun afterGreet(
-        @ValueParameter(0) name: String,
-    ) {
-        println("[after] greeted $name")
+    ): String = interceptableAdvice {
+        println("[around-before] $greeter.greet($name)")
+        val r = proceed()
+        println("[around-after] returned $r")
+        r
     }
 }

@@ -47,6 +47,8 @@ internal class AspectKTransformer(
     private val pluginContext: IrPluginContext,
     private val aspects: List<AspectMetadata>,
 ) : IrTransformer<Nothing?>() {
+    private val aroundWeaver = AroundAdviceWeaver(pluginContext)
+
     override fun visitElement(
         element: IrElement,
         data: Nothing?,
@@ -80,7 +82,7 @@ internal class AspectKTransformer(
         when (advice.kind) {
             AdviceKind.BEFORE -> applyBefore(target, aspectClass, advice)
             AdviceKind.AFTER -> applyAfter(target, aspectClass, advice)
-            AdviceKind.AROUND -> Unit // Phase 3.3
+            AdviceKind.AROUND -> aroundWeaver.weave(target, aspectClass, advice)
         }
     }
 
