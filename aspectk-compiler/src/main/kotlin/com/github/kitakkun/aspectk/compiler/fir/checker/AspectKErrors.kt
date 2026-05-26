@@ -6,7 +6,9 @@ import org.jetbrains.kotlin.diagnostics.error1
 import org.jetbrains.kotlin.diagnostics.error2
 import org.jetbrains.kotlin.diagnostics.rendering.BaseDiagnosticRendererFactory
 import org.jetbrains.kotlin.diagnostics.rendering.CommonRenderers
+import org.jetbrains.kotlin.diagnostics.warning1
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFunction
 
 object AspectKErrors : KtDiagnosticsContainer() {
@@ -21,6 +23,14 @@ object AspectKErrors : KtDiagnosticsContainer() {
 
     /** `@ValueParameter` / `@ContextParameter` must specify exactly one of `index` / `name`. */
     val INVALID_BINDING_ANNOTATION by error2<KtAnnotationEntry, String, String>()
+
+    /**
+     * A function call site is woven by an `@Around` / `@Before` / `@After`
+     * advice. Surfaces as a weak compiler diagnostic so IntelliJ shows an
+     * inline marker. The single argument is the woven advice's FQN + kind,
+     * e.g. `"GreetingTracer.aroundGreet (@Around)"`.
+     */
+    val WOVEN_CALL_SITE by warning1<KtElement, String>()
 
     override fun getRendererFactory(): BaseDiagnosticRendererFactory = AspectKDefaultMessages
 }
@@ -48,6 +58,11 @@ private object AspectKDefaultMessages : BaseDiagnosticRendererFactory() {
             AspectKErrors.INVALID_BINDING_ANNOTATION,
             "@{0}: {1}",
             CommonRenderers.STRING,
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.WOVEN_CALL_SITE,
+            "intercepted by {0}",
             CommonRenderers.STRING,
         )
     }
