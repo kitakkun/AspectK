@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.aspectkCommon)
     alias(libs.plugins.kotlinJvm)
@@ -11,6 +13,10 @@ dependencies {
     compileOnly(libs.kotlin.compiler)
     compileOnly(libs.auto.service)
     ksp(libs.auto.service.ksp)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
 }
 
 publishing {

@@ -11,4 +11,6 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
  * were specific to the string-DSL transformer and are dropped along with it. See
  * `docs/v1-roadmap.md`.
  */
-class AspectKIrPluginContext(val context: IrPluginContext) : IrPluginContext by context
+class AspectKIrPluginContext(
+    val context: IrPluginContext,
+) : IrPluginContext by context
