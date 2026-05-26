@@ -18,6 +18,7 @@ class GreetingTracer {
         @ValueParameter(0) name: String,
     ): String = interceptableAdvice {
         println("[around-before] $greeter.greet($name)")
+        replaceValueParameter(0, name.uppercase())
         val r = proceed()
         println("[around-after] returned $r")
         r

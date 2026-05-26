@@ -9,13 +9,17 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irReturn
+import org.jetbrains.kotlin.ir.builders.irSet
+import org.jetbrains.kotlin.ir.builders.irTemporary
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
@@ -27,21 +31,27 @@ import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrTransformer
 
 /**
- * Phase 3.3a `@Around` advice weaver (minimum-viable scope).
+ * Phase 3.3 `@Around` advice weaver.
  *
  * For each `(target, around-advice)` match, this weaver:
  *
  * 1. Extracts the lambda body from the advice's `interceptableAdvice<R> { ... }`
  *    invocation.
- * 2. Deep-clones the lambda body so each target site gets an independent copy.
- * 3. Inside the cloned body, rewrites:
- *    - References to advice binding parameters into `IrGetValue` reads of the
- *      target's matching slot.
- *    - Calls to `AroundScope.proceed()` into a fresh clone of the target's
- *      original return-value expression.
+ * 2. Declares one mutable local variable per advice binding (`__<slotName>`),
+ *    each initialised from the target's matching parameter slot.
+ * 3. Deep-clones the lambda body so each target site gets an independent copy.
+ * 4. Inside the cloned body, rewrites:
+ *    - `IrGetValue` reads of the advice binding parameters into reads of the
+ *      corresponding local variable.
+ *    - `AroundScope.replace*(…, value)` calls into `IrSetValue` assignments
+ *      against the local variable for the targeted slot.
+ *    - `AroundScope.proceed()` calls into a fresh clone of the target's
+ *      original return-value expression, with reads of the target's
+ *      parameter slots remapped to reads of the local variables (so the
+ *      current override state flows into the call).
  *    - `IrReturn`s that targeted the lambda into `IrReturn`s targeting the
  *      target function (so the value escapes both the lambda and the target).
- * 4. Replaces the target's body with the substituted block.
+ * 5. Replaces the target's body with the substituted block.
  *
  * Constraints carried by this minimum-viable cut:
  *
@@ -49,9 +59,17 @@ import org.jetbrains.kotlin.ir.visitors.IrTransformer
  *   sole statement is an `IrReturn`). Multi-statement bodies and
  *   `IrExpressionBody` are deferred.
  * - The aspect class must have a no-arg primary constructor.
- * - The `replace*` family on `AroundScope` is left untransformed; calling any
- *   of them at runtime throws via the stub in `aspectk-core`. Phase 3.3b
- *   wires them up.
+ * - `replaceValueParameter` / `replaceContextParameter` need a *constant*
+ *   first argument (index `IrConst<Int>` or name `IrConst<String>`); a
+ *   non-const slot identifier is left untransformed and would throw at
+ *   runtime via the `aspectk-core` stub.
+ * - The bind-first rule (replace targets a slot that must also be bound) is
+ *   enforced indirectly: only slots with declared bindings get a local
+ *   variable, so an unbound `replace*` call has no local to target and is
+ *   silently left as the runtime-throwing stub call. A dedicated FIR
+ *   checker arrives in a follow-up.
+ * - Combining `@Around` with `@Before` / `@After` on the same target is
+ *   undefined — `@Around` replaces the body.
  *
  * The advice function itself is left untouched — the lambda body is cloned
  * out of it and used as a template.
@@ -73,25 +91,51 @@ internal class AroundAdviceWeaver(
 
         val originalReturnValue = singleReturnValue(target) ?: return false
 
-        val paramSubst = buildParameterSubstitution(advice.bindings, target)
-
-        val clonedBody = adviceLambdaBody.deepCopyWithSymbols(initialParent = target)
         val builder = DeclarationIrBuilder(
             pluginContext,
             target.symbol,
             target.startOffset,
             target.endOffset,
         )
-        val substitution = AroundSubstitutionTransformer(
-            builder = builder,
-            paramSubst = paramSubst,
-            proceedReplacement = { originalReturnValue.deepCopyWithSymbols(initialParent = target) },
-            lambdaFunction = lambdaFn,
-            target = target,
-        )
-        clonedBody.transformChildren(substitution, null)
 
         target.body = builder.irBlockBody {
+            // 1. Declare one mutable local per bound slot, initialised from
+            //    the matching target parameter. `irTemporary` is an
+            //    `IrStatementsBuilder` extension, so locals are appended to
+            //    this block in declaration order.
+            val slotToLocal = linkedMapOf<IrValueParameter, IrVariable>()
+            for (binding in advice.bindings) {
+                val slot = findTargetSlot(binding, target) ?: continue
+                slotToLocal.getOrPut(slot) {
+                    irTemporary(
+                        value = irGet(slot),
+                        nameHint = "__${slot.name.asString()}",
+                        isMutable = true,
+                    )
+                }
+            }
+
+            // 2. Map each advice binding parameter to its local.
+            val paramToLocal = mutableMapOf<IrValueParameter, IrVariable>()
+            for (binding in advice.bindings) {
+                val slot = findTargetSlot(binding, target) ?: continue
+                val local = slotToLocal[slot] ?: continue
+                paramToLocal[binding.adviceParameter] = local
+            }
+
+            // 3. Clone the advice's lambda body and rewrite parameter reads,
+            //    replace* calls, proceed() calls, and lambda-targeted returns.
+            val clonedBody = adviceLambdaBody.deepCopyWithSymbols(initialParent = target)
+            val substitution = AroundSubstitutionTransformer(
+                builder = builder,
+                paramToLocal = paramToLocal,
+                slotToLocal = slotToLocal,
+                target = target,
+                originalReturnValue = originalReturnValue,
+                lambdaFunction = lambdaFn,
+            )
+            clonedBody.transformChildren(substitution, null)
+
             for (stmt in clonedBody.statements) +stmt
         }
         return true
@@ -113,18 +157,6 @@ internal class AroundAdviceWeaver(
         val body = target.body as? IrBlockBody ?: return null
         val ret = body.statements.singleOrNull() as? IrReturn ?: return null
         return ret.value
-    }
-
-    private fun buildParameterSubstitution(
-        bindings: List<Binding>,
-        target: IrSimpleFunction,
-    ): Map<IrValueParameter, IrValueParameter> {
-        val map = mutableMapOf<IrValueParameter, IrValueParameter>()
-        for (binding in bindings) {
-            val targetSlot = findTargetSlot(binding, target) ?: continue
-            map[binding.adviceParameter] = targetSlot
-        }
-        return map
     }
 
     private fun findTargetSlot(
@@ -157,10 +189,11 @@ internal class AroundAdviceWeaver(
 
 private class AroundSubstitutionTransformer(
     private val builder: DeclarationIrBuilder,
-    private val paramSubst: Map<IrValueParameter, IrValueParameter>,
-    private val proceedReplacement: () -> IrExpression,
-    private val lambdaFunction: IrFunction,
+    private val paramToLocal: Map<IrValueParameter, IrVariable>,
+    private val slotToLocal: Map<IrValueParameter, IrVariable>,
     private val target: IrSimpleFunction,
+    private val originalReturnValue: IrExpression,
+    private val lambdaFunction: IrFunction,
 ) : IrTransformer<Nothing?>() {
     override fun visitElement(
         element: IrElement,
@@ -174,15 +207,22 @@ private class AroundSubstitutionTransformer(
         expression: IrGetValue,
         data: Nothing?,
     ): IrExpression {
-        val targetSlot = paramSubst[expression.symbol.owner]
-        return if (targetSlot != null) builder.irGet(targetSlot) else expression
+        val local = paramToLocal[expression.symbol.owner]
+        return if (local != null) builder.irGet(local) else expression
     }
 
     override fun visitCall(
         expression: IrCall,
         data: Nothing?,
     ): IrElement {
-        if (isProceedCall(expression)) return proceedReplacement()
+        if (isProceedCall(expression)) return buildProceedReplacement()
+        replaceCallTargetSlot(expression)?.let { slot ->
+            val local = slotToLocal[slot] ?: return super.visitCall(expression, data)
+            val valueArg = replaceCallValue(expression)
+                ?.transform(this, null) as? IrExpression
+                ?: return super.visitCall(expression, data)
+            return builder.irSet(local.symbol, valueArg)
+        }
         return super.visitCall(expression, data)
     }
 
@@ -190,8 +230,6 @@ private class AroundSubstitutionTransformer(
         expression: IrReturn,
         data: Nothing?,
     ): IrExpression {
-        // Returns that target the original lambda are retargeted to the target
-        // function so their value escapes both the lambda and the target.
         if (expression.returnTargetSymbol == lambdaFunction.symbol) {
             val newValue = expression.value.transform(this, null)
             return builder.irReturn(newValue)
@@ -199,10 +237,87 @@ private class AroundSubstitutionTransformer(
         return super.visitReturn(expression, data)
     }
 
+    /**
+     * Builds a fresh clone of the target's original return-value expression
+     * with target-parameter reads rebound to the matching local variables,
+     * so any `replace*`-induced override state flows in.
+     */
+    private fun buildProceedReplacement(): IrExpression {
+        val clone = originalReturnValue.deepCopyWithSymbols(initialParent = target)
+        clone.transformChildren(
+            SlotRefToLocalTransformer(builder, slotToLocal),
+            null,
+        )
+        return clone
+    }
+
     private fun isProceedCall(call: IrCall): Boolean {
         val callee = call.symbol.owner
         if (callee.name != AspectKAnnotations.PROCEED_NAME) return false
         val owner = callee.parentClassOrNull ?: return false
         return owner.kotlinFqName == AspectKAnnotations.AROUND_SCOPE_FQ_NAME
+    }
+
+    /**
+     * If [call] is a recognised `AroundScope.replace*` invocation with a
+     * constant slot identifier that resolves to a target parameter, returns
+     * that target parameter. Returns `null` otherwise.
+     */
+    private fun replaceCallTargetSlot(call: IrCall): IrValueParameter? {
+        val callee = call.symbol.owner
+        val owner = callee.parentClassOrNull ?: return null
+        if (owner.kotlinFqName != AspectKAnnotations.AROUND_SCOPE_FQ_NAME) return null
+        return when (callee.name.asString()) {
+            "replaceDispatchReceiver" ->
+                target.parameters.firstOrNull { it.kind == IrParameterKind.DispatchReceiver }
+            "replaceExtensionReceiver" ->
+                target.parameters.firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }
+            "replaceValueParameter" ->
+                resolveSlotByConstArg(call, target.parameters.filter { it.kind == IrParameterKind.Regular })
+            "replaceContextParameter" ->
+                resolveSlotByConstArg(call, target.parameters.filter { it.kind == IrParameterKind.Context })
+            else -> null
+        }
+    }
+
+    private fun resolveSlotByConstArg(
+        call: IrCall,
+        candidates: List<IrValueParameter>,
+    ): IrValueParameter? {
+        // arguments layout: [dispatchReceiver, slotKey, value]
+        val keyArg = call.arguments.getOrNull(1) as? IrConst ?: return null
+        return when (val key = keyArg.value) {
+            is Int -> candidates.getOrNull(key)
+            is String -> candidates.firstOrNull { it.name.asString() == key }
+            else -> null
+        }
+    }
+
+    private fun replaceCallValue(call: IrCall): IrExpression? = call.arguments.getOrNull(2)
+}
+
+/**
+ * Rewrites `IrGetValue` reads of target parameter slots into reads of their
+ * corresponding local variables. Used inside the cloned original return-value
+ * expression so `proceed()` picks up the override state.
+ */
+private class SlotRefToLocalTransformer(
+    private val builder: DeclarationIrBuilder,
+    private val slotToLocal: Map<IrValueParameter, IrVariable>,
+) : IrTransformer<Nothing?>() {
+    override fun visitElement(
+        element: IrElement,
+        data: Nothing?,
+    ): IrElement {
+        element.transformChildren(this, null)
+        return element
+    }
+
+    override fun visitGetValue(
+        expression: IrGetValue,
+        data: Nothing?,
+    ): IrExpression {
+        val local = slotToLocal[expression.symbol.owner]
+        return if (local != null) builder.irGet(local) else expression
     }
 }
