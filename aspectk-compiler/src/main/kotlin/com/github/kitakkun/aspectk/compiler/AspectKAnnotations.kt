@@ -34,11 +34,15 @@ object AspectKAnnotations {
     val EXTENSION_RECEIVER_CLASS_ID = classId(PKG, "ExtensionReceiver")
     val CONTEXT_PARAMETER_CLASS_ID = classId(PKG, "ContextParameter")
     val VALUE_PARAMETER_CLASS_ID = classId(PKG, "ValueParameter")
+    val VALUE_PARAMETERS_CLASS_ID = classId(PKG, "ValueParameters")
+    val CONTEXT_PARAMETERS_CLASS_ID = classId(PKG, "ContextParameters")
 
     val DISPATCH_RECEIVER_FQ_NAME = DISPATCH_RECEIVER_CLASS_ID.asSingleFqName()
     val EXTENSION_RECEIVER_FQ_NAME = EXTENSION_RECEIVER_CLASS_ID.asSingleFqName()
     val CONTEXT_PARAMETER_FQ_NAME = CONTEXT_PARAMETER_CLASS_ID.asSingleFqName()
     val VALUE_PARAMETER_FQ_NAME = VALUE_PARAMETER_CLASS_ID.asSingleFqName()
+    val VALUE_PARAMETERS_FQ_NAME = VALUE_PARAMETERS_CLASS_ID.asSingleFqName()
+    val CONTEXT_PARAMETERS_FQ_NAME = CONTEXT_PARAMETERS_CLASS_ID.asSingleFqName()
 
     val POINTCUT_FQ_NAME = POINTCUT_CLASS_ID.asSingleFqName()
 

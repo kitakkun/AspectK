@@ -3,6 +3,7 @@ package com.github.kitakkun.aspectk.compiler.backend.transformer
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AdviceMetadata
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.Binding
+import com.github.kitakkun.aspectk.compiler.fir.checker.AspectKErrors
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
@@ -82,6 +83,26 @@ internal class AroundAdviceWeaver(
         advice: AdviceMetadata,
     ): Boolean {
         if (!canInstantiateAspect(aspectClass)) return false
+        // Catch-all bindings (`@ValueParameters` / `@ContextParameters`) require
+        // synthesising a `listOf<Any?>(…)` at the call site; integrating that
+        // with the around weaver's local-var substitution path isn't done yet.
+        val catchAll = advice.bindings.firstOrNull {
+            it is Binding.ValueParameters || it is Binding.ContextParameters
+        }
+        if (catchAll != null) {
+            val annotationName = when (catchAll) {
+                is Binding.ValueParameters -> "@ValueParameters"
+                is Binding.ContextParameters -> "@ContextParameters"
+                else -> "@?"
+            }
+            pluginContext.diagnosticReporter
+                .at(advice.function)
+                .report(
+                    AspectKErrors.AROUND_UNSUPPORTED_BINDING,
+                    "$annotationName binding is not yet supported by the @Around weaver",
+                )
+            return false
+        }
 
         val adviceFn = advice.function
         val lambdaFn = findAdviceLambda(adviceFn) ?: return false
@@ -185,6 +206,11 @@ internal class AroundAdviceWeaver(
                     else -> null
                 }
             }
+            // Catch-all bindings don't map to a single target slot. They are
+            // intentionally not supported inside `@Around` advice in this PR —
+            // returning null leaves them out of the substitution map, and the
+            // weaver bails for any advice that declares one.
+            is Binding.ValueParameters, is Binding.ContextParameters -> null
         }
 }
 
