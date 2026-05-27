@@ -2,6 +2,8 @@ package com.github.kitakkun.aspectk.compiler.fir.checker
 
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.caches.FirLazyValue
+import org.jetbrains.kotlin.fir.caches.firCachesFactory
 import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
 import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
 import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
@@ -25,6 +27,11 @@ import org.jetbrains.kotlin.name.ClassId
  * call site adds up on big sources. The advice list is invariant across a
  * single compilation, so we resolve it once via [LookupPredicate.annotated]
  * on first access and reuse the result for the rest of the session.
+ *
+ * The cache uses [firCachesFactory] (specifically `createLazyValue`) so it
+ * participates in the FIR pipeline's invalidation. A plain Kotlin `by lazy`
+ * is technically equivalent in CLI compiles but doesn't get invalidated
+ * when the session is recreated under IDE-driven file changes.
  *
  * Register through [com.github.kitakkun.aspectk.compiler.fir.AspectKFirExtensionRegistrar]
  * so the session-wide annotation index has `@Aspect` available.
@@ -52,7 +59,10 @@ class WovenAdviceIndex(
         val methodNamePattern: String?,
     )
 
-    val entries: List<Entry> by lazy { computeEntries() }
+    private val entriesCache: FirLazyValue<List<Entry>> =
+        session.firCachesFactory.createLazyValue { computeEntries() }
+
+    val entries: List<Entry> get() = entriesCache.getValue()
 
     @OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
     private fun computeEntries(): List<Entry> {
