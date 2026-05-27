@@ -1,0 +1,10 @@
+FILE: EmptyMethodNamePattern.kt
+    @R|com/github/kitakkun/aspectk/annotations/Aspect|() public final class EmptyPatternAspect : R|kotlin/Any| {
+        public constructor(): R|EmptyPatternAspect| {
+            super<R|kotlin/Any|>()
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String()) public final fun beforeNothing(): R|kotlin/Unit| {
+        }
+
+    }
