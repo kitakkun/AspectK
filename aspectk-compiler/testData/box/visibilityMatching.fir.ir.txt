@@ -1,0 +1,166 @@
+FILE fqName:<root> fileName:/VisibilityMatching.kt
+  PROPERTY name:publicHits visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:publicHits type:kotlin.Int visibility:private [static]
+      EXPRESSION_BODY
+        CONST Int type=kotlin.Int value=0
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-publicHits> visibility:public modality:FINAL returnType:kotlin.Int
+      correspondingProperty: PROPERTY name:publicHits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-publicHits> (): kotlin.Int declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:publicHits type:kotlin.Int visibility:private [static]' type=kotlin.Int origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-publicHits> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.Int
+      correspondingProperty: PROPERTY name:publicHits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:publicHits type:kotlin.Int visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.Int declared in <root>.<set-publicHits>' type=kotlin.Int origin=null
+  PROPERTY name:internalHits visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:internalHits type:kotlin.Int visibility:private [static]
+      EXPRESSION_BODY
+        CONST Int type=kotlin.Int value=0
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-internalHits> visibility:public modality:FINAL returnType:kotlin.Int
+      correspondingProperty: PROPERTY name:internalHits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-internalHits> (): kotlin.Int declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:internalHits type:kotlin.Int visibility:private [static]' type=kotlin.Int origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-internalHits> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.Int
+      correspondingProperty: PROPERTY name:internalHits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:internalHits type:kotlin.Int visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.Int declared in <root>.<set-internalHits>' type=kotlin.Int origin=null
+  CLASS CLASS name:Greeter modality:FINAL visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Greeter
+    CONSTRUCTOR visibility:public returnType:<root>.Greeter [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Greeter modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:internalGreet visibility:internal modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Greeter
+      BLOCK_BODY
+        CALL 'public final fun beforeInternal (): kotlin.Unit declared in <root>.InternalOnlyAspect' type=kotlin.Unit origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.InternalOnlyAspect' type=<root>.InternalOnlyAspect origin=null
+    FUN name:publicGreet visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Greeter
+      BLOCK_BODY
+        CALL 'public final fun beforePublic (): kotlin.Unit declared in <root>.PublicOnlyAspect' type=kotlin.Unit origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.PublicOnlyAspect' type=<root>.PublicOnlyAspect origin=null
+  CLASS CLASS name:InternalOnlyAspect modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.InternalOnlyAspect
+    CONSTRUCTOR visibility:public returnType:<root>.InternalOnlyAspect [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:InternalOnlyAspect modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:beforeInternal visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.InternalOnlyAspect
+      annotations:
+        Before
+        ClassName(pattern = "Greeter")
+        MethodName(pattern = "*Greet")
+        Visibility(values = [GET_ENUM 'ENUM_ENTRY IR_EXTERNAL_DECLARATION_STUB name:INTERNAL' type=com.github.kitakkun.aspectk.annotations.Visibility.Kind] type=kotlin.Array<out com.github.kitakkun.aspectk.annotations.Visibility.Kind> varargElementType=com.github.kitakkun.aspectk.annotations.Visibility.Kind)
+      BLOCK_BODY
+        TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+          BLOCK type=kotlin.Int origin=POSTFIX_INCR
+            VAR IR_TEMPORARY_VARIABLE name:tmp_0 type:kotlin.Int [val]
+              CALL 'public final fun <get-internalHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=POSTFIX_INCR
+            CALL 'public final fun <set-internalHits> (<set-?>: kotlin.Int): kotlin.Unit declared in <root>' type=kotlin.Unit origin=POSTFIX_INCR
+              ARG <set-?>: CALL 'public final fun inc (): kotlin.Int declared in kotlin.Int' type=kotlin.Int origin=POSTFIX_INCR
+                ARG <this>: GET_VAR 'val tmp_0: kotlin.Int declared in <root>.InternalOnlyAspect.beforeInternal' type=kotlin.Int origin=null
+            GET_VAR 'val tmp_0: kotlin.Int declared in <root>.InternalOnlyAspect.beforeInternal' type=kotlin.Int origin=null
+  CLASS CLASS name:PublicOnlyAspect modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.PublicOnlyAspect
+    CONSTRUCTOR visibility:public returnType:<root>.PublicOnlyAspect [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:PublicOnlyAspect modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:beforePublic visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.PublicOnlyAspect
+      annotations:
+        Before
+        ClassName(pattern = "Greeter")
+        MethodName(pattern = "*Greet")
+        Visibility(values = [GET_ENUM 'ENUM_ENTRY IR_EXTERNAL_DECLARATION_STUB name:PUBLIC' type=com.github.kitakkun.aspectk.annotations.Visibility.Kind] type=kotlin.Array<out com.github.kitakkun.aspectk.annotations.Visibility.Kind> varargElementType=com.github.kitakkun.aspectk.annotations.Visibility.Kind)
+      BLOCK_BODY
+        TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+          BLOCK type=kotlin.Int origin=POSTFIX_INCR
+            VAR IR_TEMPORARY_VARIABLE name:tmp_1 type:kotlin.Int [val]
+              CALL 'public final fun <get-publicHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=POSTFIX_INCR
+            CALL 'public final fun <set-publicHits> (<set-?>: kotlin.Int): kotlin.Unit declared in <root>' type=kotlin.Unit origin=POSTFIX_INCR
+              ARG <set-?>: CALL 'public final fun inc (): kotlin.Int declared in kotlin.Int' type=kotlin.Int origin=POSTFIX_INCR
+                ARG <this>: GET_VAR 'val tmp_1: kotlin.Int declared in <root>.PublicOnlyAspect.beforePublic' type=kotlin.Int origin=null
+            GET_VAR 'val tmp_1: kotlin.Int declared in <root>.PublicOnlyAspect.beforePublic' type=kotlin.Int origin=null
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
+    BLOCK_BODY
+      VAR name:g type:<root>.Greeter [val]
+        CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.Greeter' type=<root>.Greeter origin=null
+      CALL 'public final fun publicGreet (): kotlin.Unit declared in <root>.Greeter' type=kotlin.Unit origin=null
+        ARG <this>: GET_VAR 'val g: <root>.Greeter declared in <root>.box' type=<root>.Greeter origin=null
+      CALL 'internal final fun internalGreet (): kotlin.Unit declared in <root>.Greeter' type=kotlin.Unit origin=null
+        ARG <this>: GET_VAR 'val g: <root>.Greeter declared in <root>.box' type=<root>.Greeter origin=null
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-publicHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=GET_PROPERTY
+              ARG arg1: CONST Int type=kotlin.Int value=1
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: publicHits="
+              CALL 'public final fun <get-publicHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=GET_PROPERTY
+              CONST String type=kotlin.String value=" (expected 1)"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-internalHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=GET_PROPERTY
+              ARG arg1: CONST Int type=kotlin.Int value=1
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: internalHits="
+              CALL 'public final fun <get-internalHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=GET_PROPERTY
+              CONST String type=kotlin.String value=" (expected 1)"
+      RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+        CONST String type=kotlin.String value="OK"

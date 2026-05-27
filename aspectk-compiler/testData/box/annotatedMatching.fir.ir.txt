@@ -1,0 +1,124 @@
+FILE fqName:<root> fileName:/AnnotatedMatching.kt
+  PROPERTY name:loggableHits visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:loggableHits type:kotlin.Int visibility:private [static]
+      EXPRESSION_BODY
+        CONST Int type=kotlin.Int value=0
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-loggableHits> visibility:public modality:FINAL returnType:kotlin.Int
+      correspondingProperty: PROPERTY name:loggableHits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-loggableHits> (): kotlin.Int declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:loggableHits type:kotlin.Int visibility:private [static]' type=kotlin.Int origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-loggableHits> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.Int
+      correspondingProperty: PROPERTY name:loggableHits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:loggableHits type:kotlin.Int visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.Int declared in <root>.<set-loggableHits>' type=kotlin.Int origin=null
+  CLASS ANNOTATION_CLASS name:Loggable modality:OPEN visibility:public superTypes:[kotlin.Annotation]
+    annotations:
+      Retention(value = GET_ENUM 'ENUM_ENTRY IR_EXTERNAL_DECLARATION_STUB name:RUNTIME' type=kotlin.annotation.AnnotationRetention)
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Loggable
+    CONSTRUCTOR visibility:public returnType:<root>.Loggable [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS ANNOTATION_CLASS name:Loggable modality:OPEN visibility:public superTypes:[kotlin.Annotation]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Annotation
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Annotation
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Annotation
+  CLASS CLASS name:LoggingAspect modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.LoggingAspect
+    CONSTRUCTOR visibility:public returnType:<root>.LoggingAspect [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:LoggingAspect modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:beforeLoggable visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.LoggingAspect
+      annotations:
+        Before
+        ClassName(pattern = "Service")
+        MethodName(pattern = "*Action")
+        Annotated(values = [CLASS_REFERENCE 'CLASS ANNOTATION_CLASS name:Loggable modality:OPEN visibility:public superTypes:[kotlin.Annotation]' type=kotlin.reflect.KClass<<root>.Loggable>] type=kotlin.Array<out kotlin.reflect.KClass<out kotlin.Annotation>> varargElementType=kotlin.reflect.KClass<out kotlin.Annotation>)
+      BLOCK_BODY
+        TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+          BLOCK type=kotlin.Int origin=POSTFIX_INCR
+            VAR IR_TEMPORARY_VARIABLE name:tmp_0 type:kotlin.Int [val]
+              CALL 'public final fun <get-loggableHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=POSTFIX_INCR
+            CALL 'public final fun <set-loggableHits> (<set-?>: kotlin.Int): kotlin.Unit declared in <root>' type=kotlin.Unit origin=POSTFIX_INCR
+              ARG <set-?>: CALL 'public final fun inc (): kotlin.Int declared in kotlin.Int' type=kotlin.Int origin=POSTFIX_INCR
+                ARG <this>: GET_VAR 'val tmp_0: kotlin.Int declared in <root>.LoggingAspect.beforeLoggable' type=kotlin.Int origin=null
+            GET_VAR 'val tmp_0: kotlin.Int declared in <root>.LoggingAspect.beforeLoggable' type=kotlin.Int origin=null
+  CLASS CLASS name:Service modality:FINAL visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Service
+    CONSTRUCTOR visibility:public returnType:<root>.Service [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Service modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:loggableAction visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Service
+      annotations:
+        Loggable
+      BLOCK_BODY
+        CALL 'public final fun beforeLoggable (): kotlin.Unit declared in <root>.LoggingAspect' type=kotlin.Unit origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.LoggingAspect' type=<root>.LoggingAspect origin=null
+    FUN name:silentAction visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Service
+      BLOCK_BODY
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
+    BLOCK_BODY
+      VAR name:s type:<root>.Service [val]
+        CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.Service' type=<root>.Service origin=null
+      CALL 'public final fun loggableAction (): kotlin.Unit declared in <root>.Service' type=kotlin.Unit origin=null
+        ARG <this>: GET_VAR 'val s: <root>.Service declared in <root>.box' type=<root>.Service origin=null
+      CALL 'public final fun silentAction (): kotlin.Unit declared in <root>.Service' type=kotlin.Unit origin=null
+        ARG <this>: GET_VAR 'val s: <root>.Service declared in <root>.box' type=<root>.Service origin=null
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-loggableHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=GET_PROPERTY
+              ARG arg1: CONST Int type=kotlin.Int value=1
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: loggableHits="
+              CALL 'public final fun <get-loggableHits> (): kotlin.Int declared in <root>' type=kotlin.Int origin=GET_PROPERTY
+              CONST String type=kotlin.String value=" (expected 1, only @Loggable should match)"
+      RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+        CONST String type=kotlin.String value="OK"
