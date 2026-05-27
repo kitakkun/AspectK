@@ -27,6 +27,7 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
      */
     private fun registerAggregateReportTask(target: Project) {
         if (target.tasks.findByName(AGGREGATE_REPORT_TASK_NAME) != null) return
+        val extension = target.extensions.getByType(AspectKExtension::class.java)
         target.tasks.register(AGGREGATE_REPORT_TASK_NAME, AspectKAggregateReportTask::class.java) { task ->
             // Walk every project the rootProject can see. Each producer's
             // `build/reports/aspectk/matches-*.json` is collected as an input.
@@ -44,8 +45,28 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
             task.aggregateFile.set(
                 target.layout.buildDirectory.file("reports/aspectk/aggregate.json"),
             )
+            task.strictMode.set(extension.strictUnusedAspects.orElse(false))
+
+            // Force every project's Kotlin compile to run first so the
+            // aggregator sees a complete picture. `dependsOn` accepts a
+            // Provider, and `tasks.matching { … }` is a lazy live collection
+            // resolved at graph time — subprojects added after this apply
+            // still feed in.
+            task.dependsOn(
+                target.provider {
+                    target.allprojects.flatMap { p ->
+                        p.tasks.matching { isKotlinCompileTaskName(it.name) }
+                    }
+                },
+            )
         }
     }
+
+    private fun isKotlinCompileTaskName(name: String): Boolean =
+        // Covers `compileKotlin`, `compileKotlinJvm`, `compileKotlinJvmMain`,
+        // `compileTestKotlin`, etc. Excludes script-compile tasks created by
+        // unrelated Kotlin DSL machinery.
+        name.startsWith("compileKotlin") || (name.startsWith("compile") && name.endsWith("Kotlin"))
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val project = kotlinCompilation.target.project
