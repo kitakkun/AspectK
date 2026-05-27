@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irGetObject
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -130,19 +131,22 @@ internal class AspectKTransformer(
     }
 
     /**
-     * Builds an `IrCall` invoking [advice] with a freshly constructed aspect
-     * instance as dispatch receiver and each declared binding's extracted value
-     * forwarded into the matching slot. Returns `null` if the aspect has no
-     * no-arg primary constructor (caching arrives in Phase 3.6).
+     * Builds an `IrCall` invoking [advice]. The advice's dispatch receiver is:
+     *
+     * - For an ``object`` aspect: the singleton `INSTANCE`, read via
+     *   `IrGetObjectValue`. Each weave site shares the same instance.
+     * - For a regular ``class`` aspect with a no-arg primary constructor: a
+     *   freshly constructed instance per weave site (the v0.x behaviour). User
+     *   opts into caching by declaring the aspect as ``object``.
+     *
+     * Returns `null` if neither shape applies (e.g. ``class`` with required
+     * constructor parameters).
      */
     private fun buildAdviceCall(
         target: IrSimpleFunction,
         aspectClass: IrClass,
         advice: AdviceMetadata,
     ): IrCall? {
-        val ctor = aspectClass.primaryConstructor ?: return null
-        if (ctor.parameters.isNotEmpty()) return null
-
         val adviceFn = advice.function
         val builder = DeclarationIrBuilder(
             pluginContext,
@@ -150,9 +154,10 @@ internal class AspectKTransformer(
             target.startOffset,
             target.endOffset,
         )
+        val aspectInstance = aspectInstance(aspectClass, builder) ?: return null
         return builder.irCall(adviceFn.symbol).apply {
             // arguments[0] is the advice's dispatch receiver (the aspect instance).
-            arguments[0] = builder.irCallConstructor(ctor.symbol, emptyList())
+            arguments[0] = aspectInstance
             for (binding in advice.bindings) {
                 val adviceSlotIndex = adviceFn.parameters.indexOf(binding.adviceParameter)
                 if (adviceSlotIndex < 0) continue
@@ -160,6 +165,18 @@ internal class AspectKTransformer(
                 arguments[adviceSlotIndex] = value
             }
         }
+    }
+
+    private fun aspectInstance(
+        aspectClass: IrClass,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        if (aspectClass.kind == org.jetbrains.kotlin.descriptors.ClassKind.OBJECT) {
+            return builder.irGetObject(aspectClass.symbol)
+        }
+        val ctor = aspectClass.primaryConstructor ?: return null
+        if (ctor.parameters.isNotEmpty()) return null
+        return builder.irCallConstructor(ctor.symbol, emptyList())
     }
 
     private fun extractBindingValue(

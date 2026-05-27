@@ -82,8 +82,7 @@ internal class AroundAdviceWeaver(
         aspectClass: IrClass,
         advice: AdviceMetadata,
     ): Boolean {
-        val ctor = aspectClass.primaryConstructor ?: return false
-        if (ctor.parameters.isNotEmpty()) return false
+        if (!canInstantiateAspect(aspectClass)) return false
 
         val adviceFn = advice.function
         val lambdaFn = findAdviceLambda(adviceFn) ?: return false
@@ -139,6 +138,12 @@ internal class AroundAdviceWeaver(
             for (stmt in clonedBody.statements) +stmt
         }
         return true
+    }
+
+    private fun canInstantiateAspect(aspectClass: IrClass): Boolean {
+        if (aspectClass.kind == org.jetbrains.kotlin.descriptors.ClassKind.OBJECT) return true
+        val ctor = aspectClass.primaryConstructor ?: return false
+        return ctor.parameters.isEmpty()
     }
 
     private fun findAdviceLambda(adviceFn: IrSimpleFunction): IrFunction? {
