@@ -1,6 +1,7 @@
 package com.github.kitakkun.aspectk.compiler.fir.checker
 
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
+import com.github.kitakkun.aspectk.compiler.backend.matching.NamePattern
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirSession
@@ -59,8 +60,8 @@ object WovenCallSiteChecker : FirExpressionChecker<FirFunctionCall>(MppCheckerKi
 
         val matches = collectMatchingAdvices(session, containingClassName, methodName)
         if (matches.isEmpty()) return
+        val src = expression.calleeReference.source ?: expression.source ?: return
         for (advice in matches) {
-            val src = expression.calleeReference.source ?: expression.source ?: continue
             reporter.reportOn(src, AspectKErrors.WOVEN_CALL_SITE, advice)
         }
     }
@@ -99,26 +100,12 @@ object WovenCallSiteChecker : FirExpressionChecker<FirFunctionCall>(MppCheckerKi
     ): Boolean {
         classNamePattern?.let { pattern ->
             val target = containingClassName ?: return false
-            if (!nameGlobMatches(pattern, target)) return false
+            if (!NamePattern.matches(pattern, target)) return false
         }
         methodNamePattern?.let { pattern ->
-            if (!nameGlobMatches(pattern, methodName)) return false
+            if (!NamePattern.matches(pattern, methodName)) return false
         }
         return true
-    }
-
-    private fun nameGlobMatches(
-        pattern: String,
-        name: String,
-    ): Boolean {
-        if (pattern == name) return true
-        if (pattern == "*") return true
-        if ('*' !in pattern) return false
-        val regex = pattern
-            .split('*')
-            .joinToString(separator = ".*") { Regex.escape(it) }
-            .let { "^$it$".toRegex() }
-        return regex.matches(name)
     }
 
     private fun adviceKindLabel(
