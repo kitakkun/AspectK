@@ -3,16 +3,21 @@ package com.github.kitakkun.aspectk.compiler.fir.checker
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
+import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirSimpleFunctionChecker
 import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
+import org.jetbrains.kotlin.fir.declarations.evaluateAs
+import org.jetbrains.kotlin.fir.declarations.findArgumentByName
 import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
+import org.jetbrains.kotlin.fir.expressions.FirAnnotation
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 
 /**
  * Validates binding annotations on advice value parameters.
  *
- * Two distinct checks run per parameter:
+ * Three distinct checks run per parameter:
  *
  * 1. **Multiple binding annotations on the same parameter** — at most one
  *    of `@DispatchReceiver` / `@ExtensionReceiver` / `@ContextParameter` /
@@ -23,10 +28,15 @@ import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
  *    `index: Int = -1` and `name: String = ""`. Exactly one must be set;
  *    the default-both and both-set forms are rejected so the user gets a
  *    clear diagnostic rather than a silently-mismatching binding at IR time.
+ * 3. **Negative explicit `index`** — when the user writes `index = -1` (the
+ *    annotation default, but explicitly) or any other negative value, the
+ *    binding cannot resolve to a target slot. Reject it so the user gets a
+ *    clear message instead of a silent no-op at IR weaving time. Default
+ *    (omitted) `index` is handled by check (2) via "specify one of index
+ *    or name", not by this check.
  *
  * `@DispatchReceiver`, `@ExtensionReceiver`, `@ValueParameters`, and
- * `@ContextParameters` take no arguments and are not subject to the second
- * check.
+ * `@ContextParameters` take no arguments and are not subject to checks 2/3.
  */
 object BindingAnnotationChecker : FirSimpleFunctionChecker(MppCheckerKind.Common) {
     private val allBindingAnnotations = listOf(
@@ -65,19 +75,52 @@ object BindingAnnotationChecker : FirSimpleFunctionChecker(MppCheckerKind.Common
                 val annotation = param.getAnnotationByClassId(classId, context.session) ?: continue
                 val hasIndex = AspectKAnnotations.INDEX in annotation.argumentMapping.mapping
                 val hasName = AspectKAnnotations.NAME in annotation.argumentMapping.mapping
-                val message = when {
+                val xorMessage = when {
                     !hasIndex && !hasName -> "specify one of index or name"
                     hasIndex && hasName -> "specify only one of index or name, not both"
-                    else -> continue
+                    else -> null
                 }
-                val src = annotation.source ?: param.source ?: continue
-                reporter.reportOn(
-                    src,
-                    AspectKErrors.INVALID_BINDING_ANNOTATION,
-                    displayName,
-                    message,
-                )
+                if (xorMessage != null) {
+                    val src = annotation.source ?: param.source ?: continue
+                    reporter.reportOn(
+                        src,
+                        AspectKErrors.INVALID_BINDING_ANNOTATION,
+                        displayName,
+                        xorMessage,
+                    )
+                    continue
+                }
+                val explicitIndex = explicitIndexValue(annotation, context.session)
+                if (explicitIndex != null && explicitIndex < 0) {
+                    val src = annotation.source ?: param.source ?: continue
+                    reporter.reportOn(
+                        src,
+                        AspectKErrors.INVALID_BINDING_ANNOTATION,
+                        displayName,
+                        "index must be >= 0 (got $explicitIndex)",
+                    )
+                }
             }
         }
+    }
+
+    /**
+     * Returns the Int the user wrote for `index = N`, or `null` if the
+     * argument is missing or the expression can't be evaluated as a
+     * compile-time integer constant. FIR represents integer literals as
+     * `Long`-valued `FirLiteralExpression`s even when the declared annotation
+     * argument type is `Int`, so we widen to `Number` and call `.toInt()`.
+     */
+    private fun explicitIndexValue(
+        annotation: FirAnnotation,
+        session: FirSession,
+    ): Int? {
+        val expr = annotation.findArgumentByName(AspectKAnnotations.INDEX)
+            ?: annotation.argumentMapping.mapping[AspectKAnnotations.INDEX]
+            ?: return null
+        val literal = expr.evaluateAs<FirLiteralExpression>(session)
+            ?: (expr as? FirLiteralExpression)
+            ?: return null
+        return (literal.value as? Number)?.toInt()
     }
 }
