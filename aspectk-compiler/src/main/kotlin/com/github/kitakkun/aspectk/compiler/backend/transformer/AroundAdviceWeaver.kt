@@ -105,10 +105,36 @@ internal class AroundAdviceWeaver(
         }
 
         val adviceFn = advice.function
-        val lambdaFn = findAdviceLambda(adviceFn) ?: return false
-        val adviceLambdaBody = lambdaFn.body as? IrBlockBody ?: return false
+        val lambdaFn = findAdviceLambda(adviceFn) ?: run {
+            pluginContext.diagnosticReporter
+                .at(advice.function)
+                .report(
+                    AspectKErrors.AROUND_NOT_WOVEN,
+                    "advice body must be exactly `interceptableAdvice<R> { ... }` (a single-return expression body, " +
+                        "no other statements). Move setup/teardown into the lambda block.",
+                )
+            return false
+        }
+        val adviceLambdaBody = lambdaFn.body as? IrBlockBody ?: run {
+            pluginContext.diagnosticReporter
+                .at(advice.function)
+                .report(
+                    AspectKErrors.AROUND_NOT_WOVEN,
+                    "advice's `interceptableAdvice { ... }` lambda must have a block body.",
+                )
+            return false
+        }
 
-        val originalReturnValue = singleReturnValue(target) ?: return false
+        val originalReturnValue = singleReturnValue(target) ?: run {
+            pluginContext.diagnosticReporter
+                .at(target)
+                .report(
+                    AspectKErrors.AROUND_NOT_WOVEN,
+                    "target `${target.name.asString()}` has a body shape the @Around weaver can't substitute: " +
+                        "expected a single `return <expr>` statement.",
+                )
+            return false
+        }
 
         val builder = DeclarationIrBuilder(
             pluginContext,
@@ -146,6 +172,7 @@ internal class AroundAdviceWeaver(
             //    replace* calls, proceed() calls, and lambda-targeted returns.
             val clonedBody = adviceLambdaBody.deepCopyWithSymbols(initialParent = target)
             val substitution = AroundSubstitutionTransformer(
+                pluginContext = pluginContext,
                 builder = builder,
                 paramToLocal = paramToLocal,
                 slotToLocal = slotToLocal,
@@ -215,6 +242,7 @@ internal class AroundAdviceWeaver(
 }
 
 private class AroundSubstitutionTransformer(
+    private val pluginContext: IrPluginContext,
     private val builder: DeclarationIrBuilder,
     private val paramToLocal: Map<IrValueParameter, IrVariable>,
     private val slotToLocal: Map<IrValueParameter, IrVariable>,
@@ -288,40 +316,45 @@ private class AroundSubstitutionTransformer(
     /**
      * If [call] is a recognised `AroundScope.replace*` invocation with a
      * constant slot identifier that resolves to a target parameter, returns
-     * that target parameter. Returns `null` otherwise.
-     *
-     * Caveat: returning null here can mean either "not a `replace*` call at
-     * all" or "a `replace*` call whose slot key isn't a compile-time
-     * constant". The visitCall caller treats both as fall-through; the
-     * latter case leaves the original `AroundScope.replace*` call in place,
-     * which would crash at runtime via the `aspectk-core` stub. A dedicated
-     * UNRESOLVED_REPLACE_SLOT diagnostic is tracked under task #26 (FIR
-     * pointcut-completeness check), where the necessary diagnostic-factory
-     * plumbing already lives.
+     * that target parameter. Returns `null` if the call isn't a `replace*`
+     * call at all. If the call IS a `replace*` but its slot identifier isn't
+     * a compile-time constant, an `AROUND_REPLACE_SLOT_UNRESOLVED` warning is
+     * reported (the call is then left as the runtime-throwing stub).
      */
     private fun replaceCallTargetSlot(call: IrCall): IrValueParameter? {
         val callee = call.symbol.owner
         val owner = callee.parentClassOrNull ?: return null
         if (owner.kotlinFqName != AspectKAnnotations.AROUND_SCOPE_FQ_NAME) return null
-        return when (callee.name.asString()) {
+        val fnName = callee.name.asString()
+        return when (fnName) {
             "replaceDispatchReceiver" ->
                 target.parameters.firstOrNull { it.kind == IrParameterKind.DispatchReceiver }
             "replaceExtensionReceiver" ->
                 target.parameters.firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }
             "replaceValueParameter" ->
-                resolveSlotByConstArg(call, target.parameters.filter { it.kind == IrParameterKind.Regular })
+                resolveSlotByConstArg(call, fnName, target.parameters.filter { it.kind == IrParameterKind.Regular })
             "replaceContextParameter" ->
-                resolveSlotByConstArg(call, target.parameters.filter { it.kind == IrParameterKind.Context })
+                resolveSlotByConstArg(call, fnName, target.parameters.filter { it.kind == IrParameterKind.Context })
             else -> null
         }
     }
 
     private fun resolveSlotByConstArg(
         call: IrCall,
+        fnName: String,
         candidates: List<IrValueParameter>,
     ): IrValueParameter? {
         // arguments layout: [dispatchReceiver, slotKey, value]
-        val keyArg = call.arguments.getOrNull(1) as? IrConst ?: return null
+        val keyArg = call.arguments.getOrNull(1) as? IrConst
+        if (keyArg == null) {
+            pluginContext.diagnosticReporter
+                .at(call, target)
+                .report(
+                    AspectKErrors.AROUND_REPLACE_SLOT_UNRESOLVED,
+                    fnName,
+                )
+            return null
+        }
         return when (val key = keyArg.value) {
             is Int -> candidates.getOrNull(key)
             is String -> candidates.firstOrNull { it.name.asString() == key }
