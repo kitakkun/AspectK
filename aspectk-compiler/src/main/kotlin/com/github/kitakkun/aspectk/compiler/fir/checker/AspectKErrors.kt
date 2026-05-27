@@ -40,6 +40,25 @@ object AspectKErrors : KtDiagnosticsContainer() {
      */
     val AROUND_UNSUPPORTED_BINDING by warning1<KtElement, String>()
 
+    /**
+     * `@Around` advice silently skipped because the advice's body or its
+     * matched target has a shape the weaver doesn't support. The single
+     * argument is the reason (e.g. "advice body must be exactly
+     * `interceptableAdvice<R> { … }`"). Complementary to
+     * [AROUND_UNSUPPORTED_BINDING], which is specific to binding shapes.
+     */
+    val AROUND_NOT_WOVEN by warning1<KtElement, String>()
+
+    /**
+     * `AroundScope.replaceValueParameter(slot, value)` or
+     * `replaceContextParameter(slot, value)` was called with a `slot` argument
+     * the weaver couldn't resolve to a compile-time constant `Int` index or
+     * `String` name. The call is left as the runtime-throwing `aspectk-core`
+     * stub; this warning surfaces that the override won't take effect. The
+     * argument is the `replace*` function name.
+     */
+    val AROUND_REPLACE_SLOT_UNRESOLVED by warning1<KtElement, String>()
+
     override fun getRendererFactory(): BaseDiagnosticRendererFactory = AspectKDefaultMessages
 }
 
@@ -76,6 +95,16 @@ private object AspectKDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             AspectKErrors.AROUND_UNSUPPORTED_BINDING,
             "@Around advice not woven: {0}",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.AROUND_NOT_WOVEN,
+            "@Around advice not woven: {0}",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.AROUND_REPLACE_SLOT_UNRESOLVED,
+            "@Around: {0}(...) ignored — slot identifier must be a compile-time constant Int index or String name.",
             CommonRenderers.STRING,
         )
     }
