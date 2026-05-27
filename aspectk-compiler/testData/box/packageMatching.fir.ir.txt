@@ -1,0 +1,93 @@
+FILE fqName:com.example.app fileName:/PackageMatching.kt
+  PROPERTY name:hits visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:hits type:kotlin.Int visibility:private [static]
+      EXPRESSION_BODY
+        CONST Int type=kotlin.Int value=0
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-hits> visibility:public modality:FINAL returnType:kotlin.Int
+      correspondingProperty: PROPERTY name:hits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-hits> (): kotlin.Int declared in com.example.app'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:hits type:kotlin.Int visibility:private [static]' type=kotlin.Int origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-hits> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.Int
+      correspondingProperty: PROPERTY name:hits visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:hits type:kotlin.Int visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.Int declared in com.example.app.<set-hits>' type=kotlin.Int origin=null
+  CLASS CLASS name:Owner modality:FINAL visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:com.example.app.Owner
+    CONSTRUCTOR visibility:public returnType:com.example.app.Owner [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Owner modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:touch visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:com.example.app.Owner
+      BLOCK_BODY
+        CALL 'public final fun beforeTouch (): kotlin.Unit declared in com.example.app.PackageAspect' type=kotlin.Unit origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in com.example.app.PackageAspect' type=com.example.app.PackageAspect origin=null
+  CLASS CLASS name:PackageAspect modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:com.example.app.PackageAspect
+    CONSTRUCTOR visibility:public returnType:com.example.app.PackageAspect [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:PackageAspect modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:beforeTouch visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:com.example.app.PackageAspect
+      annotations:
+        Before
+        Package(pattern = "com.example.**")
+        MethodName(pattern = "touch")
+      BLOCK_BODY
+        TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+          BLOCK type=kotlin.Int origin=POSTFIX_INCR
+            VAR IR_TEMPORARY_VARIABLE name:tmp_0 type:kotlin.Int [val]
+              CALL 'public final fun <get-hits> (): kotlin.Int declared in com.example.app' type=kotlin.Int origin=POSTFIX_INCR
+            CALL 'public final fun <set-hits> (<set-?>: kotlin.Int): kotlin.Unit declared in com.example.app' type=kotlin.Unit origin=POSTFIX_INCR
+              ARG <set-?>: CALL 'public final fun inc (): kotlin.Int declared in kotlin.Int' type=kotlin.Int origin=POSTFIX_INCR
+                ARG <this>: GET_VAR 'val tmp_0: kotlin.Int declared in com.example.app.PackageAspect.beforeTouch' type=kotlin.Int origin=null
+            GET_VAR 'val tmp_0: kotlin.Int declared in com.example.app.PackageAspect.beforeTouch' type=kotlin.Int origin=null
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
+    BLOCK_BODY
+      CALL 'public final fun touch (): kotlin.Unit declared in com.example.app.Owner' type=kotlin.Unit origin=null
+        ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in com.example.app.Owner' type=com.example.app.Owner origin=null
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-hits> (): kotlin.Int declared in com.example.app' type=kotlin.Int origin=GET_PROPERTY
+              ARG arg1: CONST Int type=kotlin.Int value=1
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in com.example.app'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: hits="
+              CALL 'public final fun <get-hits> (): kotlin.Int declared in com.example.app' type=kotlin.Int origin=GET_PROPERTY
+              CONST String type=kotlin.String value=" (expected 1)"
+      RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in com.example.app'
+        CONST String type=kotlin.String value="OK"
