@@ -262,6 +262,15 @@ private class AroundSubstitutionTransformer(
      * If [call] is a recognised `AroundScope.replace*` invocation with a
      * constant slot identifier that resolves to a target parameter, returns
      * that target parameter. Returns `null` otherwise.
+     *
+     * Caveat: returning null here can mean either "not a `replace*` call at
+     * all" or "a `replace*` call whose slot key isn't a compile-time
+     * constant". The visitCall caller treats both as fall-through; the
+     * latter case leaves the original `AroundScope.replace*` call in place,
+     * which would crash at runtime via the `aspectk-core` stub. A dedicated
+     * UNRESOLVED_REPLACE_SLOT diagnostic is tracked under task #26 (FIR
+     * pointcut-completeness check), where the necessary diagnostic-factory
+     * plumbing already lives.
      */
     private fun replaceCallTargetSlot(call: IrCall): IrValueParameter? {
         val callee = call.symbol.owner
