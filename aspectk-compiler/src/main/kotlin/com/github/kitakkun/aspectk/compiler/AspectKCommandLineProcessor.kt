@@ -29,6 +29,17 @@ class AspectKCommandLineProcessor : CommandLineProcessor {
             allowMultipleOccurrences = false,
             required = false,
         ),
+        CliOption(
+            optionName = "aspectIndexFile",
+            description =
+                "Absolute path the compiler plugin writes the producer-side aspect index to. " +
+                    "Typically <buildDir>/aspectk/aspectIndex/<compName>/META-INF/aspectk/aspects.txt; " +
+                    "bundled into the producer JAR so downstream consumers can pick it up by scanning " +
+                    "their compile classpath.",
+            valueDescription = "<absolute-path>",
+            allowMultipleOccurrences = false,
+            required = false,
+        ),
     )
 
     override fun processOption(
@@ -39,6 +50,7 @@ class AspectKCommandLineProcessor : CommandLineProcessor {
         when (option.optionName) {
             "enabled" -> configuration.put(AspectKCompilerConfigurationKey.ENABLED, value.toBoolean())
             "reportDir" -> configuration.put(AspectKCompilerConfigurationKey.REPORT_DIR, value)
+            "aspectIndexFile" -> configuration.put(AspectKCompilerConfigurationKey.ASPECT_INDEX_FILE, value)
             else -> error("Unexpected config option ${option.optionName}")
         }
     }

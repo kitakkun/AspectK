@@ -10,18 +10,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * End-to-end smoke test for the AspectK Gradle plugin.
+ * End-to-end smoke tests for the AspectK Gradle plugin.
  *
- * Generates a minimal Kotlin/JVM project on disk, applies
- * `com.github.kitakkun.aspectk` to it, and runs the synthetic project's
- * `run` task. Asserts that:
- *
- * - The build succeeds.
- * - Both the `@Before` advice's trace line and the target's own output
- *   appear in stdout, in that order — i.e. weaving actually happened end to
- *   end through the Kotlin compiler plugin pipeline.
- *
- * Three system properties wire the synthetic project to the artefacts the
+ * Each test generates a minimal Kotlin/JVM project on disk, applies
+ * `com.github.kitakkun.aspectk` to it, and runs a Gradle task via TestKit.
+ * Three system properties wire the synthetic projects to the artefacts the
  * outer build published into `build/testRepo/`:
  *
  * - `aspectk.test.repo` — absolute path of the project-local Maven repo.
@@ -128,6 +121,131 @@ class AspectKGradlePluginTest {
         assertContains(
             result.output,
             "Disable `aspectk.strictUnusedAspects` to downgrade",
+        )
+    }
+
+    @Test
+    fun `aspect declared in dependency module weaves into consumer module call sites`() {
+        // Two-module project: ":aspect" declares an @Aspect, ":consumer"
+        // depends on it and calls a function the advice should match. The
+        // pipeline this exercises end-to-end: producer compile writes the
+        // aspect index → Jar bundles META-INF/aspectk/aspects.txt →
+        // consumer's compiler plugin scans classpath JARs → resolves the
+        // external @Aspect via finderForBuiltins().findClass(...) → IR
+        // weaver wraps Greeter.greet.
+        File(projectDir, "settings.gradle.kts").writeText(
+            """
+            pluginManagement {
+                repositories {
+                    maven(url = "$testRepo")
+                    gradlePluginPortal()
+                }
+            }
+
+            dependencyResolutionManagement {
+                repositories {
+                    maven(url = "$testRepo")
+                    mavenCentral()
+                }
+            }
+
+            rootProject.name = "aspectk-cross-module-sample"
+            include(":aspect")
+            include(":consumer")
+            """.trimIndent(),
+        )
+
+        val aspectDir = File(projectDir, "aspect").apply { mkdirs() }
+        File(aspectDir, "build.gradle.kts").writeText(
+            """
+            plugins {
+                kotlin("jvm") version "$kotlinVersion"
+                id("com.github.kitakkun.aspectk") version "$aspectkVersion"
+            }
+
+            dependencies {
+                implementation("com.github.kitakkun.aspectk:aspectk-annotations:$aspectkVersion")
+            }
+            """.trimIndent(),
+        )
+        val aspectSrc = File(aspectDir, "src/main/kotlin").apply { mkdirs() }
+        File(aspectSrc, "GreetingTracer.kt").writeText(
+            """
+            package shared
+
+            import com.github.kitakkun.aspectk.annotations.Aspect
+            import com.github.kitakkun.aspectk.annotations.Before
+            import com.github.kitakkun.aspectk.annotations.MethodName
+
+            @Aspect
+            class GreetingTracer {
+                @Before
+                @MethodName("greet")
+                fun beforeGreet() {
+                    println("ADVICE_BEFORE")
+                }
+            }
+            """.trimIndent(),
+        )
+
+        val consumerDir = File(projectDir, "consumer").apply { mkdirs() }
+        File(consumerDir, "build.gradle.kts").writeText(
+            """
+            plugins {
+                kotlin("jvm") version "$kotlinVersion"
+                application
+                id("com.github.kitakkun.aspectk") version "$aspectkVersion"
+            }
+
+            application {
+                mainClass.set("consumer.MainKt")
+            }
+
+            dependencies {
+                implementation(project(":aspect"))
+                implementation("com.github.kitakkun.aspectk:aspectk-annotations:$aspectkVersion")
+            }
+            """.trimIndent(),
+        )
+        val consumerSrc = File(consumerDir, "src/main/kotlin/consumer").apply { mkdirs() }
+        File(consumerSrc, "Main.kt").writeText(
+            """
+            package consumer
+
+            class Greeter {
+                fun greet(name: String): String {
+                    val r = "hello ${'$'}name"
+                    println(r)
+                    return r
+                }
+            }
+
+            fun main() {
+                Greeter().greet("world")
+            }
+            """.trimIndent(),
+        )
+
+        val result = GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withArguments(":consumer:run", "--stacktrace", "--quiet")
+            .forwardOutput()
+            .build()
+
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            result.task(":consumer:run")?.outcome,
+            "`:consumer:run` should succeed",
+        )
+        // The @Before advice from the :aspect module wove into Greeter.greet
+        // inside :consumer — ADVICE_BEFORE appears before the target's own
+        // output.
+        assertContains(result.output, "ADVICE_BEFORE")
+        assertContains(result.output, "hello world")
+        assertTrue(
+            result.output.indexOf("ADVICE_BEFORE") < result.output.indexOf("hello world"),
+            "cross-module advice should run before the target body",
         )
     }
 
