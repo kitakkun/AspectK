@@ -12,6 +12,7 @@ class AspectKFirCheckerExtension(
         override val simpleFunctionCheckers: Set<FirSimpleFunctionChecker> = setOf(
             AdviceScopeChecker,
             PointcutAnnotationChecker,
+            BindingAnnotationChecker,
         )
     }
 }

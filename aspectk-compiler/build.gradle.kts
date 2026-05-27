@@ -17,6 +17,7 @@ dependencies {
 
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
+    compilerOptions.optIn.add("org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI")
 }
 
 publishing {

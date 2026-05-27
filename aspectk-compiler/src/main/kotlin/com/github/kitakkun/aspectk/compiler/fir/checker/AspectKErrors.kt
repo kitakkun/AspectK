@@ -19,6 +19,9 @@ object AspectKErrors : KtDiagnosticsContainer() {
     /** `@Annotated(Foo::class)` where `Foo` is `@Retention(SOURCE)` (invisible at IR time). */
     val ANNOTATED_TARGETS_SOURCE_RETENTION by error1<KtAnnotationEntry, String>()
 
+    /** `@ValueParameter` / `@ContextParameter` must specify exactly one of `index` / `name`. */
+    val INVALID_BINDING_ANNOTATION by error2<KtAnnotationEntry, String, String>()
+
     override fun getRendererFactory(): BaseDiagnosticRendererFactory = AspectKDefaultMessages
 }
 
@@ -39,6 +42,12 @@ private object AspectKDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             AspectKErrors.ANNOTATED_TARGETS_SOURCE_RETENTION,
             "@Annotated cannot target ''{0}'' because it has @Retention(SOURCE); use BINARY or RUNTIME retention.",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.INVALID_BINDING_ANNOTATION,
+            "@{0}: {1}",
+            CommonRenderers.STRING,
             CommonRenderers.STRING,
         )
     }
