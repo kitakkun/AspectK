@@ -1,10 +1,12 @@
 package com.github.kitakkun.aspectk.compiler
 
 import org.jetbrains.kotlin.javac.resolve.classId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 object AspectKAnnotations {
     private const val PKG = "com.github.kitakkun.aspectk.annotations"
+    private const val CORE_PKG = "com.github.kitakkun.aspectk.core"
 
     // advice / aspect markers (v0.x; kept for now, rewritten in Phase 3)
     val ASPECT_CLASS_ID = classId(PKG, "Aspect")
@@ -41,6 +43,12 @@ object AspectKAnnotations {
     val POINTCUT_FQ_NAME = POINTCUT_CLASS_ID.asSingleFqName()
 
     val ADVICE_CLASS_IDS = setOf(BEFORE_CLASS_ID, AFTER_CLASS_ID, AROUND_CLASS_ID)
+
+    // v1 @Around runtime markers
+    val AROUND_SCOPE_CLASS_ID = classId(CORE_PKG, "AroundScope")
+    val AROUND_SCOPE_FQ_NAME = AROUND_SCOPE_CLASS_ID.asSingleFqName()
+    val INTERCEPTABLE_ADVICE_FQ_NAME = FqName("$CORE_PKG.interceptableAdvice")
+    val PROCEED_NAME = Name.identifier("proceed")
 
     // common annotation argument names
     val PATTERN = Name.identifier("pattern")
