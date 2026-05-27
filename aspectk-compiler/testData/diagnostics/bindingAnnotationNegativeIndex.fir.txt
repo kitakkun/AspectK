@@ -1,0 +1,19 @@
+FILE: BindingAnnotationNegativeIndex.kt
+    @R|com/github/kitakkun/aspectk/annotations/Aspect|() public final class NegativeIndexAspect : R|kotlin/Any| {
+        public constructor(): R|NegativeIndexAspect| {
+            super<R|kotlin/Any|>()
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(greet)) public final fun beforeNegativeIndex(@R|com/github/kitakkun/aspectk/annotations/ValueParameter|(index = Int(-1)) name: R|kotlin/String|): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(greet)) public final fun beforeNegativeIndexFar(@R|com/github/kitakkun/aspectk/annotations/ValueParameter|(index = Int(-5)) name: R|kotlin/String|): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(greet)) public final fun beforeNegativeContextIndex(@R|com/github/kitakkun/aspectk/annotations/ContextParameter|(index = Int(-1)) ctx: R|kotlin/String|): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(greet)) public final fun beforeOkIndex(@R|com/github/kitakkun/aspectk/annotations/ValueParameter|(index = Int(0)) name: R|kotlin/String|): R|kotlin/Unit| {
+        }
+
+    }
