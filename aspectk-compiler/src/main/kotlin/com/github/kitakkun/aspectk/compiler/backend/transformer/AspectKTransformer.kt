@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -174,13 +175,60 @@ internal class AspectKTransformer(
         target: IrSimpleFunction,
         builder: DeclarationIrBuilder,
     ): IrExpression? {
-        val sourceParam = when (binding) {
-            is Binding.DispatchReceiver -> target.parameters.firstOrNull { it.kind == IrParameterKind.DispatchReceiver }
-            is Binding.ExtensionReceiver -> target.parameters.firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }
+        return when (binding) {
+            is Binding.DispatchReceiver -> target.parameters
+                .firstOrNull { it.kind == IrParameterKind.DispatchReceiver }
+                ?.let(builder::irGet)
+            is Binding.ExtensionReceiver -> target.parameters
+                .firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }
+                ?.let(builder::irGet)
             is Binding.ValueParameter -> findRegular(target, binding.index, binding.name)
+                ?.let(builder::irGet)
             is Binding.ContextParameter -> findContext(target, binding.index, binding.name)
+                ?.let(builder::irGet)
+            is Binding.ValueParameters -> buildAnyNullableList(
+                target.parameters.filter { it.kind == IrParameterKind.Regular },
+                builder,
+            )
+            is Binding.ContextParameters -> buildAnyNullableList(
+                target.parameters.filter { it.kind == IrParameterKind.Context },
+                builder,
+            )
+        }
+    }
+
+    /**
+     * Builds a `listOf<Any?>(p0, p1, …)` expression that materialises [params]
+     * (as `IrGetValue` reads) into a `List<Any?>` at the woven call site.
+     * Returns `null` if `kotlin.collections.listOf` can't be resolved.
+     */
+    private fun buildAnyNullableList(
+        params: List<IrValueParameter>,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        val anyNType = pluginContext.irBuiltIns.anyNType
+        val listOfSymbol = pluginContext.referenceFunctions(
+            org.jetbrains.kotlin.name.CallableId(
+                org.jetbrains.kotlin.name.FqName("kotlin.collections"),
+                org.jetbrains.kotlin.name.Name.identifier("listOf"),
+            ),
+        ).firstOrNull { fn ->
+            val regular = fn.owner.parameters.filter { it.kind == IrParameterKind.Regular }
+            regular.size == 1 && regular[0].varargElementType != null
         } ?: return null
-        return builder.irGet(sourceParam)
+
+        val arrayType = pluginContext.irBuiltIns.arrayClass.typeWith(anyNType)
+        val vararg = org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl(
+            startOffset = builder.startOffset,
+            endOffset = builder.endOffset,
+            type = arrayType,
+            varargElementType = anyNType,
+            elements = params.map { builder.irGet(it) },
+        )
+        return builder.irCall(listOfSymbol).apply {
+            typeArguments[0] = anyNType
+            arguments[0] = vararg
+        }
     }
 
     private fun findRegular(

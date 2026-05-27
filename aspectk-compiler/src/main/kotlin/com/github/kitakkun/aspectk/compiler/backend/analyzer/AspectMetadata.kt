@@ -60,4 +60,10 @@ internal sealed interface Binding {
         val index: Int?,
         val name: String?,
     ) : Binding
+
+    /** Catch-all binding capturing every value parameter as a `List<Any?>`. */
+    data class ValueParameters(override val adviceParameter: IrValueParameter) : Binding
+
+    /** Catch-all binding capturing every context parameter as a `List<Any?>`. */
+    data class ContextParameters(override val adviceParameter: IrValueParameter) : Binding
 }

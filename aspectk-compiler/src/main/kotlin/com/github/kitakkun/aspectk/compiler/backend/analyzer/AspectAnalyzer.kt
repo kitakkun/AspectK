@@ -137,6 +137,12 @@ internal class AspectAnalyzer {
         param.getAnnotation(AspectKAnnotations.EXTENSION_RECEIVER_FQ_NAME)?.let {
             return Binding.ExtensionReceiver(param)
         }
+        param.getAnnotation(AspectKAnnotations.VALUE_PARAMETERS_FQ_NAME)?.let {
+            return Binding.ValueParameters(param)
+        }
+        param.getAnnotation(AspectKAnnotations.CONTEXT_PARAMETERS_FQ_NAME)?.let {
+            return Binding.ContextParameters(param)
+        }
         param.getAnnotation(AspectKAnnotations.CONTEXT_PARAMETER_FQ_NAME)?.let { ann ->
             val (index, name) = readIndexNameArgs(ann)
             return Binding.ContextParameter(param, index, name)

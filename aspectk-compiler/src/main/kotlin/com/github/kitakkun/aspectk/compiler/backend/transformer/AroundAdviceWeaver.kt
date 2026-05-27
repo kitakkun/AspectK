@@ -82,6 +82,12 @@ internal class AroundAdviceWeaver(
         advice: AdviceMetadata,
     ): Boolean {
         if (!canInstantiateAspect(aspectClass)) return false
+        // Catch-all bindings (`@ValueParameters` / `@ContextParameters`) require
+        // synthesising a `listOf<Any?>(…)` at the call site; integrating that
+        // with the around weaver's local-var substitution path isn't done yet.
+        if (advice.bindings.any { it is Binding.ValueParameters || it is Binding.ContextParameters }) {
+            return false
+        }
 
         val adviceFn = advice.function
         val lambdaFn = findAdviceLambda(adviceFn) ?: return false
@@ -185,6 +191,11 @@ internal class AroundAdviceWeaver(
                     else -> null
                 }
             }
+            // Catch-all bindings don't map to a single target slot. They are
+            // intentionally not supported inside `@Around` advice in this PR —
+            // returning null leaves them out of the substitution map, and the
+            // weaver bails for any advice that declares one.
+            is Binding.ValueParameters, is Binding.ContextParameters -> null
         }
 }
 

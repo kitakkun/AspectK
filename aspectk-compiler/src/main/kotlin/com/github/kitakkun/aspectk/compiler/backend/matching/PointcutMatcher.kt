@@ -178,6 +178,8 @@ internal object PointcutMatcher {
             val ok = when (binding) {
                 is Binding.DispatchReceiver -> targetHasDispatch
                 is Binding.ExtensionReceiver -> targetHasExtension
+                is Binding.ValueParameters -> true // catch-all, accepts any (including zero) value parameters
+                is Binding.ContextParameters -> true // catch-all
                 is Binding.ValueParameter -> when {
                     binding.index != null -> binding.index in targetValueParams.indices
                     binding.name != null -> targetValueParams.any { it.name.asString() == binding.name }

@@ -1,0 +1,115 @@
+FILE fqName:<root> fileName:/ValueParametersCatchAll.kt
+  PROPERTY name:seen visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:seen type:kotlin.collections.List<kotlin.Any?> visibility:private [static]
+      EXPRESSION_BODY
+        CALL 'public final fun emptyList <T> (): kotlin.collections.List<T of kotlin.collections.emptyList> declared in kotlin.collections' type=kotlin.collections.List<kotlin.Any?> origin=null
+          TYPE_ARG T: kotlin.Any?
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-seen> visibility:public modality:FINAL returnType:kotlin.collections.List<kotlin.Any?>
+      correspondingProperty: PROPERTY name:seen visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-seen> (): kotlin.collections.List<kotlin.Any?> declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:seen type:kotlin.collections.List<kotlin.Any?> visibility:private [static]' type=kotlin.collections.List<kotlin.Any?> origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-seen> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.collections.List<kotlin.Any?>
+      correspondingProperty: PROPERTY name:seen visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:seen type:kotlin.collections.List<kotlin.Any?> visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.collections.List<kotlin.Any?> declared in <root>.<set-seen>' type=kotlin.collections.List<kotlin.Any?> origin=null
+  CLASS CLASS name:Auditor modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Auditor
+    CONSTRUCTOR visibility:public returnType:<root>.Auditor [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Auditor modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:beforeProcess visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Auditor
+      VALUE_PARAMETER kind:Regular name:args index:1 type:kotlin.collections.List<kotlin.Any?>
+        annotations:
+          ValueParameters
+      annotations:
+        Before
+        ClassName(pattern = "Service")
+        MethodName(pattern = "process")
+      BLOCK_BODY
+        CALL 'public final fun <set-seen> (<set-?>: kotlin.collections.List<kotlin.Any?>): kotlin.Unit declared in <root>' type=kotlin.Unit origin=EQ
+          ARG <set-?>: GET_VAR 'args: kotlin.collections.List<kotlin.Any?> declared in <root>.Auditor.beforeProcess' type=kotlin.collections.List<kotlin.Any?> origin=null
+  CLASS CLASS name:Service modality:FINAL visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Service
+    CONSTRUCTOR visibility:public returnType:<root>.Service [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Service modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:process visibility:public modality:FINAL returnType:kotlin.String
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Service
+      VALUE_PARAMETER kind:Regular name:name index:1 type:kotlin.String
+      VALUE_PARAMETER kind:Regular name:count index:2 type:kotlin.Int
+      VALUE_PARAMETER kind:Regular name:flag index:3 type:kotlin.Boolean
+      BLOCK_BODY
+        CALL 'public final fun beforeProcess (args: kotlin.collections.List<kotlin.Any?>): kotlin.Unit declared in <root>.Auditor' type=kotlin.Unit origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.Auditor' type=<root>.Auditor origin=null
+          ARG args: CALL 'public final fun listOf <T> (vararg elements: T of kotlin.collections.listOf): kotlin.collections.List<T of kotlin.collections.listOf> declared in kotlin.collections' type=kotlin.collections.List<T of kotlin.collections.listOf> origin=null
+            TYPE_ARG T: kotlin.Any?
+            ARG elements: VARARG type=kotlin.Array<kotlin.Any?> varargElementType=kotlin.Any?
+              GET_VAR 'name: kotlin.String declared in <root>.Service.process' type=kotlin.String origin=null
+              GET_VAR 'count: kotlin.Int declared in <root>.Service.process' type=kotlin.Int origin=null
+              GET_VAR 'flag: kotlin.Boolean declared in <root>.Service.process' type=kotlin.Boolean origin=null
+        RETURN type=kotlin.Nothing from='public final fun process (name: kotlin.String, count: kotlin.Int, flag: kotlin.Boolean): kotlin.String declared in <root>.Service'
+          STRING_CONCATENATION type=kotlin.String
+            GET_VAR 'name: kotlin.String declared in <root>.Service.process' type=kotlin.String origin=null
+            CONST String type=kotlin.String value=":"
+            GET_VAR 'count: kotlin.Int declared in <root>.Service.process' type=kotlin.Int origin=null
+            CONST String type=kotlin.String value=":"
+            GET_VAR 'flag: kotlin.Boolean declared in <root>.Service.process' type=kotlin.Boolean origin=null
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
+    BLOCK_BODY
+      TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+        CALL 'public final fun process (name: kotlin.String, count: kotlin.Int, flag: kotlin.Boolean): kotlin.String declared in <root>.Service' type=kotlin.String origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.Service' type=<root>.Service origin=null
+          ARG name: CONST String type=kotlin.String value="alice"
+          ARG count: CONST Int type=kotlin.Int value=42
+          ARG flag: CONST Boolean type=kotlin.Boolean value=true
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-seen> (): kotlin.collections.List<kotlin.Any?> declared in <root>' type=kotlin.collections.List<kotlin.Any?> origin=GET_PROPERTY
+              ARG arg1: CALL 'public final fun listOf <T> (vararg elements: T of kotlin.collections.listOf): kotlin.collections.List<T of kotlin.collections.listOf> declared in kotlin.collections' type=kotlin.collections.List<kotlin.Any?> origin=null
+                TYPE_ARG T: kotlin.Any?
+                ARG elements: VARARG type=kotlin.Array<out kotlin.Any?> varargElementType=kotlin.Any?
+                  CONST String type=kotlin.String value="alice"
+                  CONST Int type=kotlin.Int value=42
+                  CONST Boolean type=kotlin.Boolean value=true
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: seen="
+              CALL 'public final fun <get-seen> (): kotlin.collections.List<kotlin.Any?> declared in <root>' type=kotlin.collections.List<kotlin.Any?> origin=GET_PROPERTY
+      RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+        CONST String type=kotlin.String value="OK"
