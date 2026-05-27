@@ -1,0 +1,10 @@
+FILE: BindingAnnotationBothIndexAndName.kt
+    @R|com/github/kitakkun/aspectk/annotations/Aspect|() public final class Aspect : R|kotlin/Any| {
+        public constructor(): R|Aspect| {
+            super<R|kotlin/Any|>()
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(greet)) public final fun beforeGreet(@R|com/github/kitakkun/aspectk/annotations/ValueParameter|(index = Int(0), name = String(name)) name: R|kotlin/String|): R|kotlin/Unit| {
+        }
+
+    }

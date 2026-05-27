@@ -1,0 +1,135 @@
+FILE fqName:<root> fileName:/BindingExtraction.kt
+  PROPERTY name:observedReceiverClass visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:observedReceiverClass type:kotlin.String visibility:private [static]
+      EXPRESSION_BODY
+        CONST String type=kotlin.String value=""
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-observedReceiverClass> visibility:public modality:FINAL returnType:kotlin.String
+      correspondingProperty: PROPERTY name:observedReceiverClass visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-observedReceiverClass> (): kotlin.String declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:observedReceiverClass type:kotlin.String visibility:private [static]' type=kotlin.String origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-observedReceiverClass> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.String
+      correspondingProperty: PROPERTY name:observedReceiverClass visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:observedReceiverClass type:kotlin.String visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.String declared in <root>.<set-observedReceiverClass>' type=kotlin.String origin=null
+  PROPERTY name:observedName visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:observedName type:kotlin.String visibility:private [static]
+      EXPRESSION_BODY
+        CONST String type=kotlin.String value=""
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-observedName> visibility:public modality:FINAL returnType:kotlin.String
+      correspondingProperty: PROPERTY name:observedName visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun <get-observedName> (): kotlin.String declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:observedName type:kotlin.String visibility:private [static]' type=kotlin.String origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-observedName> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.String
+      correspondingProperty: PROPERTY name:observedName visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:observedName type:kotlin.String visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.String declared in <root>.<set-observedName>' type=kotlin.String origin=null
+  CLASS CLASS name:Greeter modality:FINAL visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Greeter
+    CONSTRUCTOR visibility:public returnType:<root>.Greeter [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Greeter modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:greet visibility:public modality:FINAL returnType:kotlin.String
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Greeter
+      VALUE_PARAMETER kind:Regular name:name index:1 type:kotlin.String
+      BLOCK_BODY
+        CALL 'public final fun beforeGreet (greeter: <root>.Greeter, name: kotlin.String): kotlin.Unit declared in <root>.GreetingObserver' type=kotlin.Unit origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.GreetingObserver' type=<root>.GreetingObserver origin=null
+          ARG greeter: GET_VAR '<this>: <root>.Greeter declared in <root>.Greeter.greet' type=<root>.Greeter origin=null
+          ARG name: GET_VAR 'name: kotlin.String declared in <root>.Greeter.greet' type=kotlin.String origin=null
+        RETURN type=kotlin.Nothing from='public final fun greet (name: kotlin.String): kotlin.String declared in <root>.Greeter'
+          STRING_CONCATENATION type=kotlin.String
+            CONST String type=kotlin.String value="hello "
+            GET_VAR 'name: kotlin.String declared in <root>.Greeter.greet' type=kotlin.String origin=null
+  CLASS CLASS name:GreetingObserver modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.GreetingObserver
+    CONSTRUCTOR visibility:public returnType:<root>.GreetingObserver [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:GreetingObserver modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:beforeGreet visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.GreetingObserver
+      VALUE_PARAMETER kind:Regular name:greeter index:1 type:<root>.Greeter
+        annotations:
+          DispatchReceiver
+      VALUE_PARAMETER kind:Regular name:name index:2 type:kotlin.String
+        annotations:
+          ValueParameter(index = 0, name = <null>)
+      annotations:
+        Before
+        ClassName(pattern = "Greeter")
+        MethodName(pattern = "greet")
+      BLOCK_BODY
+        CALL 'public final fun <set-observedReceiverClass> (<set-?>: kotlin.String): kotlin.Unit declared in <root>' type=kotlin.Unit origin=EQ
+          ARG <set-?>: TYPE_OP type=kotlin.String origin=IMPLICIT_NOTNULL typeOperand=kotlin.String
+            CALL 'public open fun getSimpleName (): @[FlexibleNullability] kotlin.String? declared in java.lang.Class' type=@[FlexibleNullability] kotlin.String? origin=GET_PROPERTY
+              ARG <this>: CALL 'public final fun <get-java> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-java>>): java.lang.Class<T of kotlin.jvm.<get-java>> declared in kotlin.jvm' type=java.lang.Class<out <root>.Greeter> origin=GET_PROPERTY
+                TYPE_ARG T: <root>.Greeter
+                ARG <this>: GET_CLASS type=kotlin.reflect.KClass<out <root>.Greeter>
+                  GET_VAR 'greeter: <root>.Greeter declared in <root>.GreetingObserver.beforeGreet' type=<root>.Greeter origin=null
+        CALL 'public final fun <set-observedName> (<set-?>: kotlin.String): kotlin.Unit declared in <root>' type=kotlin.Unit origin=EQ
+          ARG <set-?>: GET_VAR 'name: kotlin.String declared in <root>.GreetingObserver.beforeGreet' type=kotlin.String origin=null
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
+    BLOCK_BODY
+      TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+        CALL 'public final fun greet (name: kotlin.String): kotlin.String declared in <root>.Greeter' type=kotlin.String origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.Greeter' type=<root>.Greeter origin=null
+          ARG name: CONST String type=kotlin.String value="world"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-observedReceiverClass> (): kotlin.String declared in <root>' type=kotlin.String origin=GET_PROPERTY
+              ARG arg1: CONST String type=kotlin.String value="Greeter"
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: receiver='"
+              CALL 'public final fun <get-observedReceiverClass> (): kotlin.String declared in <root>' type=kotlin.String origin=GET_PROPERTY
+              CONST String type=kotlin.String value="'"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-observedName> (): kotlin.String declared in <root>' type=kotlin.String origin=GET_PROPERTY
+              ARG arg1: CONST String type=kotlin.String value="world"
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: name='"
+              CALL 'public final fun <get-observedName> (): kotlin.String declared in <root>' type=kotlin.String origin=GET_PROPERTY
+              CONST String type=kotlin.String value="'"
+      RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+        CONST String type=kotlin.String value="OK"
