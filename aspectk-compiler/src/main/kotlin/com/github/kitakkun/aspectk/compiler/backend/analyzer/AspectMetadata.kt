@@ -62,8 +62,12 @@ internal sealed interface Binding {
     ) : Binding
 
     /** Catch-all binding capturing every value parameter as a `List<Any?>`. */
-    data class ValueParameters(override val adviceParameter: IrValueParameter) : Binding
+    data class ValueParameters(
+        override val adviceParameter: IrValueParameter,
+    ) : Binding
 
     /** Catch-all binding capturing every context parameter as a `List<Any?>`. */
-    data class ContextParameters(override val adviceParameter: IrValueParameter) : Binding
+    data class ContextParameters(
+        override val adviceParameter: IrValueParameter,
+    ) : Binding
 }

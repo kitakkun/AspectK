@@ -5,4 +5,5 @@ import org.jetbrains.kotlin.config.CompilerConfigurationKey
 
 object AspectKCompilerConfigurationKey {
     val ENABLED = CompilerConfigurationKey<Boolean>(AspectKSubPluginOptionKey.ENABLED)
+    val REPORT_DIR = CompilerConfigurationKey<String>(AspectKSubPluginOptionKey.REPORT_DIR)
 }

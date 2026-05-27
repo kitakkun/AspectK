@@ -21,7 +21,8 @@ class AspectKCompilerPluginRegistrar : CompilerPluginRegistrar() {
         val enabled = configuration[AspectKCompilerConfigurationKey.ENABLED] ?: false
         if (!enabled) return
 
+        val reportDir = configuration[AspectKCompilerConfigurationKey.REPORT_DIR]
         FirExtensionRegistrarAdapter.registerExtension(AspectKFirExtensionRegistrar())
-        IrGenerationExtension.registerExtension(AspectKIrGenerationExtension())
+        IrGenerationExtension.registerExtension(AspectKIrGenerationExtension(reportDir))
     }
 }

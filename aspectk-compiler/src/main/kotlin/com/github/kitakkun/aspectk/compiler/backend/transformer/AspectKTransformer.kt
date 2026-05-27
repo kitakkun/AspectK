@@ -51,6 +51,15 @@ internal class AspectKTransformer(
     private val aspects: List<AspectMetadata>,
 ) : IrTransformer<Nothing?>() {
     private val aroundWeaver = AroundAdviceWeaver(pluginContext)
+    private val mutableMatches = linkedMapOf<AdviceMetadata, MutableList<IrSimpleFunction>>()
+
+    /**
+     * For each advice the analyzer found, the list of target functions
+     * (in visit order) where it matched. Empty list = the advice's pointcut
+     * matched no targets in this module.
+     */
+    val matches: Map<AdviceMetadata, List<IrSimpleFunction>>
+        get() = mutableMatches
 
     override fun visitElement(
         element: IrElement,
@@ -69,6 +78,7 @@ internal class AspectKTransformer(
         for (aspect in aspects) {
             for (advice in aspect.advices) {
                 if (!PointcutMatcher.matches(advice, declaration)) continue
+                mutableMatches.getOrPut(advice) { mutableListOf() } += declaration
                 applyAdvice(declaration, aspect.aspectClass, advice)
             }
         }
@@ -178,14 +188,16 @@ internal class AspectKTransformer(
         binding: Binding,
         target: IrSimpleFunction,
         builder: DeclarationIrBuilder,
-    ): IrExpression? {
-        return when (binding) {
-            is Binding.DispatchReceiver -> target.parameters
-                .firstOrNull { it.kind == IrParameterKind.DispatchReceiver }
-                ?.let(builder::irGet)
-            is Binding.ExtensionReceiver -> target.parameters
-                .firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }
-                ?.let(builder::irGet)
+    ): IrExpression? =
+        when (binding) {
+            is Binding.DispatchReceiver ->
+                target.parameters
+                    .firstOrNull { it.kind == IrParameterKind.DispatchReceiver }
+                    ?.let(builder::irGet)
+            is Binding.ExtensionReceiver ->
+                target.parameters
+                    .firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }
+                    ?.let(builder::irGet)
             is Binding.ValueParameter -> findRegular(target, binding.index, binding.name)
                 ?.let(builder::irGet)
             is Binding.ContextParameter -> findContext(target, binding.index, binding.name)
@@ -199,7 +211,6 @@ internal class AspectKTransformer(
                 builder,
             )
         }
-    }
 
     /**
      * Builds a `listOf<Any?>(p0, p1, …)` expression that materialises [params]
