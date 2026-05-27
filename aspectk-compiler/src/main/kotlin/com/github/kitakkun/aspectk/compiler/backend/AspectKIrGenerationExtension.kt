@@ -36,10 +36,30 @@ class AspectKIrGenerationExtension(
         aspects: List<AspectMetadata>,
         matches: Map<AdviceMetadata, List<IrSimpleFunction>>,
     ) {
-        if (!dir.exists() && !dir.mkdirs()) return
-        val sanitized = moduleName.trim('<', '>').replace('/', '_')
-        val out = File(dir, "matches-$sanitized.json")
-        out.writeText(buildReportJson(moduleName, aspects, matches))
+        // The report is non-essential build output — never let an IOException
+        // here fail the user's compilation.
+        runCatching {
+            if (!dir.exists() && !dir.mkdirs()) return@runCatching
+            val out = File(dir, "matches-${sanitizeForFilename(moduleName)}.json")
+            out.writeText(buildReportJson(moduleName, aspects, matches))
+        }
+    }
+
+    /**
+     * Strips characters that are invalid in a filename on common platforms
+     * (Windows is the strictest: `<`, `>`, `:`, `\`, `/`, `*`, `?`, `"`, `|`).
+     * Kotlin module names are commonly bracketed (`<test>`), and may include
+     * `/` in `kotlin.compiler.execution.strategy = in-process` paths.
+     */
+    private fun sanitizeForFilename(name: String): String {
+        val sb = StringBuilder(name.length)
+        for (c in name) {
+            when (c) {
+                '<', '>', ':', '\\', '/', '*', '?', '"', '|' -> sb.append('_')
+                else -> sb.append(c)
+            }
+        }
+        return sb.toString().trim('_').ifEmpty { "module" }
     }
 
     private fun buildReportJson(

@@ -21,11 +21,17 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val project = kotlinCompilation.target.project
         val extension = project.extensions.getByType(AspectKExtension::class.java)
-        val reportDir = project.layout.buildDirectory.dir("reports/aspectk").get().asFile.absolutePath
+        val reportDirProvider = project.layout.buildDirectory.dir("reports/aspectk")
         return project.provider {
+            // Resolve buildDirectory lazily (inside the provider) so any
+            // user-supplied `layout.buildDirectory.set(...)` override applied
+            // after this plugin's `apply` is still picked up.
             listOf(
                 SubpluginOption(key = AspectKSubPluginOptionKey.ENABLED, value = extension.enabled.toString()),
-                SubpluginOption(key = AspectKSubPluginOptionKey.REPORT_DIR, value = reportDir),
+                SubpluginOption(
+                    key = AspectKSubPluginOptionKey.REPORT_DIR,
+                    value = reportDirProvider.get().asFile.absolutePath,
+                ),
             )
         }
     }
