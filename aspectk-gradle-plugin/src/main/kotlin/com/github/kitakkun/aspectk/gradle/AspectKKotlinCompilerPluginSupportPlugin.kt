@@ -16,6 +16,35 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
         target.extensions.create("aspectk", AspectKExtension::class.java)
+        registerAggregateReportTask(target)
+    }
+
+    /**
+     * Idempotently registers `aspectKAggregateReport` on [target] (the
+     * `allprojects` cap of "every project whose plugin's apply fires"). Uses
+     * `tasks.findByName` so multi-module builds that apply the plugin to
+     * multiple modules don't double-register.
+     */
+    private fun registerAggregateReportTask(target: Project) {
+        if (target.tasks.findByName(AGGREGATE_REPORT_TASK_NAME) != null) return
+        target.tasks.register(AGGREGATE_REPORT_TASK_NAME, AspectKAggregateReportTask::class.java) { task ->
+            // Walk every project the rootProject can see. Each producer's
+            // `build/reports/aspectk/matches-*.json` is collected as an input.
+            // Resolution is lazy via `provider` so subprojects added after this
+            // apply still contribute.
+            task.perModuleReports.from(
+                target.provider {
+                    target.allprojects.map { p ->
+                        p.layout.buildDirectory.dir("reports/aspectk").map { dir ->
+                            dir.asFileTree.matching { it.include("matches-*.json") }
+                        }
+                    }
+                },
+            )
+            task.aggregateFile.set(
+                target.layout.buildDirectory.file("reports/aspectk/aggregate.json"),
+            )
+        }
     }
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
@@ -46,4 +75,8 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
             artifactId = "aspectk-compiler",
             version = AspectKPluginConsts.PLUGIN_VERSION,
         )
+
+    private companion object {
+        const val AGGREGATE_REPORT_TASK_NAME = "aspectKAggregateReport"
+    }
 }

@@ -73,6 +73,50 @@ class AspectKGradlePluginTest {
         )
     }
 
+    @Test
+    fun `aspectKAggregateReport collects per-module reports`() {
+        writeSettings()
+        writeBuildScript()
+        writeMain()
+
+        // First compile so the per-module matches-*.json is materialised.
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withArguments("compileKotlin", "--stacktrace", "--quiet")
+            .forwardOutput()
+            .build()
+
+        val perModuleReport = File(projectDir, "build/reports/aspectk").listFiles()
+            ?.firstOrNull { it.name.startsWith("matches-") && it.extension == "json" }
+        assertTrue(
+            perModuleReport != null && perModuleReport.exists(),
+            "compileKotlin should have produced a per-module matches-*.json under build/reports/aspectk/",
+        )
+
+        val aggregateResult = GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withArguments("aspectKAggregateReport", "--stacktrace", "--quiet")
+            .forwardOutput()
+            .build()
+
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            aggregateResult.task(":aspectKAggregateReport")?.outcome,
+            "`aspectKAggregateReport` task should succeed",
+        )
+
+        val aggregateFile = File(projectDir, "build/reports/aspectk/aggregate.json")
+        assertTrue(aggregateFile.exists(), "aggregate.json should be written")
+        val aggregateText = aggregateFile.readText()
+        assertContains(aggregateText, "\"modules\"")
+        // The synthetic project's aspect class is GreetingTracer; its advice
+        // beforeGreet should appear in the aggregated report.
+        assertContains(aggregateText, "GreetingTracer")
+        assertContains(aggregateText, "beforeGreet")
+    }
+
     private fun writeSettings() {
         File(projectDir, "settings.gradle.kts").writeText(
             """
