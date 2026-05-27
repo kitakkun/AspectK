@@ -84,21 +84,33 @@ internal object PointcutMatcher {
         }
 
     /**
-     * `@Modality(vararg Kind)` — OR-combined. The target's modality must be one
-     * of them. For top-level functions (no enclosing class) there is no
-     * modality concept and the constraint never matches.
+     * `@Modality(vararg Kind)` — OR-combined across both the function's own
+     * modality and the enclosing class's modality (per Modality.kt KDoc:
+     * "OPEN matches open class and open fun parents"). For top-level
+     * functions the enclosing class side contributes nothing.
      */
     private fun modalityMatches(
         modalities: List<String>,
         target: IrSimpleFunction,
     ): Boolean {
         if (modalities.isEmpty()) return true
-        val current = modalityOf(target) ?: return false
-        return current in modalities
+        val current = modalitiesOf(target)
+        if (current.isEmpty()) return false
+        return modalities.any { it in current }
     }
 
-    private fun modalityOf(target: IrSimpleFunction): String? =
-        when (target.modality) {
+    private fun modalitiesOf(target: IrSimpleFunction): Set<String> {
+        val result = mutableSetOf<String>()
+        modalityLabel(target.modality)?.let(result::add)
+        target.parentClassOrNull
+            ?.modality
+            ?.let(::modalityLabel)
+            ?.let(result::add)
+        return result
+    }
+
+    private fun modalityLabel(modality: Modality): String? =
+        when (modality) {
             Modality.FINAL -> "FINAL"
             Modality.OPEN -> "OPEN"
             Modality.ABSTRACT -> "ABSTRACT"
