@@ -3,6 +3,7 @@ package com.github.kitakkun.aspectk.compiler.backend.transformer
 import com.github.kitakkun.aspectk.compiler.AspectKAnnotations
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AdviceMetadata
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.Binding
+import com.github.kitakkun.aspectk.compiler.fir.checker.AspectKErrors
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
@@ -97,7 +98,7 @@ internal class AroundAdviceWeaver(
             pluginContext.diagnosticReporter
                 .at(advice.function)
                 .report(
-                    com.github.kitakkun.aspectk.compiler.fir.checker.AspectKErrors.AROUND_UNSUPPORTED_BINDING,
+                    AspectKErrors.AROUND_UNSUPPORTED_BINDING,
                     "$annotationName binding is not yet supported by the @Around weaver",
                 )
             return false

@@ -16,14 +16,18 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
-import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrTryImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrTransformer
+import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 
 /**
  * Phase 3.2 advice applier.
@@ -208,17 +212,14 @@ internal class AspectKTransformer(
     ): IrExpression? {
         val anyNType = pluginContext.irBuiltIns.anyNType
         val listOfSymbol = pluginContext.referenceFunctions(
-            org.jetbrains.kotlin.name.CallableId(
-                org.jetbrains.kotlin.name.FqName("kotlin.collections"),
-                org.jetbrains.kotlin.name.Name.identifier("listOf"),
-            ),
+            CallableId(FqName("kotlin.collections"), Name.identifier("listOf")),
         ).firstOrNull { fn ->
             val regular = fn.owner.parameters.filter { it.kind == IrParameterKind.Regular }
             regular.size == 1 && regular[0].varargElementType != null
         } ?: return null
 
         val arrayType = pluginContext.irBuiltIns.arrayClass.typeWith(anyNType)
-        val vararg = org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl(
+        val vararg = IrVarargImpl(
             startOffset = builder.startOffset,
             endOffset = builder.endOffset,
             type = arrayType,
