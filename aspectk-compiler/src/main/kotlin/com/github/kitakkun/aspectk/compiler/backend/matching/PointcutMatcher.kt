@@ -3,8 +3,12 @@ package com.github.kitakkun.aspectk.compiler.backend.matching
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.AdviceMetadata
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.Binding
 import com.github.kitakkun.aspectk.compiler.backend.analyzer.PointcutFilter
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.util.getPackageFragment
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 
 internal object PointcutMatcher {
@@ -21,14 +25,138 @@ internal object PointcutMatcher {
         filter: PointcutFilter,
         target: IrSimpleFunction,
     ): Boolean {
-        filter.classNamePattern?.let { pattern ->
-            val containingClassName = target.parentClassOrNull?.name?.asString() ?: return false
-            if (!NamePattern.matches(pattern, containingClassName)) return false
+        if (!packageMatches(filter.packagePattern, target)) return false
+        if (!classNameMatches(filter.classNamePattern, target)) return false
+        if (!methodNameMatches(filter.methodNamePattern, target)) return false
+        if (!visibilityMatches(filter.visibilities, target)) return false
+        if (!modalityMatches(filter.modalities, target)) return false
+        if (!modifiersMatch(filter.modifiers, target)) return false
+        if (!annotatedMatches(filter.annotatedFqNames, target)) return false
+        return true
+    }
+
+    private fun packageMatches(
+        pattern: String?,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (pattern == null) return true
+        val pkg = target.getPackageFragment().packageFqName.asString()
+        return PackagePattern.matches(pattern, pkg)
+    }
+
+    private fun classNameMatches(
+        pattern: String?,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (pattern == null) return true
+        val containingClassName = target.parentClassOrNull?.name?.asString() ?: return false
+        return NamePattern.matches(pattern, containingClassName)
+    }
+
+    private fun methodNameMatches(
+        pattern: String?,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (pattern == null) return true
+        return NamePattern.matches(pattern, target.name.asString())
+    }
+
+    /**
+     * `@Visibility(vararg Kind)` — OR-combined across the listed kinds. The
+     * target's visibility must be one of them.
+     */
+    private fun visibilityMatches(
+        visibilities: List<String>,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (visibilities.isEmpty()) return true
+        val current = visibilityOf(target) ?: return false
+        return current in visibilities
+    }
+
+    private fun visibilityOf(target: IrSimpleFunction): String? =
+        when (target.visibility) {
+            DescriptorVisibilities.PUBLIC -> "PUBLIC"
+            DescriptorVisibilities.INTERNAL -> "INTERNAL"
+            DescriptorVisibilities.PROTECTED -> "PROTECTED"
+            DescriptorVisibilities.PRIVATE, DescriptorVisibilities.PRIVATE_TO_THIS -> "PRIVATE"
+            else -> null
         }
-        filter.methodNamePattern?.let { pattern ->
-            if (!NamePattern.matches(pattern, target.name.asString())) return false
+
+    /**
+     * `@Modality(vararg Kind)` — OR-combined across both the function's own
+     * modality and the enclosing class's modality (per Modality.kt KDoc:
+     * "OPEN matches open class and open fun parents"). For top-level
+     * functions the enclosing class side contributes nothing.
+     */
+    private fun modalityMatches(
+        modalities: List<String>,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (modalities.isEmpty()) return true
+        val current = modalitiesOf(target)
+        if (current.isEmpty()) return false
+        return modalities.any { it in current }
+    }
+
+    private fun modalitiesOf(target: IrSimpleFunction): Set<String> {
+        val result = mutableSetOf<String>()
+        modalityLabel(target.modality)?.let(result::add)
+        target.parentClassOrNull
+            ?.modality
+            ?.let(::modalityLabel)
+            ?.let(result::add)
+        return result
+    }
+
+    private fun modalityLabel(modality: Modality): String? =
+        when (modality) {
+            Modality.FINAL -> "FINAL"
+            Modality.OPEN -> "OPEN"
+            Modality.ABSTRACT -> "ABSTRACT"
+            Modality.SEALED -> "SEALED"
+        }
+
+    /**
+     * `@Modifiers(vararg Kind)` — AND-combined. The target must carry every
+     * listed modifier.
+     */
+    private fun modifiersMatch(
+        modifiers: List<String>,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (modifiers.isEmpty()) return true
+        for (modifier in modifiers) {
+            val present = when (modifier) {
+                "SUSPEND" -> target.isSuspend
+                "INLINE" -> target.isInline
+                "INFIX" -> target.isInfix
+                "OPERATOR" -> target.isOperator
+                "TAILREC" -> target.isTailrec
+                "EXTERNAL" -> target.isExternal
+                else -> false
+            }
+            if (!present) return false
         }
         return true
+    }
+
+    /**
+     * `@Annotated(vararg KClass)` — OR-combined. The target must carry at
+     * least one of the listed annotations.
+     */
+    private fun annotatedMatches(
+        annotatedFqNames: List<String>,
+        target: IrSimpleFunction,
+    ): Boolean {
+        if (annotatedFqNames.isEmpty()) return true
+        val targetAnnotations = target.annotations
+            .mapNotNull {
+                it.symbol.owner.parentClassOrNull
+                    ?.kotlinFqName
+                    ?.asString()
+            }.toSet()
+        return annotatedFqNames.any { it in targetAnnotations }
     }
 
     /**

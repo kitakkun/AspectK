@@ -19,16 +19,18 @@ internal data class AdviceMetadata(
 internal enum class AdviceKind { BEFORE, AFTER, AROUND }
 
 /**
- * Phase 3.1 subset of the pointcut filter. Carries the name-pattern matching
- * annotations plus signature-driven constraints derived from binding parameters
- * (a `@DispatchReceiver` binding implies the target has a dispatch receiver of
- * a compatible type, etc.). The remaining matching annotations
- * (`@Visibility` / `@Modality` / `@Modifiers` / `@Package` / `@Annotated`)
- * are added in Phase 3.4.
+ * Pointcut filter assembled from the matching annotations stacked on the
+ * advice function. Each field corresponds to one annotation; a `null` /
+ * empty list means "no constraint from that dimension".
  */
 internal data class PointcutFilter(
+    val packagePattern: String?,
     val classNamePattern: String?,
     val methodNamePattern: String?,
+    val visibilities: List<String>,
+    val modalities: List<String>,
+    val modifiers: List<String>,
+    val annotatedFqNames: List<String>,
 )
 
 /**
