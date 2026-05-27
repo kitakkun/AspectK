@@ -22,6 +22,13 @@ class AspectKCommandLineProcessor : CommandLineProcessor {
             allowMultipleOccurrences = false,
             required = false,
         ),
+        CliOption(
+            optionName = "reportDir",
+            description = "Directory to write per-module weaving reports (matches-<module>.json)",
+            valueDescription = "<absolute-path>",
+            allowMultipleOccurrences = false,
+            required = false,
+        ),
     )
 
     override fun processOption(
@@ -31,6 +38,7 @@ class AspectKCommandLineProcessor : CommandLineProcessor {
     ) {
         when (option.optionName) {
             "enabled" -> configuration.put(AspectKCompilerConfigurationKey.ENABLED, value.toBoolean())
+            "reportDir" -> configuration.put(AspectKCompilerConfigurationKey.REPORT_DIR, value)
             else -> error("Unexpected config option ${option.optionName}")
         }
     }

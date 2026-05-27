@@ -20,6 +20,6 @@ class ExtensionRegistrarConfigurator(
         configuration: CompilerConfiguration,
     ) {
         FirExtensionRegistrarAdapter.registerExtension(AspectKFirExtensionRegistrar())
-        IrGenerationExtension.registerExtension(AspectKIrGenerationExtension())
+        IrGenerationExtension.registerExtension(AspectKIrGenerationExtension(reportDir = null))
     }
 }
