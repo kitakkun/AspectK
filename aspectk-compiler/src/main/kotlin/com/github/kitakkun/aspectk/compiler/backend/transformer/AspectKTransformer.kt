@@ -11,9 +11,7 @@ import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetObject
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -24,7 +22,6 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrTryImpl
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrTransformer
 
 /**
@@ -170,14 +167,7 @@ internal class AspectKTransformer(
     private fun aspectInstance(
         aspectClass: IrClass,
         builder: DeclarationIrBuilder,
-    ): IrExpression? {
-        if (aspectClass.kind == org.jetbrains.kotlin.descriptors.ClassKind.OBJECT) {
-            return builder.irGetObject(aspectClass.symbol)
-        }
-        val ctor = aspectClass.primaryConstructor ?: return null
-        if (ctor.parameters.isNotEmpty()) return null
-        return builder.irCallConstructor(ctor.symbol, emptyList())
-    }
+    ): IrExpression? = AspectInstanceSupport.instanceExpression(aspectClass, builder)
 
     private fun extractBindingValue(
         binding: Binding,

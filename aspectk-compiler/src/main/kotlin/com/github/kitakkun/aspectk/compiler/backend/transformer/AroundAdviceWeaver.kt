@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.ir.expressions.IrReturn
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrTransformer
 
 /**
@@ -140,11 +139,8 @@ internal class AroundAdviceWeaver(
         return true
     }
 
-    private fun canInstantiateAspect(aspectClass: IrClass): Boolean {
-        if (aspectClass.kind == org.jetbrains.kotlin.descriptors.ClassKind.OBJECT) return true
-        val ctor = aspectClass.primaryConstructor ?: return false
-        return ctor.parameters.isEmpty()
-    }
+    private fun canInstantiateAspect(aspectClass: IrClass): Boolean =
+        AspectInstanceSupport.canInstantiate(aspectClass)
 
     private fun findAdviceLambda(adviceFn: IrSimpleFunction): IrFunction? {
         val body = adviceFn.body as? IrBlockBody ?: return null
