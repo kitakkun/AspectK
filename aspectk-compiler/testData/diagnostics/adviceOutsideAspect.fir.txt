@@ -1,0 +1,10 @@
+FILE: AdviceOutsideAspect.kt
+    public final class NotAnAspect : R|kotlin/Any| {
+        public constructor(): R|NotAnAspect| {
+            super<R|kotlin/Any|>()
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(foo)) public final fun beforeFoo(): R|kotlin/Unit| {
+        }
+
+    }
