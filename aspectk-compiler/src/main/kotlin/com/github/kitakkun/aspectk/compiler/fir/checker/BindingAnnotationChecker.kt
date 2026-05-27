@@ -10,19 +10,35 @@ import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
 import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
 
 /**
- * Validates the indexed-or-named binding annotations on advice value parameters.
+ * Validates binding annotations on advice value parameters.
  *
- * `@ValueParameter` and `@ContextParameter` each declare both `index: Int = -1`
- * and `name: String = ""`. Exactly one must be set: `index >= 0` xor
- * `name.isNotEmpty()`. The default-both and both-set forms are rejected here
- * so the user gets a clear diagnostic rather than a silently-mismatching
- * binding at IR time.
+ * Two distinct checks run per parameter:
  *
- * `@DispatchReceiver` and `@ExtensionReceiver` take no arguments and are not
- * checked here.
+ * 1. **Multiple binding annotations on the same parameter** — at most one
+ *    of `@DispatchReceiver` / `@ExtensionReceiver` / `@ContextParameter` /
+ *    `@ValueParameter` / `@ContextParameters` / `@ValueParameters` may be
+ *    present. More than one is ambiguous and would otherwise lead the
+ *    analyzer to silently pick the first one in lookup order.
+ * 2. **Index/name xor** — `@ValueParameter` and `@ContextParameter` carry
+ *    `index: Int = -1` and `name: String = ""`. Exactly one must be set;
+ *    the default-both and both-set forms are rejected so the user gets a
+ *    clear diagnostic rather than a silently-mismatching binding at IR time.
+ *
+ * `@DispatchReceiver`, `@ExtensionReceiver`, `@ValueParameters`, and
+ * `@ContextParameters` take no arguments and are not subject to the second
+ * check.
  */
 object BindingAnnotationChecker : FirSimpleFunctionChecker(MppCheckerKind.Common) {
-    private val annotationsToValidate = listOf(
+    private val allBindingAnnotations = listOf(
+        AspectKAnnotations.DISPATCH_RECEIVER_CLASS_ID to "DispatchReceiver",
+        AspectKAnnotations.EXTENSION_RECEIVER_CLASS_ID to "ExtensionReceiver",
+        AspectKAnnotations.CONTEXT_PARAMETER_CLASS_ID to "ContextParameter",
+        AspectKAnnotations.VALUE_PARAMETER_CLASS_ID to "ValueParameter",
+        AspectKAnnotations.CONTEXT_PARAMETERS_CLASS_ID to "ContextParameters",
+        AspectKAnnotations.VALUE_PARAMETERS_CLASS_ID to "ValueParameters",
+    )
+
+    private val indexOrNameAnnotations = listOf(
         AspectKAnnotations.VALUE_PARAMETER_CLASS_ID to "ValueParameter",
         AspectKAnnotations.CONTEXT_PARAMETER_CLASS_ID to "ContextParameter",
     )
@@ -30,11 +46,23 @@ object BindingAnnotationChecker : FirSimpleFunctionChecker(MppCheckerKind.Common
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirNamedFunction) {
         for (param in declaration.valueParameters) {
-            for ((classId, displayName) in annotationsToValidate) {
+            val present = allBindingAnnotations.mapNotNull { (classId, displayName) ->
+                param.getAnnotationByClassId(classId, context.session)?.let { it to displayName }
+            }
+            if (present.size >= 2) {
+                val firstAnnotation = present[0].first
+                val src = firstAnnotation.source ?: param.source ?: continue
+                val names = present.joinToString(" / ") { "@${it.second}" }
+                reporter.reportOn(
+                    src,
+                    AspectKErrors.INVALID_BINDING_ANNOTATION,
+                    present[0].second,
+                    "at most one binding annotation per parameter (found $names)",
+                )
+                continue
+            }
+            for ((classId, displayName) in indexOrNameAnnotations) {
                 val annotation = param.getAnnotationByClassId(classId, context.session) ?: continue
-                // Presence-based check: the user must pass exactly one of `index` / `name`.
-                // Default values (`index = -1`, `name = ""`) leave the corresponding key
-                // out of the resolved argument mapping.
                 val hasIndex = AspectKAnnotations.INDEX in annotation.argumentMapping.mapping
                 val hasName = AspectKAnnotations.NAME in annotation.argumentMapping.mapping
                 val message = when {

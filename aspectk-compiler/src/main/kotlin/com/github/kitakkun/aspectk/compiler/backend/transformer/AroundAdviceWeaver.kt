@@ -85,7 +85,21 @@ internal class AroundAdviceWeaver(
         // Catch-all bindings (`@ValueParameters` / `@ContextParameters`) require
         // synthesising a `listOf<Any?>(…)` at the call site; integrating that
         // with the around weaver's local-var substitution path isn't done yet.
-        if (advice.bindings.any { it is Binding.ValueParameters || it is Binding.ContextParameters }) {
+        val catchAll = advice.bindings.firstOrNull {
+            it is Binding.ValueParameters || it is Binding.ContextParameters
+        }
+        if (catchAll != null) {
+            val annotationName = when (catchAll) {
+                is Binding.ValueParameters -> "@ValueParameters"
+                is Binding.ContextParameters -> "@ContextParameters"
+                else -> "@?"
+            }
+            pluginContext.diagnosticReporter
+                .at(advice.function)
+                .report(
+                    com.github.kitakkun.aspectk.compiler.fir.checker.AspectKErrors.AROUND_UNSUPPORTED_BINDING,
+                    "$annotationName binding is not yet supported by the @Around weaver",
+                )
             return false
         }
 

@@ -32,6 +32,14 @@ object AspectKErrors : KtDiagnosticsContainer() {
      */
     val WOVEN_CALL_SITE by warning1<KtElement, String>()
 
+    /**
+     * An `@Around` advice declares a binding shape the around weaver doesn't
+     * (yet) support — typically `@ValueParameters` / `@ContextParameters`.
+     * The advice silently doesn't weave; this warning surfaces that so the
+     * user isn't left wondering why their `@Around` stopped intercepting.
+     */
+    val AROUND_UNSUPPORTED_BINDING by warning1<KtElement, String>()
+
     override fun getRendererFactory(): BaseDiagnosticRendererFactory = AspectKDefaultMessages
 }
 
@@ -63,6 +71,11 @@ private object AspectKDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             AspectKErrors.WOVEN_CALL_SITE,
             "intercepted by {0}",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.AROUND_UNSUPPORTED_BINDING,
+            "@Around advice not woven: {0}",
             CommonRenderers.STRING,
         )
     }
