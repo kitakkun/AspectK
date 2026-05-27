@@ -76,14 +76,22 @@ tasks.test {
     setLibraryProperty("org.jetbrains.kotlin.test.kotlin-script-runtime", "kotlin-script-runtime")
     setLibraryProperty("org.jetbrains.kotlin.test.kotlin-annotations-jvm", "kotlin-annotations-jvm")
 
+    // Filter to the main jar only — exclude `-sources`/`-javadoc` jars that
+    // a future maven-publish configuration might add.
     val annotationsJar = rootProject.layout.projectDirectory
         .dir("aspectk-annotations/build/libs")
         .asFileTree
-        .matching { include("aspectk-annotations-jvm-*.jar") }
+        .matching {
+            include("aspectk-annotations-jvm-*.jar")
+            exclude("aspectk-annotations-jvm-*-sources.jar", "aspectk-annotations-jvm-*-javadoc.jar")
+        }
     val coreJar = rootProject.layout.projectDirectory
         .dir("aspectk-core/build/libs")
         .asFileTree
-        .matching { include("aspectk-core-jvm-*.jar") }
+        .matching {
+            include("aspectk-core-jvm-*.jar")
+            exclude("aspectk-core-jvm-*-sources.jar", "aspectk-core-jvm-*-javadoc.jar")
+        }
     doFirst {
         systemProperty("aspectk.annotations.jar", annotationsJar.singleFile.absolutePath)
         systemProperty("aspectk.core.jar", coreJar.singleFile.absolutePath)
