@@ -1,21 +1,32 @@
-import com.github.kitakkun.aspectk.annotations.Aspect
+// FILE: AfterAdvice.kt
+
 import com.github.kitakkun.aspectk.annotations.After
+import com.github.kitakkun.aspectk.annotations.Aspect
+import com.github.kitakkun.aspectk.annotations.ClassName
+import com.github.kitakkun.aspectk.annotations.MethodName
 
-val log = mutableListOf<String>()
+var trace: String = ""
 
-@Aspect
-class TraceAspect {
-    @After("execution(public target())")
-    fun afterTarget() {
-        log.add("after")
+class Greeter {
+    fun greet(name: String): String {
+        trace += "[body]"
+        return "hello $name"
     }
 }
 
-fun target() {
-    log.add("body")
+@Aspect
+class GreetingTracer {
+    @After
+    @ClassName("Greeter")
+    @MethodName("greet")
+    fun afterGreet() {
+        trace += "[after]"
+    }
 }
 
 fun box(): String {
-    target()
-    return if (log == listOf("body", "after")) "OK" else "FAIL: $log"
+    val result = Greeter().greet("world")
+    if (result != "hello world") return "FAIL: greet returned '$result'"
+    if (trace != "[body][after]") return "FAIL: trace was '$trace'"
+    return "OK"
 }

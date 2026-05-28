@@ -1,83 +1,113 @@
-FILE fqName:<root> fileName:/afterAdvice.kt
-  PROPERTY name:log visibility:public modality:FINAL [val]
-    FIELD PROPERTY_BACKING_FIELD name:log type:kotlin.collections.MutableList<kotlin.String> visibility:private [final,static]
+FILE fqName:<root> fileName:/AfterAdvice.kt
+  PROPERTY name:trace visibility:public modality:FINAL [var]
+    FIELD PROPERTY_BACKING_FIELD name:trace type:kotlin.String visibility:private [static]
       EXPRESSION_BODY
-        CALL 'public final fun mutableListOf <T> (): kotlin.collections.MutableList<T of kotlin.collections.mutableListOf> declared in kotlin.collections' type=kotlin.collections.MutableList<kotlin.String> origin=null
-          <T>: kotlin.String
-    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-log> visibility:public modality:FINAL <> () returnType:kotlin.collections.MutableList<kotlin.String>
-      correspondingProperty: PROPERTY name:log visibility:public modality:FINAL [val]
+        CONST String type=kotlin.String value=""
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-trace> visibility:public modality:FINAL returnType:kotlin.String
+      correspondingProperty: PROPERTY name:trace visibility:public modality:FINAL [var]
       BLOCK_BODY
-        RETURN type=kotlin.Nothing from='public final fun <get-log> (): kotlin.collections.MutableList<kotlin.String> declared in <root>'
-          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:log type:kotlin.collections.MutableList<kotlin.String> visibility:private [final,static]' type=kotlin.collections.MutableList<kotlin.String> origin=null
-  CLASS CLASS name:TraceAspect modality:FINAL visibility:public superTypes:[kotlin.Any]
-    annotations:
-      Aspect
-    $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:<root>.TraceAspect
-    CONSTRUCTOR visibility:public <> () returnType:<root>.TraceAspect [primary]
+        RETURN type=kotlin.Nothing from='public final fun <get-trace> (): kotlin.String declared in <root>'
+          GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:trace type:kotlin.String visibility:private [static]' type=kotlin.String origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-trace> visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:Regular name:<set-?> index:0 type:kotlin.String
+      correspondingProperty: PROPERTY name:trace visibility:public modality:FINAL [var]
+      BLOCK_BODY
+        SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:trace type:kotlin.String visibility:private [static]' type=kotlin.Unit origin=null
+          value: GET_VAR '<set-?>: kotlin.String declared in <root>.<set-trace>' type=kotlin.String origin=null
+  CLASS CLASS name:Greeter modality:FINAL visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.Greeter
+    CONSTRUCTOR visibility:public returnType:<root>.Greeter [primary]
       BLOCK_BODY
         DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
-        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:TraceAspect modality:FINAL visibility:public superTypes:[kotlin.Any]'
-    FUN name:afterTarget visibility:public modality:FINAL <> ($this:<root>.TraceAspect) returnType:kotlin.Unit
-      annotations:
-        After(pointcut = 'execution(public target())')
-      $this: VALUE_PARAMETER name:<this> type:<root>.TraceAspect
-      BLOCK_BODY
-        TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
-          CALL 'public abstract fun add (element: E of kotlin.collections.MutableList): kotlin.Boolean declared in kotlin.collections.MutableList' type=kotlin.Boolean origin=null
-            $this: CALL 'public final fun <get-log> (): kotlin.collections.MutableList<kotlin.String> declared in <root>' type=kotlin.collections.MutableList<kotlin.String> origin=GET_PROPERTY
-            element: CONST String type=kotlin.String value="after"
-    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:kotlin.Boolean [fake_override,operator]
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Greeter modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
       overridden:
         public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
-      $this: VALUE_PARAMETER name:<this> type:kotlin.Any
-      VALUE_PARAMETER name:other index:0 type:kotlin.Any?
-    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:kotlin.Int [fake_override]
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
       overridden:
         public open fun hashCode (): kotlin.Int declared in kotlin.Any
-      $this: VALUE_PARAMETER name:<this> type:kotlin.Any
-    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:kotlin.String [fake_override]
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
       overridden:
         public open fun toString (): kotlin.String declared in kotlin.Any
-      $this: VALUE_PARAMETER name:<this> type:kotlin.Any
-  FUN name:target visibility:public modality:FINAL <> () returnType:kotlin.Unit
+    FUN name:greet visibility:public modality:FINAL returnType:kotlin.String
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.Greeter
+      VALUE_PARAMETER kind:Regular name:name index:1 type:kotlin.String
+      BLOCK_BODY
+        TRY type=kotlin.String
+          try: BLOCK type=kotlin.String origin=null
+            CALL 'public final fun <set-trace> (<set-?>: kotlin.String): kotlin.Unit declared in <root>' type=kotlin.Unit origin=PLUSEQ
+              ARG <set-?>: CALL 'public final fun plus (other: kotlin.Any?): kotlin.String declared in kotlin.String' type=kotlin.String origin=PLUSEQ
+                ARG <this>: CALL 'public final fun <get-trace> (): kotlin.String declared in <root>' type=kotlin.String origin=PLUSEQ
+                ARG other: CONST String type=kotlin.String value="[body]"
+            RETURN type=kotlin.Nothing from='public final fun greet (name: kotlin.String): kotlin.String declared in <root>.Greeter'
+              STRING_CONCATENATION type=kotlin.String
+                CONST String type=kotlin.String value="hello "
+                GET_VAR 'name: kotlin.String declared in <root>.Greeter.greet' type=kotlin.String origin=null
+          finally: CALL 'public final fun afterGreet (): kotlin.Unit declared in <root>.GreetingTracer' type=kotlin.Unit origin=null
+            ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.GreetingTracer' type=<root>.GreetingTracer origin=null
+  CLASS CLASS name:GreetingTracer modality:FINAL visibility:public superTypes:[kotlin.Any]
+    annotations:
+      Aspect
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:<root>.GreetingTracer
+    CONSTRUCTOR visibility:public returnType:<root>.GreetingTracer [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:GreetingTracer modality:FINAL visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+    FUN name:afterGreet visibility:public modality:FINAL returnType:kotlin.Unit
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:<root>.GreetingTracer
+      annotations:
+        After
+        ClassName(pattern = "Greeter")
+        MethodName(pattern = "greet")
+      BLOCK_BODY
+        CALL 'public final fun <set-trace> (<set-?>: kotlin.String): kotlin.Unit declared in <root>' type=kotlin.Unit origin=PLUSEQ
+          ARG <set-?>: CALL 'public final fun plus (other: kotlin.Any?): kotlin.String declared in kotlin.String' type=kotlin.String origin=PLUSEQ
+            ARG <this>: CALL 'public final fun <get-trace> (): kotlin.String declared in <root>' type=kotlin.String origin=PLUSEQ
+            ARG other: CONST String type=kotlin.String value="[after]"
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
     BLOCK_BODY
-      VAR name:tmp0 type:<root>.TraceAspect [val]
-        CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.TraceAspect' type=<root>.TraceAspect origin=null
-      VAR IR_TEMPORARY_VARIABLE name:tmp_0 type:com.github.kitakkun.aspectk.core.StaticJoinPoint [val]
-        CONSTRUCTOR_CALL 'public constructor <init> (dispatchReceiver: com.github.kitakkun.aspectk.core.JoinPointArgument?, extensionReceiver: com.github.kitakkun.aspectk.core.JoinPointArgument?, contextArguments: kotlin.collections.List<com.github.kitakkun.aspectk.core.JoinPointArgument>, valueArguments: kotlin.collections.List<com.github.kitakkun.aspectk.core.JoinPointArgument>, methodName: kotlin.String, targetClassName: kotlin.String, signature: kotlin.String) declared in com.github.kitakkun.aspectk.core.StaticJoinPoint' type=com.github.kitakkun.aspectk.core.StaticJoinPoint origin=null
-          dispatchReceiver: CONST Null type=kotlin.Nothing? value=null
-          extensionReceiver: CONST Null type=kotlin.Nothing? value=null
-          contextArguments: CALL 'public final fun listOf <T> (vararg elements: T of kotlin.collections.listOf): kotlin.collections.List<T of kotlin.collections.listOf> declared in kotlin.collections' type=kotlin.collections.List<T of kotlin.collections.listOf> origin=null
-            <T>: <none>
-            elements: VARARG type=kotlin.Array<com.github.kitakkun.aspectk.core.JoinPointArgument> varargElementType=com.github.kitakkun.aspectk.core.JoinPointArgument
-          valueArguments: CALL 'public final fun listOf <T> (vararg elements: T of kotlin.collections.listOf): kotlin.collections.List<T of kotlin.collections.listOf> declared in kotlin.collections' type=kotlin.collections.List<T of kotlin.collections.listOf> origin=null
-            <T>: <none>
-            elements: VARARG type=kotlin.Array<com.github.kitakkun.aspectk.core.JoinPointArgument> varargElementType=com.github.kitakkun.aspectk.core.JoinPointArgument
-          methodName: CONST String type=kotlin.String value="target"
-          targetClassName: CONST String type=kotlin.String value=""
-          signature: CONST String type=kotlin.String value="target(): kotlin.Unit"
-      TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
-        CALL 'public abstract fun add (element: E of kotlin.collections.MutableList): kotlin.Boolean declared in kotlin.collections.MutableList' type=kotlin.Boolean origin=null
-          $this: CALL 'public final fun <get-log> (): kotlin.collections.MutableList<kotlin.String> declared in <root>' type=kotlin.collections.MutableList<kotlin.String> origin=GET_PROPERTY
-          element: CONST String type=kotlin.String value="body"
-      CALL 'public final fun afterTarget (): kotlin.Unit declared in <root>.TraceAspect' type=kotlin.Unit origin=null
-        $this: GET_VAR 'val tmp0: <root>.TraceAspect declared in <root>.target' type=<root>.TraceAspect origin=null
-  FUN name:box visibility:public modality:FINAL <> () returnType:kotlin.String
-    BLOCK_BODY
-      CALL 'public final fun target (): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
+      VAR name:result type:kotlin.String [val]
+        CALL 'public final fun greet (name: kotlin.String): kotlin.String declared in <root>.Greeter' type=kotlin.String origin=null
+          ARG <this>: CONSTRUCTOR_CALL 'public constructor <init> () declared in <root>.Greeter' type=<root>.Greeter origin=null
+          ARG name: CONST String type=kotlin.String value="world"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: GET_VAR 'val result: kotlin.String declared in <root>.box' type=kotlin.String origin=null
+              ARG arg1: CONST String type=kotlin.String value="hello world"
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: greet returned '"
+              GET_VAR 'val result: kotlin.String declared in <root>.box' type=kotlin.String origin=null
+              CONST String type=kotlin.String value="'"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public final fun <get-trace> (): kotlin.String declared in <root>' type=kotlin.String origin=GET_PROPERTY
+              ARG arg1: CONST String type=kotlin.String value="[body][after]"
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
+            STRING_CONCATENATION type=kotlin.String
+              CONST String type=kotlin.String value="FAIL: trace was '"
+              CALL 'public final fun <get-trace> (): kotlin.String declared in <root>' type=kotlin.String origin=GET_PROPERTY
+              CONST String type=kotlin.String value="'"
       RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in <root>'
-        WHEN type=kotlin.String origin=IF
-          BRANCH
-            if: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
-              arg0: CALL 'public final fun <get-log> (): kotlin.collections.MutableList<kotlin.String> declared in <root>' type=kotlin.collections.MutableList<kotlin.String> origin=GET_PROPERTY
-              arg1: CALL 'public final fun listOf <T> (vararg elements: T of kotlin.collections.listOf): kotlin.collections.List<T of kotlin.collections.listOf> declared in kotlin.collections' type=kotlin.collections.List<kotlin.String> origin=null
-                <T>: kotlin.String
-                elements: VARARG type=kotlin.Array<out kotlin.String> varargElementType=kotlin.String
-                  CONST String type=kotlin.String value="body"
-                  CONST String type=kotlin.String value="after"
-            then: CONST String type=kotlin.String value="OK"
-          BRANCH
-            if: CONST Boolean type=kotlin.Boolean value=true
-            then: STRING_CONCATENATION type=kotlin.String
-              CONST String type=kotlin.String value="FAIL: "
-              CALL 'public final fun <get-log> (): kotlin.collections.MutableList<kotlin.String> declared in <root>' type=kotlin.collections.MutableList<kotlin.String> origin=GET_PROPERTY
+        CONST String type=kotlin.String value="OK"

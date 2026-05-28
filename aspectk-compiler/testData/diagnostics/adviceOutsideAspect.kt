@@ -1,10 +1,10 @@
+// FILE: AdviceOutsideAspect.kt
+
 import com.github.kitakkun.aspectk.annotations.Before
-import com.github.kitakkun.aspectk.annotations.Pointcut
+import com.github.kitakkun.aspectk.annotations.MethodName
 
 class NotAnAspect {
-    <!ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION!>@Before("execution(public com/example/Foo.bar())")
-    fun beforeAdvice() {}<!>
-
-    <!POINTCUT_FUNCTION_DECLARATION_SCOPE_VIOLATION!>@Pointcut("execution(public com/example/Foo.bar())")
-    fun pointcutDecl() {}<!>
+    <!ADVICE_OUTSIDE_ASPECT_CLASS!>@Before
+    @MethodName("foo")
+    fun beforeFoo() {}<!>
 }

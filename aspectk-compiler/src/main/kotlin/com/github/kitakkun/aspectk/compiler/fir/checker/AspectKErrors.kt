@@ -1,21 +1,82 @@
 package com.github.kitakkun.aspectk.compiler.fir.checker
 
-import org.jetbrains.kotlin.diagnostics.error0
+import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactoryToRendererMap
+import org.jetbrains.kotlin.diagnostics.KtDiagnosticsContainer
 import org.jetbrains.kotlin.diagnostics.error1
-import org.jetbrains.kotlin.diagnostics.rendering.RootDiagnosticRendererFactory
-import org.jetbrains.kotlin.diagnostics.warning0
-import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.diagnostics.error2
+import org.jetbrains.kotlin.diagnostics.rendering.BaseDiagnosticRendererFactory
+import org.jetbrains.kotlin.diagnostics.rendering.CommonRenderers
+import org.jetbrains.kotlin.diagnostics.warning1
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFunction
 
-object AspectKErrors {
-    val POINTCUT_FUNCTION_DECLARATION_SCOPE_VIOLATION by error0<KtFunction>()
-    val ADVICE_FUNCTION_DECLARATION_SCOPE_VIOLATION by error1<KtFunction, String>()
-    val EMPTY_POINTCUT_EXPRESSION by warning0<KtFunction>()
-    val ASPECT_CLASS_WITH_NO_POINTCUT_OR_ADVICE_ENTRIES by warning0<KtClass>()
-    val INVALID_POINTCUT_EXPRESSION by error1<KtFunction, String>()
-    val ADVICE_INVALID_SIGNATURE by error1<KtFunction, String>()
+object AspectKErrors : KtDiagnosticsContainer() {
+    /** `@Before` / `@After` / `@Around` used outside an `@Aspect` class. */
+    val ADVICE_OUTSIDE_ASPECT_CLASS by error1<KtFunction, String>()
 
-    init {
-        RootDiagnosticRendererFactory.registerFactory(AspectKDiagnosticRendererFactory)
+    /** A pointcut annotation's parameters violate the constraints documented on its KDoc. */
+    val INVALID_POINTCUT_ANNOTATION by error2<KtAnnotationEntry, String, String>()
+
+    /** `@Annotated(Foo::class)` where `Foo` is `@Retention(SOURCE)` (invisible at IR time). */
+    val ANNOTATED_TARGETS_SOURCE_RETENTION by error1<KtAnnotationEntry, String>()
+
+    /** `@ValueParameter` / `@ContextParameter` must specify exactly one of `index` / `name`. */
+    val INVALID_BINDING_ANNOTATION by error2<KtAnnotationEntry, String, String>()
+
+    /**
+     * A function call site is woven by an `@Around` / `@Before` / `@After`
+     * advice. Surfaces as a weak compiler diagnostic so IntelliJ shows an
+     * inline marker. The single argument is the woven advice's FQN + kind,
+     * e.g. `"GreetingTracer.aroundGreet (@Around)"`.
+     */
+    val WOVEN_CALL_SITE by warning1<KtElement, String>()
+
+    /**
+     * An `@Around` advice declares a binding shape the around weaver doesn't
+     * (yet) support — typically `@ValueParameters` / `@ContextParameters`.
+     * The advice silently doesn't weave; this warning surfaces that so the
+     * user isn't left wondering why their `@Around` stopped intercepting.
+     */
+    val AROUND_UNSUPPORTED_BINDING by warning1<KtElement, String>()
+
+    override fun getRendererFactory(): BaseDiagnosticRendererFactory = AspectKDefaultMessages
+}
+
+private object AspectKDefaultMessages : BaseDiagnosticRendererFactory() {
+    @Suppress("ktlint:standard:property-naming")
+    override val MAP: KtDiagnosticFactoryToRendererMap by KtDiagnosticFactoryToRendererMap("AspectK") { map ->
+        map.put(
+            AspectKErrors.ADVICE_OUTSIDE_ASPECT_CLASS,
+            "@{0} advice must be declared as a member of an @Aspect class.",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.INVALID_POINTCUT_ANNOTATION,
+            "@{0}: {1}",
+            CommonRenderers.STRING,
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.ANNOTATED_TARGETS_SOURCE_RETENTION,
+            "@Annotated cannot target ''{0}'' because it has @Retention(SOURCE); use BINARY or RUNTIME retention.",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.INVALID_BINDING_ANNOTATION,
+            "@{0}: {1}",
+            CommonRenderers.STRING,
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.WOVEN_CALL_SITE,
+            "intercepted by {0}",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.AROUND_UNSUPPORTED_BINDING,
+            "@Around advice not woven: {0}",
+            CommonRenderers.STRING,
+        )
     }
 }

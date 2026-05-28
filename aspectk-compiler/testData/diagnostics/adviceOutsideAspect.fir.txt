@@ -1,13 +1,10 @@
-FILE: adviceOutsideAspect.kt
+FILE: AdviceOutsideAspect.kt
     public final class NotAnAspect : R|kotlin/Any| {
         public constructor(): R|NotAnAspect| {
             super<R|kotlin/Any|>()
         }
 
-        @R|com/github/kitakkun/aspectk/annotations/Before|(pointcut = String(execution(public com/example/Foo.bar()))) public final fun beforeAdvice(): R|kotlin/Unit| {
-        }
-
-        @R|com/github/kitakkun/aspectk/annotations/Pointcut|(expression = String(execution(public com/example/Foo.bar()))) public final fun pointcutDecl(): R|kotlin/Unit| {
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(foo)) public final fun beforeFoo(): R|kotlin/Unit| {
         }
 
     }

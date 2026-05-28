@@ -2,5 +2,6 @@
 build/
 .idea/*
 !.idea/codeStyles
+.kotlin/
 
 .DS_Store

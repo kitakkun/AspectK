@@ -2,7 +2,7 @@ package com.github.kitakkun.aspectk.compiler.test
 
 import com.github.kitakkun.aspectk.compiler.test.runners.AbstractAspectKBoxTest
 import com.github.kitakkun.aspectk.compiler.test.runners.AbstractAspectKDiagnosticTest
-import org.jetbrains.kotlin.generators.generateTestGroupSuiteWithJUnit5
+import org.jetbrains.kotlin.generators.dsl.junit5.generateTestGroupSuiteWithJUnit5
 
 fun main() {
     generateTestGroupSuiteWithJUnit5 {
