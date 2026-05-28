@@ -15,12 +15,11 @@ abstract class AspectKExtension {
      * deliberately bound to APIs that only some build variants exercise)
      * may produce zero matches without being a mistake.
      *
-     * **Known limitation**: until cross-module aspect discovery lands,
-     * advices declared in an aspect-only module whose targets live in a
-     * consumer module will be falsely flagged as unused (the IR weaver
-     * doesn't currently see cross-module aspects). Enable strict mode only
-     * for single-module setups or for projects where each aspect-bearing
-     * module exercises its own advices.
+     * Cross-module setups (aspect declared in module A, targets in module B)
+     * are handled correctly: A publishes its `META-INF/aspectk/aspects.txt`
+     * into its JAR, B's compile picks it up via classpath scanning and
+     * weaves the advice into call sites in B. The advice's matches show up
+     * in B's `matches-*.json` so the aggregator counts them.
      */
     abstract val strictUnusedAspects: Property<Boolean>
 }

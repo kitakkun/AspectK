@@ -49,7 +49,14 @@ internal class AspectAnalyzer {
         return aspects
     }
 
-    private fun buildAspectMetadata(aspectClass: IrClass): AspectMetadata {
+    /**
+     * Builds [AspectMetadata] from an arbitrary `@Aspect` class. Works for
+     * both source `IrClass`es (walked from the module fragment) and
+     * `IrClass`es deserialised from dependency JARs (resolved via
+     * `pluginContext.finderForBuiltins().findClass(classId)`) — the same
+     * IR-shape annotation reading applies.
+     */
+    fun buildAspectMetadata(aspectClass: IrClass): AspectMetadata {
         val advices = aspectClass.declarations
             .filterIsInstance<IrSimpleFunction>()
             .mapNotNull { fn ->

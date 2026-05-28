@@ -85,20 +85,11 @@ abstract class AspectKAggregateReportTask : DefaultTask() {
 
     /**
      * An advice is "unused" iff its `targetCount` is zero in **every** module
-     * that reports it.
-     *
-     * Known limitation (tracked separately): the AspectK IR generation
-     * extension only scans the **current module's** source for `@Aspect`
-     * classes (see `AspectAnalyzer.analyze`). An aspect declared in an
-     * aspect-only module A whose targets live in a consumer module B does
-     * NOT currently get woven in B (B's compile sees no aspects, the IR
-     * transformer bails) — A's own report shows the advice with zero
-     * matches and the aggregator therefore false-positives it as unused.
-     *
-     * Until cross-module aspect discovery lands, `strictUnusedAspects = true`
-     * is reliable only for single-module setups (aspects and targets in the
-     * same module) and for multi-module setups where each aspect-bearing
-     * module also exercises its own advices at least once.
+     * that reports it. Cross-module weaving (aspect declared in module A,
+     * targets in module B) is supported: B's compile sees A's aspect via
+     * `META-INF/aspectk/aspects.txt` discovery and the matches show up in
+     * B's `matches-*.json`, so the grouping below correctly aggregates the
+     * non-zero count.
      */
     private fun collectUnused(modules: List<ModuleReport>): List<UnusedAdvice> {
         val byKey = linkedMapOf<Pair<String, String>, MutableList<AdviceReport>>()
