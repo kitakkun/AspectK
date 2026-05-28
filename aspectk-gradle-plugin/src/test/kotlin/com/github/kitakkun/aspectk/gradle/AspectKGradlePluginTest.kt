@@ -73,6 +73,89 @@ class AspectKGradlePluginTest {
         )
     }
 
+    @Test
+    fun `aspectKAggregateReport collects per-module reports`() {
+        writeSettings()
+        writeBuildScript()
+        writeMain()
+
+        // The aggregator dependsOn every project's compile task, so a single
+        // invocation forces compilation + per-module report generation.
+        val aggregateResult = GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withArguments("aspectKAggregateReport", "--stacktrace", "--quiet")
+            .forwardOutput()
+            .build()
+
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            aggregateResult.task(":aspectKAggregateReport")?.outcome,
+            "`aspectKAggregateReport` task should succeed",
+        )
+
+        val aggregateFile = File(projectDir, "build/reports/aspectk/aggregate.json")
+        assertTrue(aggregateFile.exists(), "aggregate.json should be written")
+        val aggregateText = aggregateFile.readText()
+        assertContains(aggregateText, "\"modules\"")
+        // The synthetic project's aspect class is GreetingTracer; its advice
+        // beforeGreet should appear in the aggregated report.
+        assertContains(aggregateText, "GreetingTracer")
+        assertContains(aggregateText, "beforeGreet")
+        // No advice is unused — the @Before(@MethodName("greet")) matches
+        // Greeter.greet, so the unusedAdvices list must be empty.
+        assertContains(aggregateText, "\"unusedAdvices\": [\n  ]")
+    }
+
+    @Test
+    fun `aspectKAggregateReport in strict mode fails the build when an advice is unused`() {
+        writeSettings()
+        writeBuildScript(strictMode = true)
+        // Main.kt declares @MethodName("greet") but the source has no `greet`
+        // function — the advice matches zero call sites, which strict mode
+        // turns into a build failure.
+        writeUnboundMain()
+
+        val result = GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withArguments("aspectKAggregateReport", "--stacktrace", "--quiet")
+            .forwardOutput()
+            .buildAndFail()
+
+        assertContains(result.output, "matched zero call sites")
+        assertContains(result.output, "GreetingTracer.beforeGreet")
+        assertContains(
+            result.output,
+            "Disable `aspectk.strictUnusedAspects` to downgrade",
+        )
+    }
+
+    private fun writeUnboundMain() {
+        val srcDir = File(projectDir, "src/main/kotlin").apply { mkdirs() }
+        File(srcDir, "Main.kt").writeText(
+            """
+            import com.github.kitakkun.aspectk.annotations.Aspect
+            import com.github.kitakkun.aspectk.annotations.Before
+            import com.github.kitakkun.aspectk.annotations.MethodName
+
+            // Note: no function named `greet` exists anywhere in this source,
+            // so the advice below matches nothing.
+
+            @Aspect
+            class GreetingTracer {
+                @Before
+                @MethodName("greet")
+                fun beforeGreet() {
+                    println("ADVICE_BEFORE")
+                }
+            }
+
+            fun main() {}
+            """.trimIndent(),
+        )
+    }
+
     private fun writeSettings() {
         File(projectDir, "settings.gradle.kts").writeText(
             """
@@ -95,7 +178,16 @@ class AspectKGradlePluginTest {
         )
     }
 
-    private fun writeBuildScript() {
+    private fun writeBuildScript(strictMode: Boolean = false) {
+        val aspectkBlock = if (strictMode) {
+            """
+            aspectk {
+                strictUnusedAspects.set(true)
+            }
+            """.trimIndent()
+        } else {
+            ""
+        }
         File(projectDir, "build.gradle.kts").writeText(
             """
             plugins {
@@ -107,6 +199,8 @@ class AspectKGradlePluginTest {
             application {
                 mainClass.set("MainKt")
             }
+
+            $aspectkBlock
 
             dependencies {
                 implementation("com.github.kitakkun.aspectk:aspectk-annotations:$aspectkVersion")

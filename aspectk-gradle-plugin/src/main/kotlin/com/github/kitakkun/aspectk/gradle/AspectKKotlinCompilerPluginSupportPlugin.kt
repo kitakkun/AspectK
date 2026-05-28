@@ -16,7 +16,57 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
         target.extensions.create("aspectk", AspectKExtension::class.java)
+        registerAggregateReportTask(target)
     }
+
+    /**
+     * Idempotently registers `aspectKAggregateReport` on [target] (the
+     * `allprojects` cap of "every project whose plugin's apply fires"). Uses
+     * `tasks.findByName` so multi-module builds that apply the plugin to
+     * multiple modules don't double-register.
+     */
+    private fun registerAggregateReportTask(target: Project) {
+        if (target.tasks.findByName(AGGREGATE_REPORT_TASK_NAME) != null) return
+        val extension = target.extensions.getByType(AspectKExtension::class.java)
+        target.tasks.register(AGGREGATE_REPORT_TASK_NAME, AspectKAggregateReportTask::class.java) { task ->
+            // Walk every project the rootProject can see. Each producer's
+            // `build/reports/aspectk/matches-*.json` is collected as an input.
+            // Resolution is lazy via `provider` so subprojects added after this
+            // apply still contribute.
+            task.perModuleReports.from(
+                target.provider {
+                    target.allprojects.map { p ->
+                        p.layout.buildDirectory.dir("reports/aspectk").map { dir ->
+                            dir.asFileTree.matching { it.include("matches-*.json") }
+                        }
+                    }
+                },
+            )
+            task.aggregateFile.set(
+                target.layout.buildDirectory.file("reports/aspectk/aggregate.json"),
+            )
+            task.strictMode.set(extension.strictUnusedAspects.orElse(false))
+
+            // Force every project's Kotlin compile to run first so the
+            // aggregator sees a complete picture. `dependsOn` accepts a
+            // Provider, and `tasks.matching { … }` is a lazy live collection
+            // resolved at graph time — subprojects added after this apply
+            // still feed in.
+            task.dependsOn(
+                target.provider {
+                    target.allprojects.flatMap { p ->
+                        p.tasks.matching { isKotlinCompileTaskName(it.name) }
+                    }
+                },
+            )
+        }
+    }
+
+    private fun isKotlinCompileTaskName(name: String): Boolean =
+        // Covers `compileKotlin`, `compileKotlinJvm`, `compileKotlinJvmMain`,
+        // `compileTestKotlin`, etc. Excludes script-compile tasks created by
+        // unrelated Kotlin DSL machinery.
+        name.startsWith("compileKotlin") || (name.startsWith("compile") && name.endsWith("Kotlin"))
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val project = kotlinCompilation.target.project
@@ -46,4 +96,8 @@ class AspectKKotlinCompilerPluginSupportPlugin : KotlinCompilerPluginSupportPlug
             artifactId = "aspectk-compiler",
             version = AspectKPluginConsts.PLUGIN_VERSION,
         )
+
+    private companion object {
+        const val AGGREGATE_REPORT_TASK_NAME = "aspectKAggregateReport"
+    }
 }
