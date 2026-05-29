@@ -19,6 +19,7 @@ class AspectKFirCheckerExtension(
             AdviceScopeChecker,
             PointcutAnnotationChecker,
             BindingAnnotationChecker,
+            AdviceMatchingRequiredChecker,
         )
     }
 

@@ -1,0 +1,22 @@
+FILE: AdviceHasNoMatchingAnnotation.kt
+    @R|com/github/kitakkun/aspectk/annotations/Aspect|() public final class Unbounded : R|kotlin/Any| {
+        public constructor(): R|Unbounded| {
+            super<R|kotlin/Any|>()
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() public final fun beforeAll(): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/After|() public final fun afterAll(): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Around|() public final fun aroundAll(): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/MethodName|(pattern = String(greet)) public final fun beforeNamed(): R|kotlin/Unit| {
+        }
+
+        @R|com/github/kitakkun/aspectk/annotations/Before|() @R|com/github/kitakkun/aspectk/annotations/ClassName|(pattern = String(Greeter)) public final fun beforeAnyMethodInGreeter(): R|kotlin/Unit| {
+        }
+
+    }

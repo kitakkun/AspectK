@@ -25,6 +25,15 @@ object AspectKErrors : KtDiagnosticsContainer() {
     val INVALID_BINDING_ANNOTATION by error2<KtAnnotationEntry, String, String>()
 
     /**
+     * Advice (`@Before` / `@After` / `@Around`) declared without any matching
+     * annotation (`@Package` / `@ClassName` / `@MethodName` / `@Visibility` /
+     * `@Modality` / `@Modifiers` / `@Annotated`). Such advice would match an
+     * unbounded set of targets — almost always a mistake — so we reject it at
+     * FIR time rather than letting the IR weaver run unconstrained.
+     */
+    val ADVICE_HAS_NO_MATCHING_ANNOTATION by error1<KtFunction, String>()
+
+    /**
      * A function call site is woven by an `@Around` / `@Before` / `@After`
      * advice. Surfaces as a weak compiler diagnostic so IntelliJ shows an
      * inline marker. The single argument is the woven advice's FQN + kind,
@@ -76,6 +85,11 @@ private object AspectKDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             AspectKErrors.AROUND_UNSUPPORTED_BINDING,
             "@Around advice not woven: {0}",
+            CommonRenderers.STRING,
+        )
+        map.put(
+            AspectKErrors.ADVICE_HAS_NO_MATCHING_ANNOTATION,
+            "@{0} advice declares no matching annotation (@Package / @ClassName / @MethodName / @Visibility / @Modality / @Modifiers / @Annotated). Add at least one to bound the targets it intercepts.",
             CommonRenderers.STRING,
         )
     }
