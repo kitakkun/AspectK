@@ -12,7 +12,7 @@ class AspectKIrGenerationExtension(private val messageCollector: MessageCollecto
         moduleFragment: IrModuleFragment,
         pluginContext: IrPluginContext,
     ) {
-        val aspectClasses = AspectAnalyzer.analyze(moduleFragment)
+        val aspectClasses = AspectAnalyzer.analyze(moduleFragment, pluginContext)
 
         val context = AspectKIrPluginContext(pluginContext, messageCollector)
         with(context) {

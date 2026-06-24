@@ -8,5 +8,6 @@ import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 class AspectKFirExtensionRegistrar : FirExtensionRegistrar() {
     override fun ExtensionRegistrarContext.configurePlugin() {
         +::AspectKFirCheckerExtension
+        +::AspectReferenceGenerator
     }
 }
